@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Motovalor</string>
+    <string name="title_activity_main">Motovalor</string>
+    <string name="package_name">com.motovalor.app</string>
+    <string name="custom_url_scheme">com.motovalor.app</string>
+</resources>
