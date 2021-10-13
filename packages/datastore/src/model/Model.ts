@@ -11,13 +11,15 @@ const modelKeyIndex = {
   name: 'Modelo'
 }
 
+export type VehicleTypeCode = 1 | 2 | 3
+export type FuelTypeCode = 'A' | 'D' | 'G'
 export default class Model {
   public id: number = -1
   public makeId: number = -1
-  public vehicleTypeCode: 1 | 2 | 3 = 1
+  public vehicleTypeCode: VehicleTypeCode = 1
   public name: string = ''
   public fipeCode: string = ''
-  public fuelTypeCode: 'A' | 'D' | 'G' = 'G'
+  public fuelTypeCode: FuelTypeCode = 'G'
 
   static FUEL_TYPE_DICTIONARY = {
     G: 'G',

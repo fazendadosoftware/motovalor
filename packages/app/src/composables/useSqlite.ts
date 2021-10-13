@@ -130,8 +130,18 @@ const deleteDatabase = async (databaseName: string) => {
   }
 }
 
+const executeSQL = async <T>(sqlStatement: string, args?: any[]): Promise<T[]> => {
+  const db = await getInstance()
+  const { values, error = null }: { values: T[], error: any } = await db.query(sqlStatement, args)
+    .then(({ values = [] }) => ({ values, error: null }))
+    .catch(error => ({ values: [], error }))
+  if (error !== null) throw Error
+  return values
+}
+
 const useSqlite = () => ({
-  getInstance
+  getInstance,
+  executeSQL
 })
 
 export default useSqlite

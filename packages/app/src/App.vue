@@ -8,11 +8,10 @@
 import { IonApp, IonRouterOutlet } from '@ionic/vue'
 import useSqlite from './composables/useSqlite'
 
-const { getInstance} = useSqlite()
-getInstance()
-  .then(async db => {
-    console.log(await db.isDBOpen(), await db.isExists())
-    const res = await db.query('SELECT * FROM fipeTable limit 100')
-    console.log('@ TABLES', res)
+const { executeSQL } = useSqlite()
+
+executeSQL<any>('SELECT * FROM model limit 100')
+  .then((rows: any) => {
+    console.log('ROWS', rows)
   })
 </script>
