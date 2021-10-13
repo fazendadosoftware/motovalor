@@ -5,34 +5,30 @@
 import { defineCustomElements as jeepSqlite, applyPolyfills } from 'jeep-sqlite/loader'
 import { Capacitor } from '@capacitor/core'
 import { SQLiteConnection, SQLiteDBConnection, CapacitorSQLite } from '@capacitor-community/sqlite'
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
+import { Filesystem, Directory } from '@capacitor/filesystem'
 import writeBlob from 'capacitor-blob-writer'
 import axios from 'axios'
 import AdmZip from 'adm-zip'
 
-import { useSQLite } from 'vue-sqlite-hook/dist'
-
 const DB_FILE_NAME = 'fipe.db'
+const getMigratedFilename = (filename: string) => filename.replace(/.db/, 'SQLite.db')
 
 let initialized: boolean | null = null
 let db: SQLiteDBConnection | null = null
 
-const sqlite = useSQLite()
-
-const _sqlite = new SQLiteConnection(CapacitorSQLite)
+// const sqlite = useSQLite()
+const sqlite = new SQLiteConnection(CapacitorSQLite)
 
 applyPolyfills().then(() => jeepSqlite(window))
 
-const getLocalDbFileUri = async (filename: string): Promise<string> => {
-  console.log('GETTING LOCAL DB')
+const getLocalDb = async (filename: string): Promise<string> => {
+  console.log('============================= GETTING LOCAL DB!!!!', filename)
   let uri: string | null = null;
 
   ({ uri } = await Filesystem.stat({ path: filename, directory: Directory.Data })
     .catch(() => { return { uri: null } }))
 
   if (uri === null) {
-    console.log('DOWNLOADING FILE')
-
     const dbEntry = await axios.get('/assets/databases/fipe.db.zip', { responseType: 'arraybuffer' })
       .then(({ data }: { data: any }) => new AdmZip(Buffer.from(data)))
       .then((zip: AdmZip) => zip.getEntry(filename))
@@ -40,25 +36,25 @@ const getLocalDbFileUri = async (filename: string): Promise<string> => {
 
     uri = await writeBlob({ path: filename, directory: Directory.Data, blob: new Blob([dbEntry.getData()]) })
   }
-  console.log('URI FILE ====>>>', uri)
   const dbFilePathTokens = uri.split('/')
   const relPath = dbFilePathTokens[dbFilePathTokens.indexOf(filename) - 1]
-  // const relPath = dbFilePathTokens.slice(indexOfFilename - 1, indexOfFilename).join('/')
-  console.log('DB FILE RELATIVE', relPath)
-  const { result } = await sqlite.isDatabase('fipeSQLite.db')
-  if (result === false) {
-    // @ts-ignore
-    await sqlite.addSQLiteSuffix(relPath)
-    const { result } = await sqlite.isDatabase('fipeSQLite.db')
-    console.log('NO FIPE SLQITE????', result)
-  } else {
-    console.log('DB EXISTS!!!!!')
-  }
-  return relPath
+
+  const { values: migratableDbList = [] } = await sqlite.getMigratableDbList(relPath)
+  if (migratableDbList.indexOf(filename) > 0) await sqlite.addSQLiteSuffix(relPath, [filename])
+  else throw Error(`Could not find ${filename} in dbMigratableList: ${migratableDbList.join(', ')}`)
+  const migratedFilename = getMigratedFilename(filename)
+
+  const { values: dblist = [] } = await sqlite.getDatabaseList()
+  console.log('========================= NEW DATABASE LIST', dblist)
+  if (dblist.indexOf(migratedFilename) < 0) throw Error(`could not find ${migratedFilename} in db list: ${dblist.join(', ') || '/none'}`)
+  return migratedFilename
 }
 
+export interface InitProps {
+  syncDatabase?: boolean
+}
 // https://github.com/capacitor-community/sqlite/blob/master/docs/Ionic-Vue-Usage.md#vue-sqlite-hook-definition
-const init = async () => {
+const init = async (props?: InitProps) => {
   // initialized will be false during initialization process
   if (initialized === false) {
     let interval: any
@@ -76,6 +72,17 @@ const init = async () => {
   // if initialized === null then initialize, flag it as false
   initialized = false
 
+  // when using Capacitor, you might want to close existing connections,
+  // otherwise new connections will fail when using dev-live-reload
+  // see https://github.com/capacitor-community/sqlite/issues/106
+  await CapacitorSQLite.checkConnectionsConsistency({ dbNames: [] })
+  // the plugin throws an error when closing connections. we can ignore
+  // that since it is expected behaviour
+    .catch(e => {})
+
+  // delete old databases
+  await sqlite.deleteOldDatabases()
+  if (props?.syncDatabase === true) await deleteDatabase(DB_FILE_NAME)
   const platform = Capacitor.getPlatform()
   try {
     if (platform === 'web') {
@@ -87,46 +94,44 @@ const init = async () => {
         await sqlite.initWebStore()
       }
     }
-    const { uri } = await Filesystem.writeFile({ path: 'test_file', data: 'hello', directory: Directory.Data, encoding: Encoding.UTF8 })
-    console.log('FILE SAVED HERE', uri)
-    await getLocalDbFileUri(DB_FILE_NAME)
-    /*
-    const resJson = await sqlite.importFromJson(JSON.stringify(dbSchema))
-    if (resJson.changes && resJson.changes.changes && resJson.changes.changes < 0) {
-      throw new Error('importFromJson: "full" failed')
-    }
-    */
-    const dir = await Filesystem.readdir({ path: '', directory: Directory.Cache })
-    console.log('DIR', dir)
+
+    const { values: databaseList = [] } = await sqlite.getDatabaseList().catch(() => ({ values: [] }))
+    if (databaseList.indexOf(getMigratedFilename(DB_FILE_NAME)) < 0) await getLocalDb(DB_FILE_NAME)
+
+    const { result: isConsistent = false } = await sqlite.checkConnectionsConsistency()
+    const { result: isConn = false } = await sqlite.isConnection(DB_FILE_NAME)
+
+    db = isConsistent && isConn
+      ? await sqlite.retrieveConnection(DB_FILE_NAME)
+      : await sqlite.createConnection(DB_FILE_NAME, false, 'no-encryption', 1)
+    if (!await db.isDBOpen().then(({ result }) => result)) await db.open()
   } finally {
     initialized = true
   }
 }
 
 const getInstance = async (): Promise<SQLiteDBConnection> => {
-  const dbName = 'fipe'
   if (db !== null) return db
-  else if (!initialized) await init()
-  const { result: isConsistent } = await sqlite.checkConnectionsConsistency()
-  const { result: isConn } = await sqlite.isConnection(dbName)
-  db = isConsistent && isConn
-    ? await sqlite.retrieveConnection(dbName)
-    : await sqlite.createConnection(dbName, false, 'no-encryption', 1)
-  if (!await db.isDBOpen().then(({ result }) => result)) await db.open()
+  else if (!initialized) await init({ syncDatabase: true })
+  if (db === null) throw Error('could not initialize db')
   return db
 }
 
-const close = async () => {
-  if (db !== null) {
-    await db.close()
-    db = null
+const deleteDatabase = async (databaseName: string) => {
+  // first we check if database exists
+  const { values: existingDatabases = [] } = await sqlite.getDatabaseList().catch(() => ({ values: [] }))
+  if (existingDatabases.indexOf(getMigratedFilename(databaseName)) > -1) {
+    const { result: isConsistent = false } = await sqlite.checkConnectionsConsistency()
+    const { result: isConn = false } = await sqlite.isConnection(DB_FILE_NAME)
+    isConsistent && isConn
+      ? await sqlite.retrieveConnection(DB_FILE_NAME)
+      : await sqlite.createConnection(DB_FILE_NAME, false, 'no-encryption', 1)
+    await CapacitorSQLite.deleteDatabase({ database: databaseName })
   }
 }
 
 const useSqlite = () => ({
-  init,
-  getInstance,
-  close
+  getInstance
 })
 
 export default useSqlite
