@@ -1,5 +1,6 @@
 import useSqlite from './useSqlite'
 import VModel, { VehicleTypeCode, FuelTypeCode } from 'datastore/src/model/VModel'
+export { VModel, VehicleTypeCode, FuelTypeCode }
 
 const { executeSQL } = useSqlite()
 

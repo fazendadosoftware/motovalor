@@ -16,7 +16,7 @@
           </ion-button>
         </ion-buttons>
 
-        <ion-title>Models</ion-title>
+        <ion-title>Home</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true">
@@ -28,14 +28,14 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonButton, IonIcon, IonMenuButton, modalController } from '@ionic/vue'
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonButton, IonIcon, modalController } from '@ionic/vue'
 import { optionsOutline } from 'ionicons/icons'
-import Modal from '@/components/ModelsFilterModal'
-import ModelList from '@/components/ModelList'
+import Modal from '@/components/ModelsFilterModal.vue'
+import ModelList from '@/components/ModelList.vue'
 
 const openFilterModal = async () => {
   const modal = await modalController
-    .create({ component: Modal, componentProps: { title: 'TITLEEfewfewE' } })
+    .create({ component: Modal, componentProps: { title: 'Model Filter' } })
   return modal.present()
 }
 
