@@ -43,66 +43,70 @@ export const updateDatabaseFromRepositoryData = async (db: Database, data: Repos
   })
 }
 
-export const getSchema = async (db: Database) => {
-  const tablesStmt = 'SELECT name, sql FROM sqlite_master WHERE type = "table" AND name != "migrations" AND name NOT LIKE "sqlite_%" AND name NOT LIKE "android_%" AND name NOT LIKE "sync_table";'
-  const tables = await db.all<{ sql: string }[]>(tablesStmt)
-    .then(rows => rows
-      .map(({ sql }) => {
-        const regex = /^CREATE\s+TABLE\s+(\S*)\s*\((.*)\);?$/
-        const [, name, data] = regex.exec(sql.replace(/\r\n/g, ''))
-        const schema = data
-          .split(',  ')
-          .map(s => s.trim().replace(/  +/g, ':').split(':'))
-          .reduce((accumulator: any[], [column, value]) => {
-            if (column.startsWith('PRIMARY KEY')) {
-              const regex = /^PRIMARY\s+KEY\s+(\S*)\s*\((.*)\);?$/
-              const [,, pkeys] = regex.exec(column.replace(/\r\n/g, ''))
-              const constraint = ['PK', ...pkeys.split(',').map(key => key.trim())].join('_')
-              accumulator.push({ constraint, value: column })
-            } else if (column.startsWith('FOREIGN KEY')) {
-              const regex = /^FOREIGN\s+KEY\s+(\S*)\s*(.*);?$/
-              const [, fkeys, references] = regex.exec(column.replace(/\r\n/g, ''))
-              const foreignkey = fkeys.replace(/[()]/g, '')
-              accumulator.push({ foreignkey, value: references })
-            } else {
-              accumulator.push({ column, value })
-            }
-            return accumulator
-          }, [])
-        return { name, schema }
-      }))
-  return tables
-}
+const getDeltaMonthIndexesSet = (windowYearSize: number) => new Set([...Array(Math.ceil(windowYearSize)).keys()]
+  .map(year => year === 0 ? [1, 3, 6] : year * 12).flat())
 
-export const getTriggers = async (db:Database, tableName) => {
-  console.warn('Get Triggers to be implemented...')
-  return []
-}
+export const updateDatabaseFromRepositoryData2 = async (db: Database, data: RepositoryData) => {
+  const rawDb = db.getDatabaseInstance()
 
-export const getIndexes = async (db: Database, tableName: string) => {
-  const sql = `SELECT name,tbl_name as tableName,sql FROM sqlite_master WHERE type = "index" AND tbl_name = "${tableName}" AND sql NOTNULL;`
-  const indexes = await db.all<{ name: string, tableName: string, sql: string }[]>(sql)
-    .then(rows => rows
-      .map(({ name, sql, tableName }) => {
-        const regex = /^CREATE\s+INDEX\s+(\S*)\s*ON\s*(\S*)\s*\((.*)\);?$/
-        const [,, value] = regex.exec(sql.replace(/\r\n/g, ''))
-        return { name, value }
-      })
-    )
-  return indexes
-}
+  // previous 24M table dates
+  const windowYearSize = 3
+  const deltaPriceIndexes = getDeltaMonthIndexesSet(5)
 
-const getTableColumns = async (db: Database, tableName: string) => {
-  const sql = `PRAGMA table_info(${tableName});`
-  const columns = await db.all<{ name: string, type: string }[]>(sql)
-    .then(rows => rows.map(({ name, type }) => ({ name, type })))
-  return columns
-}
+  const tableDates = data.fipeTables.map(({ date }) => date)
+    .sort()
+    .reverse()
+    .slice(0, windowYearSize * 12 + 1)
 
-export const getValues = async (db: Database, tableName: string) => {
-  const sql = `SELECT * FROM ${tableName};`
-  const columnNames = await getTableColumns(db, tableName).then(columns => columns.map(({ name }) => name))
-  const values = await db.all<any[]>(sql)
-  // .then(rows => rows.map(row => columnNames.map(column => row[column]))
-  return values
+  const refDate = tableDates[0]
+  const mappedModelYears = data.modelYears
+    .filter(modelYear => !isNaN(modelYear.prices[tableDates[0]])) // filter modelYears with price listing for the latest table...
+    .map(modelYear => {
+      const { prices, deltaPrices } = tableDates
+        .reduce((accumulator: { prices: number[], deltaPrices: number[] }, date, i) => {
+          const price = modelYear.prices[date]
+          accumulator.prices.push(price)
+          if (deltaPriceIndexes.has(i)) accumulator.deltaPrices.push(accumulator.prices[0] - price)
+          return accumulator
+        }, { prices: [], deltaPrices: [] })
+      return { ...modelYear, refDate, prices, deltaPrices }
+    })
+
+  rawDb.parallelize(() => {
+    const fipeTableKeys = Object.keys(new FipeTable())
+    const query = `INSERT INTO fipeTable (${fipeTableKeys.join(',')}) VALUES (${fipeTableKeys.map(() => '?').join(',')})`
+    const stmt = rawDb.prepare(query)
+    data.fipeTables.forEach(row => {
+      const values = fipeTableKeys.map(key => row[key])
+      stmt.run(...values)
+    })
+    stmt.finalize()
+  })
+
+  rawDb.parallelize(() => {
+    const makeKeys = Make.getKeys()
+    const query = `INSERT INTO make (${makeKeys.join(',')}) VALUES (${makeKeys.map(() => '?').join(',')})`
+    const stmt = rawDb.prepare(query)
+    data.makes.forEach(row => stmt.run(...makeKeys.map(key => row[key])))
+    stmt.finalize()
+  })
+
+  rawDb.parallelize(() => {
+    const modelKeys = Model.getKeys()
+    const query = `INSERT INTO model (${modelKeys.join(',')}) VALUES (${modelKeys.map(() => '?').join(',')})`
+    const stmt = rawDb.prepare(query)
+    data.models.forEach(row => stmt.run(...modelKeys.map(key => row[key])))
+    stmt.finalize()
+  })
+
+  rawDb.parallelize(() => {
+    const modelYearKeys = ModelYear.getKeys()
+    const keys = modelYearKeys.join(',')
+    const jsonKeys = ModelYear.getJsonKeys()
+    const values = modelYearKeys.map(key => jsonKeys.indexOf(key) < 0 ? '?' : 'json(?)')
+    const query = `INSERT INTO modelYear (${keys}) VALUES (${values})`
+    const stmt = rawDb.prepare(query)
+    mappedModelYears.forEach(row => stmt.run(...modelYearKeys.map(key => jsonKeys.indexOf(key) < 0 ? row[key] : JSON.stringify(row[key]))))
+    stmt.finalize()
+  })
 }

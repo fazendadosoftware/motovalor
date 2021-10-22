@@ -21,6 +21,7 @@ const sqlite = new SQLiteConnection(CapacitorSQLite)
 
 applyPolyfills().then(() => jeepSqlite(window))
 
+/*
 const getLocalDb = async (filename: string): Promise<string> => {
   console.log('============================= GETTING LOCAL DB!!!!', filename)
   let uri: string | null = null;
@@ -50,7 +51,12 @@ const getLocalDb = async (filename: string): Promise<string> => {
   if (dblist.indexOf(migratedFilename) < 0) throw Error(`could not find ${migratedFilename} in db list: ${dblist.join(', ') || '/none'}`)
   return migratedFilename
 }
+*/
 
+const checkIfDbExists = async (dbName: string): Promise<boolean> => {
+  const { values: databaseList = [] } = await sqlite.getDatabaseList().catch(() => ({ values: [] }))
+  return databaseList.indexOf(dbName) > -1
+}
 export interface InitProps {
   syncDatabase?: boolean
 }
@@ -89,17 +95,20 @@ const init = async (props?: InitProps) => {
 
   try {
     if (platform === 'web') {
-      await customElements.whenDefined('jeep-sqlite')
-      let jeepSqliteEl = document.querySelector('jeep-sqlite')
-      if (jeepSqliteEl === null) {
-        jeepSqliteEl = document.createElement('jeep-sqlite')
+      if (document.querySelector('jeep-sqlite') === null) {
+        const jeepSqliteEl = document.createElement('jeep-sqlite')
         document.body.appendChild(jeepSqliteEl)
         await sqlite.initWebStore()
       }
     }
 
-    const { values: databaseList = [] } = await sqlite.getDatabaseList().catch(() => ({ values: [] }))
-    if (databaseList.indexOf(getMigratedFilename(DB_FILE_NAME)) < 0) await getLocalDb(DB_FILE_NAME)
+    await sqlite.copyFromAssets()
+    if (!await checkIfDbExists(getMigratedFilename(DB_FILE_NAME))) {
+      await sqlite.copyFromAssets()
+      if (!await checkIfDbExists(getMigratedFilename(DB_FILE_NAME))) throw Error('Could not find database!')
+    }
+
+    // if (databaseList.indexOf(getMigratedFilename(DB_FILE_NAME)) < 0) await getLocalDb(DB_FILE_NAME)
     const { result: isConsistent = false } = await sqlite.checkConnectionsConsistency()
     const { result: isConn = false } = await sqlite.isConnection(DB_FILE_NAME)
 

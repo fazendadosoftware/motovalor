@@ -1,5 +1,5 @@
 import useSqlite from './useSqlite'
-import Model, { VehicleTypeCode, FuelTypeCode } from 'datastore/src/model/Model'
+import VModel, { VehicleTypeCode, FuelTypeCode } from 'datastore/src/model/VModel'
 
 const { executeSQL } = useSqlite()
 
@@ -8,71 +8,60 @@ export type FipeTable = {
   date: Date | string
 }
 
+type ModelSortingKey = 'price' | 'deltaPrice12M' | 'modelYear'
+
 interface GetModelsProps {
-  fields?: (keyof Model)[]
-  fipeCodes?: string[]
-  makes?: string[]
-  vehicleTypeCodes?: VehicleTypeCode[]
-  fuelTypeCodes?: FuelTypeCode[]
-  modelYears?: { min?: number, max?: number }
+  fields?: (keyof VModel)[]
+  fipeCode?: string[]
+  make?: string[]
+  vehicleTypeCode?: VehicleTypeCode[]
+  fuelTypeCode?: FuelTypeCode[]
+  modelYear?: { min?: number | null, max?: number | null }
+  price?: { min?: number | null, max?: number | null }
   // filter models that are still being sold (modelYear code === 32000)
   zeroKm?: boolean
-  limit: number
-  offset?: number
+  limit?: number
+  offset?: number,
+  sort?: { key: ModelSortingKey, asc?: boolean }
 }
 
-const COMPUTED_MODEL_FIELDS: Record<keyof Model, string | null> = {
-  id: null,
-  makeId: null,
-  // make: null,
-  vehicleTypeCode: null,
-  name: null,
-  fipeCode: null,
-  fuelTypeCode: null
-  // prices: null,
-  // modelYears: '(SELECT group_concat(key) from json_each(prices)) as modelYears',
-  // productionYearCount: '(SELECT COUNT(key) from json_each(prices) WHERE key != "32000") as productionYearCount'
-}
+const getModels = async (props: GetModelsProps) => {
+  const fieldsStatement = (props?.fields ?? []).join(', ') || '*'
 
-const getModels = async (props: GetModelsProps = { limit: 10, fields: [] }) => {
-  const fieldsStatement = (props?.fields ?? [])
-    .reduce((accumulator: string[], field) => {
-      const sqlStatement = COMPUTED_MODEL_FIELDS[field] ?? field
-      accumulator.push(sqlStatement)
-      return accumulator
-    }, []).join(',') || '*'
+  const rangePropFields: (keyof GetModelsProps)[] = ['modelYear', 'price']
+  const arrayPropFields: (keyof GetModelsProps)[] = ['fipeCode', 'make', 'vehicleTypeCode', 'fuelTypeCode']
 
   const where: string[] = []
 
-  if (Array.isArray(props.fipeCodes)) {
-    where.push(`fipeCode IN (${props.fipeCodes.map(code => `"${code}"`).join(',')})`)
-  }
-  if (Array.isArray(props.makes)) {
-    where.push(`make IN (${props.makes.map(make => `"${make}"`).join(',')})`)
-  }
-  if (Array.isArray(props.vehicleTypeCodes)) {
-    where.push(`vehicleTypeCode IN (${props.vehicleTypeCodes.join(',')})`)
-  }
-  if (Array.isArray(props.fuelTypeCodes)) {
-    where.push(`fuelTypeCode IN (${props.fuelTypeCodes.map(fuelTypeCode => `"${fuelTypeCode}"`).join(',')})`)
-  }
-  if (props.modelYears) {
-    const { min = null, max = null } = props.modelYears
-    if (min !== null) where.push(`(SELECT min(key) from json_each(prices) WHERE key IS NOT "32000") >= "${min}"`)
-    if (max !== null) where.push(`(SELECT max(key) from json_each(prices) WHERE key IS NOT "32000") <= "${max}"`)
-  }
-  if (props.zeroKm !== undefined) {
-    where.push(`(SELECT EXISTS(SELECT value from json_each(prices) WHERE key = "32000")) = ${props.zeroKm === true ? 1 : 0}`)
-  }
+  arrayPropFields
+    // @ts-expect-error
+    .filter(key => (Array.isArray(props[key]) && props[key].length > 0))
+    // @ts-expect-error
+    .forEach(key => where.push(`${key} IN (${props[key]?.map((value: string | number) => typeof value === 'string' ? `"${value}"` : value).join(',')})`))
+
+  rangePropFields
+    .forEach(key => {
+      // @ts-expect-error
+      const { min = null, max = null } = props[key] ?? {}
+      if (min !== null && max !== null) where.push(`${key} BETWEEN ${min} AND ${max}`)
+      else if (min !== null) where.push(`${key} >= ${min}`)
+      else if (max !== null) where.push(`${key} <= ${max}`)
+    })
+
+  if (props.zeroKm !== undefined) where.push(`modelYear ${props.zeroKm === true ? '=' : '!='} 32000`)
 
   const whereStatement = where.length ? ` WHERE ${where.join(' AND ')}` : ''
 
-  const limitStatement = ` LIMIT ${props.limit}`
+  const limitStatement = props.limit ? ` LIMIT ${props.limit}` : ''
   const offsetStatement = typeof props.offset === 'number' ? ` OFFSET ${props.offset}` : ''
+  const orderStatement = props.sort !== undefined
+    ? ` ORDER BY ${props.sort?.key} ${props.sort?.asc ? 'ASC' : 'DESC'}`
+    : ''
 
-  const sqlStatement = `SELECT ${fieldsStatement} FROM model${whereStatement}${limitStatement}${offsetStatement}`
-  console.log('STATEMENT', sqlStatement)
-  const models = await executeSQL<Model>(sqlStatement)
+  const sqlStatement = `SELECT ${fieldsStatement} FROM ${VModel.getTableName()}${whereStatement}${orderStatement}${limitStatement}${offsetStatement}`
+  console.log('SQL STATEMENT', sqlStatement)
+  const models = await executeSQL<VModel>(sqlStatement)
+    .then(rows => rows.map(row => VModel.mapFromSql(row, props.fields)))
 
   return models
 }

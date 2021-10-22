@@ -28,19 +28,20 @@ CREATE INDEX index_model_on_makeId ON model (makeId);
 CREATE TABLE IF NOT EXISTS modelYear (
   modelId           INTEGER NOT NULL,
   year              INTEGER NOT NULL,
-  prices            JSON NOT NULL,
+  refDate           INTEGER NOT NULL,
+  prices            JSON NOT NULL, -- prices for the last 12m
+  deltaPrices       JSON NOT NULL, -- 1M, 3M, 6M, 12M, 24M, 32M
   PRIMARY KEY (modelId, year),
   FOREIGN KEY (modelId) REFERENCES model(id) ON DELETE CASCADE
 );
 
-
--- INSERT INTO fipeTable (id, refDate) VALUES (1, '2021-10-01');
--- INSERT INTO make (id, name) VALUES (1, 'HARLEY DAVIDSON');
--- INSERT INTO model (id, makeId, vehicleTypeCode, name, fipeCode, fuelTypeCode, prices) VALUES (1, 1, 2, 'FAT BOY', '000000-1', 'G', json('{"2011": {"2021-10": 40000}}'));
--- INSERT INTO model (id, makeId, vehicleTypeCode, name, fipeCode, fuelTypeCode, prices) VALUES (2, 1, 2, 'ROCKER C', '000000-2', 'G', json('{"2011": {"2021-10": 50000}}'));
-
--- select name, json_extract(model.prices, '$.2011.2021-10') from model
--- where json_extract(model.prices, '$.2011.2021-10') > 45000
+CREATE VIEW IF NOT EXISTS models
+AS
+    SELECT ma.id as makeId, ma.name as make, mo.id as modelId, mo.name as model, mo.fipeCode, mo.vehicleTypeCode, mo.fuelTypeCode, my.refDate, my.year as modelYear,  json_extract(my.prices, '$[0]') as price, json_extract(my.deltaPrices, '$[3]') as deltaPrice12M, my.prices, my.deltaPrices
+    FROM
+      model as mo
+    INNER JOIN make as ma ON mo.makeId = ma.id
+    INNER JOIN modelYear as my ON my.modelId = mo.id;
 
 --------------------------------------------------------------------------------
 -- Down
