@@ -27,7 +27,6 @@ const getLocalDb = async (filename: string): Promise<string> => {
 
   ({ uri } = await Filesystem.stat({ path: filename, directory: Directory.Data })
     .catch(() => { return { uri: null } }))
-
   if (uri === null) {
     const dbEntry = await axios.get('/assets/databases/fipe.db.zip', { responseType: 'arraybuffer' })
       .then(({ data }: { data: any }) => new AdmZip(Buffer.from(data)))
@@ -36,14 +35,16 @@ const getLocalDb = async (filename: string): Promise<string> => {
 
     uri = await writeBlob({ path: filename, directory: Directory.Data, blob: new Blob([dbEntry.getData()]) })
   }
-  const dbFilePathTokens = uri.split('/')
-  const relPath = dbFilePathTokens[dbFilePathTokens.indexOf(filename) - 1]
 
-  const { values: migratableDbList = [] } = await sqlite.getMigratableDbList(relPath)
-  if (migratableDbList.indexOf(filename) > 0) await sqlite.addSQLiteSuffix(relPath, [filename])
-  else throw Error(`Could not find ${filename} in dbMigratableList: ${migratableDbList.join(', ')}`)
+  if (Capacitor.getPlatform() !== 'web') {
+    const dbFilePathTokens = uri.split('/')
+    const relPath = dbFilePathTokens[dbFilePathTokens.indexOf(filename) - 1]
+    const { values: migratableDbList = [] } = await sqlite.getMigratableDbList(relPath)
+    if (migratableDbList.indexOf(filename) > 0) await sqlite.addSQLiteSuffix(relPath, [filename])
+    else throw Error(`Could not find ${filename} in dbMigratableList: ${migratableDbList.join(', ')}`)
+  }
+
   const migratedFilename = getMigratedFilename(filename)
-
   const { values: dblist = [] } = await sqlite.getDatabaseList()
   console.log('========================= NEW DATABASE LIST', dblist)
   if (dblist.indexOf(migratedFilename) < 0) throw Error(`could not find ${migratedFilename} in db list: ${dblist.join(', ') || '/none'}`)
@@ -79,11 +80,13 @@ const init = async (props?: InitProps) => {
   // the plugin throws an error when closing connections. we can ignore
   // that since it is expected behaviour
     .catch(e => {})
-
   // delete old databases
-  await sqlite.deleteOldDatabases()
-  if (props?.syncDatabase === true) await deleteDatabase(DB_FILE_NAME)
+
   const platform = Capacitor.getPlatform()
+
+  if (platform !== 'web') await sqlite.deleteOldDatabases()
+  if (props?.syncDatabase === true) await deleteDatabase(DB_FILE_NAME)
+
   try {
     if (platform === 'web') {
       await customElements.whenDefined('jeep-sqlite')
@@ -97,7 +100,6 @@ const init = async (props?: InitProps) => {
 
     const { values: databaseList = [] } = await sqlite.getDatabaseList().catch(() => ({ values: [] }))
     if (databaseList.indexOf(getMigratedFilename(DB_FILE_NAME)) < 0) await getLocalDb(DB_FILE_NAME)
-
     const { result: isConsistent = false } = await sqlite.checkConnectionsConsistency()
     const { result: isConn = false } = await sqlite.isConnection(DB_FILE_NAME)
 
@@ -116,7 +118,6 @@ const getInstance = async (): Promise<SQLiteDBConnection> => {
   if (db === null) throw Error('could not initialize db')
   return db
 }
-
 const deleteDatabase = async (databaseName: string) => {
   // first we check if database exists
   const { values: existingDatabases = [] } = await sqlite.getDatabaseList().catch(() => ({ values: [] }))
@@ -135,7 +136,7 @@ const executeSQL = async <T>(sqlStatement: string, args?: any[]): Promise<T[]> =
   const { values, error = null }: { values: T[], error: any } = await db.query(sqlStatement, args)
     .then(({ values = [] }) => ({ values, error: null }))
     .catch(error => ({ values: [], error }))
-  if (error !== null) throw Error
+  if (error !== null) throw error
   return values
 }
 

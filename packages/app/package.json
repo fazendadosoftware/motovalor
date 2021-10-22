@@ -11,8 +11,7 @@
     "lint": "vue-cli-service lint",
     "dev": "npx ionic serve",
     "build:android": "npx ionic capacitor copy android",
-    "android": "npx ionic capacitor run android --livereload --external",
-    "electron": "npx ionic capacitor run electron --livereload --external"
+    "android": "npx ionic capacitor run android --livereload --external"
   },
   "dependencies": {
     "@capacitor/android": "3.2.4",

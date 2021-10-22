@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "android": "npm run android --workspace app",
+    "electron": "npm run electron --workspace app",
     "build:android": "npm run build:android --workspace app",
     "serve": "npm run serve --workspace app"
   },

@@ -16,7 +16,7 @@ interface GetModelsProps {
   fuelTypeCodes?: FuelTypeCode[]
   modelYears?: { min?: number, max?: number }
   // filter models that are still being sold (modelYear code === 32000)
-  zeroKm: boolean | null
+  zeroKm?: boolean
   limit: number
   offset?: number
 }
@@ -34,7 +34,7 @@ const COMPUTED_MODEL_FIELDS: Record<keyof Model, string | null> = {
   // productionYearCount: '(SELECT COUNT(key) from json_each(prices) WHERE key != "32000") as productionYearCount'
 }
 
-const getModels = async (props: GetModelsProps = { zeroKm: null, limit: 10, fields: [] }) => {
+const getModels = async (props: GetModelsProps = { limit: 10, fields: [] }) => {
   const fieldsStatement = (props?.fields ?? [])
     .reduce((accumulator: string[], field) => {
       const sqlStatement = COMPUTED_MODEL_FIELDS[field] ?? field
@@ -61,16 +61,17 @@ const getModels = async (props: GetModelsProps = { zeroKm: null, limit: 10, fiel
     if (min !== null) where.push(`(SELECT min(key) from json_each(prices) WHERE key IS NOT "32000") >= "${min}"`)
     if (max !== null) where.push(`(SELECT max(key) from json_each(prices) WHERE key IS NOT "32000") <= "${max}"`)
   }
-  if (props.zeroKm !== null) {
+  if (props.zeroKm !== undefined) {
     where.push(`(SELECT EXISTS(SELECT value from json_each(prices) WHERE key = "32000")) = ${props.zeroKm === true ? 1 : 0}`)
   }
 
   const whereStatement = where.length ? ` WHERE ${where.join(' AND ')}` : ''
 
   const limitStatement = ` LIMIT ${props.limit}`
-  const offsetStatement = !Number.isNaN(props.offset) ? ` OFFSET ${props.offset}` : ''
+  const offsetStatement = typeof props.offset === 'number' ? ` OFFSET ${props.offset}` : ''
 
   const sqlStatement = `SELECT ${fieldsStatement} FROM model${whereStatement}${limitStatement}${offsetStatement}`
+  console.log('STATEMENT', sqlStatement)
   const models = await executeSQL<Model>(sqlStatement)
 
   return models

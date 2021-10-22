@@ -19,14 +19,18 @@ CREATE TABLE IF NOT EXISTS model (
   name              TEXT NOT NULL,
   vehicleTypeCode   INTEGER NOT NULL CHECK (vehicleTypeCode IN (1, 2, 3)),
   fipeCode          TEXT NOT NULL,
-  fuelTypeCode      TEXT CHECK(fuelTypeCode IN ('G','D','A')) NOT NULL
+  fuelTypeCode      TEXT CHECK(fuelTypeCode IN ('G','D','A')) NOT NULL,
+  FOREIGN KEY (makeId) REFERENCES make(id) ON DELETE CASCADE
 );
+
+CREATE INDEX index_model_on_makeId ON model (makeId);
 
 CREATE TABLE IF NOT EXISTS modelYear (
   modelId           INTEGER NOT NULL,
   year              INTEGER NOT NULL,
   prices            JSON NOT NULL,
-  PRIMARY KEY (modelId, year)
+  PRIMARY KEY (modelId, year),
+  FOREIGN KEY (modelId) REFERENCES model(id) ON DELETE CASCADE
 );
 
 
