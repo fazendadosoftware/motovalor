@@ -11,6 +11,7 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "sourceMap": true,
+    "composite": true,
     "baseUrl": ".",
     "types": [
       "webpack-env",
@@ -20,6 +21,9 @@
     "paths": {
       "@/*": [
         "src/*"
+      ],
+      "datastore": [
+        "packages/datastore/src"
       ]
     },
     "lib": [

@@ -2,7 +2,7 @@
   <ion-list>
     <ion-item
       v-for="(model, i) in models"
-      :key="i"
+      :key="rowKey ?? i"
     >
       <ion-label>
         <div class="flex text-xs">
@@ -25,18 +25,20 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { toRefs, PropType } from 'vue'
 import { IonList, IonItem, IonLabel } from '@ionic/vue'
-import useFipe from '@/composables/useFipe'
 import { VModel } from '../composables/useFipe'
 
-const { getModels } = useFipe()
-const models = ref<VModel[]>([])
+const props = defineProps({
+  models: {
+    type: Object as PropType<VModel[]>,
+    required: true
+  },
+  rowKey: {
+    type: String as PropType<(keyof VModel)>,
+    required: false
+  }
+})
 
-getModels({ fields: ['model', 'make', 'modelYears'], vehicleTypeCode: [2], limit: 100, zeroKm: false, sort: [{ key: 'make' }, { key: 'model' }] })
-  .then(_models => {
-    models.value = _models
-    console.log('MODELS', models.value)
-  })
-
+const { models } = toRefs(props)
 </script>

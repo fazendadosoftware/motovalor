@@ -10,8 +10,11 @@
     "noEmitOnError": true,
     "forceConsistentCasingInFileNames": true,
     "rootDir": "src",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "composite": true
   },
-  "include": ["src", "src/schema"],
-  "exclude": ["node_modules"]
+  "include": ["src"],
+  "exclude": [
+    "node_modules"
+  ]
 }

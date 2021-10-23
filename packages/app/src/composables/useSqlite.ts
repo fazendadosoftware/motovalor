@@ -5,10 +5,10 @@
 import { defineCustomElements as jeepSqlite, applyPolyfills } from 'jeep-sqlite/loader'
 import { Capacitor } from '@capacitor/core'
 import { SQLiteConnection, SQLiteDBConnection, CapacitorSQLite } from '@capacitor-community/sqlite'
-import { Filesystem, Directory } from '@capacitor/filesystem'
-import writeBlob from 'capacitor-blob-writer'
-import axios from 'axios'
-import AdmZip from 'adm-zip'
+// ort { Filesystem, Directory } from '@capacitor/filesystem'
+// import writeBlob from 'capacitor-blob-writer'
+// import axios from 'axios'
+// import AdmZip from 'adm-zip'
 
 const DB_FILE_NAME = 'fipe.db'
 const getMigratedFilename = (filename: string) => filename.replace(/.db/, 'SQLite.db')
@@ -90,8 +90,8 @@ const init = async (props?: InitProps) => {
 
   const platform = Capacitor.getPlatform()
 
-  if (platform !== 'web') await sqlite.deleteOldDatabases()
-  if (props?.syncDatabase === true) await deleteDatabase(DB_FILE_NAME)
+  if (platform !== 'web') await sqlite.deleteOldDatabases().catch(() => {})
+  if (props?.syncDatabase === true) await deleteDatabase(DB_FILE_NAME).catch(() => {})
 
   try {
     if (platform === 'web') {
