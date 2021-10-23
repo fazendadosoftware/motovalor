@@ -11,7 +11,7 @@
     "lint": "vue-cli-service lint",
     "dev": "npx ionic serve",
     "build:android": "npx ionic capacitor copy android",
-    "build:android:apk": "npx ionic capacitor copy android && cd android && npx ./gradlew assembleDebug && npx ./gradlew installDebug && cd ..",
+    "build:android:apk": "npx ionic capacitor copy android && cd android && ./gradlew assembleDebug && ./gradlew installDebug && cd ..",
     "android": "npx ionic capacitor run android --livereload --external"
   },
   "dependencies": {
@@ -29,7 +29,7 @@
     "axios": "^0.22.0",
     "capacitor-blob-writer": "^1.0.4",
     "core-js": "^3.6.5",
-    "fuse.js": "^6.4.6",
+    "flexsearch": "^0.7.21",
     "jeep-sqlite": "^1.3.0",
     "murmurhash": "^2.0.0",
     "original-fs": "^1.1.0",
@@ -42,6 +42,7 @@
     "@capacitor-community/sqlite": "^3.2.4-2",
     "@capacitor/cli": "3.2.4",
     "@types/adm-zip": "^0.4.34",
+    "@types/flexsearch": "^0.7.1",
     "@types/jest": "^24.0.19",
     "@types/lodash.merge": "^4.6.6",
     "@types/node": "^16.10.3",

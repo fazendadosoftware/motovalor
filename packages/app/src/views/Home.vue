@@ -16,14 +16,16 @@
           </ion-button>
         </ion-buttons>
 
-        <ion-title>Homex</ion-title>
+        <ion-title>
+          Motovalor
+        </ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="false">
       <div class="flex flex-col h-full">
         <ion-searchbar
           v-model="searchQuery"
-          :debounce="500"/>
+          :debounce="250"/>
         <model-list
           :models="rows"
           key="modelId"
@@ -42,9 +44,9 @@ import ModelList from '@/components/ModelList.vue'
 import useFipe from '@/composables/useFipe'
 import { VModel } from '../composables/useFipe'
 // @ts-ignore
-import fuseWorker from 'workerize-loader!../workers/fuse'
+import ftsWorker from 'workerize-loader!../workers/flexsearch'
 
-const ftsInstance = fuseWorker()
+const ftsInstance = ftsWorker()
 
 const { getModels } = useFipe()
 const rows = ref<VModel[]>([])
@@ -57,6 +59,7 @@ const buildFtsIndex = async () => {
     const models = await getModels({ fields: ['modelId', 'model', 'make', 'vehicleTypeCode', 'fuelTypeCode', 'modelYears'] })
     await ftsInstance.setCollection(models)
     rows.value = await ftsInstance.search()
+    console.log('ROW', rows.value)
   } finally {
     reloading.value = false
   }
