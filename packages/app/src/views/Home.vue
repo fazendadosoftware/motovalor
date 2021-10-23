@@ -59,7 +59,6 @@ const buildFtsIndex = async () => {
     const models = await getModels({ fields: ['modelId', 'model', 'make', 'vehicleTypeCode', 'fuelTypeCode', 'modelYears'] })
     await ftsInstance.setCollection(models)
     rows.value = await ftsInstance.search()
-    console.log('ROW', rows.value)
   } finally {
     reloading.value = false
   }
