@@ -20,8 +20,12 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true">
-      <ion-searchbar v-model="searchQuery" />
-      <model-list />
+      <div
+        slot="fixed"
+        class="w-full bg-white">
+        <ion-searchbar v-model="searchQuery" />
+      </div>
+      <model-list class="flex-1 overflow-y-auto" />
     </ion-content>
   </ion-page>
 </template>

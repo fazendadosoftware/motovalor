@@ -14,6 +14,7 @@ export default class VModel {
   public fipeCode?: string = ''
   public refDate?: number = -1
   public modelYear?: number = -1
+  public modelYears?: number[] = []
   public price?: number = -1
   public deltaPrice12M?: number | null = -1
   public prices?: number[] = []
@@ -32,6 +33,7 @@ export default class VModel {
       .reduce((accumulator: VModel, key) => ({ ...accumulator, [key]: row[key] }), {})
     if (typeof vmodel.prices === 'string') vmodel.prices = JSON.parse(vmodel.prices)
     if (typeof vmodel.deltaPrices === 'string') vmodel.deltaPrices = JSON.parse(vmodel.deltaPrices)
+    if (typeof vmodel.modelYears === 'string') vmodel.modelYears = JSON.parse(vmodel.modelYears)
     return vmodel
   }
 }

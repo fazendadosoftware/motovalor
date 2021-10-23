@@ -9,7 +9,7 @@ export type FipeTable = {
   date: Date | string
 }
 
-type ModelSortingKey = 'price' | 'deltaPrice12M' | 'modelYear'
+type ModelSortingKey = 'price' | 'deltaPrice12M' | 'modelYear' | 'model' | 'make'
 
 interface GetModelsProps {
   fields?: (keyof VModel)[]
@@ -23,7 +23,7 @@ interface GetModelsProps {
   zeroKm?: boolean
   limit?: number
   offset?: number,
-  sort?: { key: ModelSortingKey, asc?: boolean }
+  sort?: { key: ModelSortingKey, asc?: boolean }[]
 }
 
 const getModels = async (props: GetModelsProps) => {
@@ -55,11 +55,14 @@ const getModels = async (props: GetModelsProps) => {
 
   const limitStatement = props.limit ? ` LIMIT ${props.limit}` : ''
   const offsetStatement = typeof props.offset === 'number' ? ` OFFSET ${props.offset}` : ''
-  const orderStatement = props.sort !== undefined
-    ? ` ORDER BY ${props.sort?.key} ${props.sort?.asc ? 'ASC' : 'DESC'}`
+  const orderStatement = Array.isArray(props.sort)
+    // ? ` ORDER BY ${props.sort?.key} ${props.sort?.asc ? 'ASC' : 'DESC'}`
+    ? ` ORDER BY ${Array.isArray(props.sort) ? props.sort.map(({ key, asc = null }) => `${key}${asc === null ? '' : asc === true ? 'ASC' : 'DESC'}`) : ''}`
     : ''
+  const groupByStatement = (props?.fields?.indexOf('modelYears') ?? -1) > -1 ? ' GROUP BY modelId' : ''
 
-  const sqlStatement = `SELECT ${fieldsStatement} FROM ${VModel.getTableName()}${whereStatement}${orderStatement}${limitStatement}${offsetStatement}`
+  const frags = [whereStatement, groupByStatement, orderStatement, limitStatement, offsetStatement].join('')
+  const sqlStatement = `SELECT ${fieldsStatement} FROM ${VModel.getTableName()}${frags}`
   console.log('SQL STATEMENT', sqlStatement)
   const models = await executeSQL<VModel>(sqlStatement)
     .then(rows => rows.map(row => VModel.mapFromSql(row, props.fields)))
