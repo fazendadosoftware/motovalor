@@ -11,8 +11,9 @@
           </div>
         </div>
         <div class="flex-1" />
-        <div class="flex flex-col items-center justify-center">
-          {{ model?.price }} {{ model?.deltaPrice12M }}
+        <div class="flex flex-col items-end">
+          <div>R$ {{model.price}}</div>
+          <div>R$ {{model.deltaPrice12M}} (delta last year)</div>
         </div>
       </div>
     </ion-label>

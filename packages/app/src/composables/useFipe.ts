@@ -13,8 +13,7 @@ export type ModelId = number
 export type ModelSortingKey = 'price' | 'deltaPrice12M' | 'modelYear' | 'model' | 'make'
 export type ModelSort = { key: ModelSortingKey, asc?: boolean }[]
 
-interface GetModelsProps {
-  fields?: (keyof VModel)[]
+interface GetModelCountProps {
   id?: ModelId[]
   fipeCode?: string[]
   make?: string[]
@@ -24,19 +23,20 @@ interface GetModelsProps {
   price?: { min?: number | null, max?: number | null }
   // filter models that are still being sold (modelYear code === 32000)
   zeroKm?: boolean
+}
+
+interface GetModelsProps extends GetModelCountProps {
+  fields?: (keyof VModel)[]
   limit?: number
   offset?: number,
   sort?: ModelSort
 }
 
-const getModels = async (props: GetModelsProps) => {
-  const fieldsStatement = (props?.fields ?? []).join(', ') || '*'
-
+const getWhereStatement = (props: GetModelsProps) => {
   const rangePropFields: (keyof GetModelsProps)[] = ['modelYear', 'price']
   const arrayPropFields: (keyof GetModelsProps)[] = ['fipeCode', 'make', 'vehicleTypeCode', 'fuelTypeCode', 'id']
 
   const where: string[] = []
-
   arrayPropFields
     // @ts-expect-error
     .filter(key => (Array.isArray(props[key]) && props[key].length > 0))
@@ -53,13 +53,18 @@ const getModels = async (props: GetModelsProps) => {
     })
 
   if (props.zeroKm !== undefined) where.push(`modelYear ${props.zeroKm === true ? '=' : '!='} 32000`)
-
   const whereStatement = where.length ? ` WHERE ${where.join(' AND ')}` : ''
+  return whereStatement
+}
+
+const getModels = async (props: GetModelsProps) => {
+  const fieldsStatement = (props?.fields ?? []).join(', ') || '*'
+
+  const whereStatement = getWhereStatement(props)
 
   const limitStatement = props.limit ? ` LIMIT ${props.limit}` : ''
   const offsetStatement = typeof props.offset === 'number' ? ` OFFSET ${props.offset}` : ''
   const orderStatement = Array.isArray(props.sort)
-    // ? ` ORDER BY ${props.sort?.key} ${props.sort?.asc ? 'ASC' : 'DESC'}`
     ? ` ORDER BY ${Array.isArray(props.sort) ? props.sort.map(({ key, asc = null }) => `${key}${asc === null ? '' : asc === true ? ' ASC' : ' DESC'}`) : ''}`
     : ''
   const groupByStatement = (props?.fields?.indexOf('modelYears') ?? -1) > -1 ? ' GROUP BY modelId' : ''
@@ -73,6 +78,13 @@ const getModels = async (props: GetModelsProps) => {
   return models
 }
 
+const getModelCount = async (props: GetModelCountProps): Promise<number> => {
+  const whereStatement = getWhereStatement(props)
+  const sqlStatement = `SELECT COUNT(id) as count FROM ${VModel.getTableName()} ${whereStatement};`
+  const [{ count }] = await executeSQL<{ count: number }>(sqlStatement)
+  return count
+}
+
 const getModel = async (modelId: number, modelYear: number): Promise<VModel> => {
   const sqlStatement = `SELECT * FROM models WHERE modelId = ${modelId} AND modelYear = ${modelYear} LIMIT 1;`
   const [model] = await executeSQL<VModel>(sqlStatement)
@@ -82,6 +94,7 @@ const getModel = async (modelId: number, modelYear: number): Promise<VModel> => 
 
 const useFipe = () => ({
   getModels,
+  getModelCount,
   getModel
 })
 

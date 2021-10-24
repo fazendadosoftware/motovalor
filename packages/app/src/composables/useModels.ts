@@ -2,7 +2,7 @@ import { ref, unref, Ref, watch, computed } from 'vue'
 import useFipe, { VModel, ModelSort, ModelSortingKey, ModelId } from '@/composables/useFipe'
 import { Index } from 'flexsearch'
 
-const { getModels } = useFipe()
+const { getModels, getModelCount } = useFipe()
 
 const useModels = () => {
   let ftsIndex = new Index()
@@ -12,6 +12,7 @@ const useModels = () => {
   const pageSize = 100
   const sort: Ref<ModelSort> = ref([{ key: 'make' as ModelSortingKey }, { key: 'model' as ModelSortingKey }])
   const filteringIds: Ref<ModelId[] | undefined> = ref()
+  const totalCount: Ref<number | null> = ref(null)
 
   const buildFtsIndex = async () => {
     loading.value++
@@ -40,6 +41,8 @@ const useModels = () => {
     loading.value++
     try {
       const offset = unref(models).length
+      const count = await getModelCount({})
+      console.log('COUNT', count)
       let modelPage = await getModels({
         fields: ['id', 'model', 'make', 'fuelTypeCode', 'modelYear', 'price', 'deltaPrice12M'],
         id: unref(filteringIds),
@@ -65,21 +68,23 @@ const useModels = () => {
   }
 
   // reset model list whenever sorting changes...
-  watch([sort, filteringIds], () => { models.value = [];  fetchNextModelPage() })
+  watch([sort, filteringIds], async () => {
+    models.value = []
+    totalCount.value = await getModelCount({})
+    fetchNextModelPage()
+  }, { immediate: true })
 
   // compute filtered modelYears on every searchQuery change
   watch(searchQuery, async query => { filteringIds.value = !query ? undefined : ftsIndex.search({ query, limit: 30 }) as ModelId[] })
 
-  const rows = computed(() => {
-    return unref(models)
-  })
-
   buildFtsIndex()
-  fetchNextModelPage()
 
   return {
     loading,
-    rows,
+    fetchNextModelPage,
+    models: computed(() => unref(models)),
+    totalCount: computed(() => unref(totalCount)),
+    hasNextPage: computed(() => unref(totalCount) === null || ((unref(totalCount) ?? -1) > unref(models).length)),
     searchQuery,
     sort
   }

@@ -27,19 +27,33 @@
         </ion-title>
       </ion-toolbar>
     </ion-header>
+    <ion-searchbar
+      v-model="searchQuery"
+      :disabled="totalCount === null"
+      :debounce="250"
+      :placeholder="totalCount === null ? 'Search models' : `Search ${totalCount} model${totalCount === 1 ? '' : 's'}`"/>
     <ion-content :fullscreen="false">
-      <div class="flex flex-col h-full">
-        <ion-searchbar
-          v-model="searchQuery"
-          :debounce="250"/>
-        <model-list :models="rows" class="flex-1 overflow-y-auto" />
-      </div>
-          <ion-infinite-scroll
+      <ion-list :lines="'inset'">
+        <dynamic-scroller
+          class="h-full"
+          :items="models"
+          :min-item-size="30"
+          key-field="id"
+          v-slot="{ item, index, active }">
+          <dynamic-scroller-item
+            :item="item"
+            :active="active"
+            :size-dependencies="[]"
+            :data-index="index">
+            <model-list-item :model="item" />
+          </dynamic-scroller-item>
+        </dynamic-scroller>
+      </ion-list>
+      <ion-infinite-scroll
         @ionInfinite="loadData($event)" 
-        threshold="100px" 
+        threshold="90%"
         id="infinite-scroll"
-        :disabled="isDisabled"
-      >
+        :disabled="!hasNextPage">
         <ion-infinite-scroll-content
           loading-spinner="bubbles"
           loading-text="Loading more data...">
@@ -51,28 +65,14 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonButton, IonIcon, modalController, IonInfiniteScroll, IonInfiniteScrollContent } from '@ionic/vue'
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonButton, IonIcon, modalController, IonInfiniteScrollContent, IonInfiniteScroll, IonList } from '@ionic/vue'
 import { filterOutline, optionsOutline } from 'ionicons/icons'
+import ModelListItem from '@/components/ModelListItem.vue'
 import ModelsFilterModal from '@/components/ModelsFilterModal.vue'
 import ModelsSortModal from '@/components/ModelsSortModal.vue'
-import ModelList from '@/components/ModelList.vue'
-import useFipe, { VModel } from '@/composables/useFipe'
 import useModels from '@/composables/useModels'
 
-const { searchQuery, rows } = useModels()
-
-const { getModels } = useFipe()
-
-const isDisabled = ref(false)
-
-const loadData = (evt: any) => {
-  console.log('LOADING')
-  setTimeout(() => {
-    evt.target.complete()
-    console.log('DONE...')
-  }, 1000)
-}
-
+const { searchQuery, models, fetchNextModelPage, hasNextPage, totalCount } = useModels()
 
 // watch(searchQuery, async searchQuery => { rows.value = await ftsInstance.search(searchQuery) })
 
@@ -88,4 +88,9 @@ const openSortModalModal = async () => {
   return modal.present()
 }
 
+const loadData = async (evt: any) => {
+  console.log('LOADING DATA')
+  await fetchNextModelPage()
+  evt.target.complete()
+}
 </script>
