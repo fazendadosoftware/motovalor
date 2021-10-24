@@ -2,7 +2,7 @@ import test, { ExecutionContext } from 'ava'
 import { join } from 'path'
 import { Database } from 'sqlite'
 import del from 'del'
-import { openDB, updateDatabaseFromRepositoryData, updateDatabaseFromRepositoryData2 } from './sqlite'
+import { openDB, updateDatabaseFromRepositoryData } from './sqlite'
 import { RepositoryData } from './repository'
 
 const data: RepositoryData = require('../fipe-indexes.json')
@@ -22,13 +22,8 @@ test.before(async (t: ExecutionContext<Context>) => {
   await t.context.db.migrate({ migrationsPath: join(process.cwd(), 'migrations') })
 })
 
-test('it builds indexes from repository', async (t: ExecutionContext<Context>) => {
+test.only('it builds indexes from repository', async (t: ExecutionContext<Context>) => {
   await updateDatabaseFromRepositoryData(t.context.db, data)
-  t.pass()
-})
-
-test.only('it builds indexes from repository2', async (t: ExecutionContext<Context>) => {
-  await updateDatabaseFromRepositoryData2(t.context.db, data)
   t.pass()
 })
 

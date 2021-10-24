@@ -9,10 +9,13 @@ export type FipeTable = {
   date: Date | string
 }
 
-type ModelSortingKey = 'price' | 'deltaPrice12M' | 'modelYear' | 'model' | 'make'
+export type ModelId = number
+export type ModelSortingKey = 'price' | 'deltaPrice12M' | 'modelYear' | 'model' | 'make'
+export type ModelSort = { key: ModelSortingKey, asc?: boolean }[]
 
 interface GetModelsProps {
   fields?: (keyof VModel)[]
+  id?: ModelId[]
   fipeCode?: string[]
   make?: string[]
   vehicleTypeCode?: VehicleTypeCode[]
@@ -23,14 +26,14 @@ interface GetModelsProps {
   zeroKm?: boolean
   limit?: number
   offset?: number,
-  sort?: { key: ModelSortingKey, asc?: boolean }[]
+  sort?: ModelSort
 }
 
 const getModels = async (props: GetModelsProps) => {
   const fieldsStatement = (props?.fields ?? []).join(', ') || '*'
 
   const rangePropFields: (keyof GetModelsProps)[] = ['modelYear', 'price']
-  const arrayPropFields: (keyof GetModelsProps)[] = ['fipeCode', 'make', 'vehicleTypeCode', 'fuelTypeCode']
+  const arrayPropFields: (keyof GetModelsProps)[] = ['fipeCode', 'make', 'vehicleTypeCode', 'fuelTypeCode', 'id']
 
   const where: string[] = []
 
@@ -70,8 +73,16 @@ const getModels = async (props: GetModelsProps) => {
   return models
 }
 
+const getModel = async (modelId: number, modelYear: number): Promise<VModel> => {
+  const sqlStatement = `SELECT * FROM models WHERE modelId = ${modelId} AND modelYear = ${modelYear} LIMIT 1;`
+  const [model] = await executeSQL<VModel>(sqlStatement)
+    .then(rows => rows.map(row => VModel.mapFromSql(row)))
+  return model
+}
+
 const useFipe = () => ({
-  getModels
+  getModels,
+  getModel
 })
 
 export default useFipe

@@ -37,9 +37,8 @@ CREATE TABLE IF NOT EXISTS modelYear (
 
 CREATE VIEW IF NOT EXISTS models
 AS
-    SELECT ma.id as makeId, ma.name as make, mo.id as modelId, mo.name as model, mo.fipeCode, mo.vehicleTypeCode, mo.fuelTypeCode, my.refDate, my.year as modelYear, json('[' || (SELECT group_concat(year) from modelYear WHERE modelYear.modelId = mo.id) || ']') as modelYears, json_extract(my.prices, '$[0]') as price, json_extract(my.deltaPrices, '$[3]') as deltaPrice12M, my.prices, my.deltaPrices
-    FROM
-      model as mo
+    SELECT mo.id * 1E5 + my.year as id, ma.name as make, mo.id as modelId, mo.name as model, mo.fipeCode, mo.vehicleTypeCode, mo.fuelTypeCode, my.refDate, my.year as modelYear, json('[' || (SELECT group_concat(year) from modelYear WHERE modelYear.modelId = mo.id) || ']') as modelYears, json_extract(my.prices, '$[0]') as price, json_extract(my.deltaPrices, '$[3]') as deltaPrice12M, my.prices, my.deltaPrices
+    FROM model as mo
     INNER JOIN make as ma ON mo.makeId = ma.id
     INNER JOIN modelYear as my ON my.modelId = mo.id;
 

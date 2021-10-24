@@ -32,48 +32,49 @@
         <ion-searchbar
           v-model="searchQuery"
           :debounce="250"/>
-        <model-list
-          :models="rows"
-          key="modelId"
-          class="flex-1 overflow-y-auto" />
+        <model-list :models="rows" class="flex-1 overflow-y-auto" />
       </div>
+          <ion-infinite-scroll
+        @ionInfinite="loadData($event)" 
+        threshold="100px" 
+        id="infinite-scroll"
+        :disabled="isDisabled"
+      >
+        <ion-infinite-scroll-content
+          loading-spinner="bubbles"
+          loading-text="Loading more data...">
+        </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
     </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts" setup>
-import { ref, unref, watch, computed } from 'vue'
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonButton, IonIcon, modalController } from '@ionic/vue'
+import { ref } from 'vue'
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonButton, IonIcon, modalController, IonInfiniteScroll, IonInfiniteScrollContent } from '@ionic/vue'
 import { filterOutline, optionsOutline } from 'ionicons/icons'
 import ModelsFilterModal from '@/components/ModelsFilterModal.vue'
 import ModelsSortModal from '@/components/ModelsSortModal.vue'
 import ModelList from '@/components/ModelList.vue'
-import useFipe from '@/composables/useFipe'
-import { VModel } from '../composables/useFipe'
-// @ts-ignore
-import ftsWorker from 'workerize-loader!../workers/flexsearch'
+import useFipe, { VModel } from '@/composables/useFipe'
+import useModels from '@/composables/useModels'
 
-const ftsInstance = ftsWorker()
+const { searchQuery, rows } = useModels()
 
 const { getModels } = useFipe()
-const rows = ref<VModel[]>([])
-const searchQuery = ref<string>('')
-const reloading = ref(false)
 
-const buildFtsIndex = async () => {
-  reloading.value = true
-  try {
-    const models = await getModels({
-      fields: ['modelId', 'model', 'make', 'vehicleTypeCode', 'fuelTypeCode', 'modelYear', 'price', 'deltaPrice12M'],
-      sort: [{ key: 'make' }, { key: 'model' }, { key: 'modelYear', asc: false }]
-    })
-    rows.value = await ftsInstance.setCollection(models)
-  } finally {
-    reloading.value = false
-  }
+const isDisabled = ref(false)
+
+const loadData = (evt: any) => {
+  console.log('LOADING')
+  setTimeout(() => {
+    evt.target.complete()
+    console.log('DONE...')
+  }, 1000)
 }
 
-watch(searchQuery, async searchQuery => { rows.value = await ftsInstance.search(searchQuery) })
+
+// watch(searchQuery, async searchQuery => { rows.value = await ftsInstance.search(searchQuery) })
 
 const openFilterModal = async () => {
   const modal = await modalController
@@ -86,7 +87,5 @@ const openSortModalModal = async () => {
     .create({ component: ModelsSortModal, componentProps: { title: 'Ordenar port' } })
   return modal.present()
 }
-
-buildFtsIndex()
 
 </script>

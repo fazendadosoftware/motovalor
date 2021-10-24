@@ -1,4 +1,4 @@
-import { Index, IndexOptions } from 'flexsearch'
+import { Index } from 'flexsearch'
 import { VModel } from '../composables/useFipe'
 
 let ftsIndex = new Index('match')

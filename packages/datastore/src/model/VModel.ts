@@ -5,7 +5,7 @@ export { VehicleTypeCode, FuelTypeCode }
 * Creates an instance of a view model entry.
 */
 export default class VModel {
-  public makeId?: number = -1
+  public id?: number = -1
   public make?: string = ''
   public modelId?: number = -1
   public model?: string = ''
@@ -19,7 +19,6 @@ export default class VModel {
   public deltaPrice12M?: number | null = -1
   public prices?: number[] = []
   public deltaPrices?: number[] = []
-  public _key?: string
 
   static getTableName () {
     return 'models'
@@ -27,6 +26,10 @@ export default class VModel {
 
   static getKeys (): string[] {
     return Object.keys(new VModel()).filter(key => key[0] !== '_')
+  }
+
+  static getId (modelId: number, modelYear: number) {
+    return modelId * 1E5 + modelYear
   }
 
   static mapFromSql (row: any, fields: (keyof VModel)[] | null = null): VModel {

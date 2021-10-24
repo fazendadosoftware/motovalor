@@ -4,7 +4,7 @@
       class="h-full"
       :items="models"
       :min-item-size="30"
-      key-field="_key"
+      key-field="id"
       v-slot="{ item, index, active }">
       <dynamic-scroller-item
         :item="item"
@@ -19,7 +19,7 @@
 
 <script lang="ts" setup>
 import { toRefs, PropType } from 'vue'
-import { IonList, IonItem, IonLabel } from '@ionic/vue'
+import { IonList } from '@ionic/vue'
 import { VModel } from '@/composables/useFipe'
 import ModelListItem from '@/components/ModelListItem.vue'
 
@@ -27,10 +27,6 @@ const props = defineProps({
   models: {
     type: Object as PropType<VModel[]>,
     required: true
-  },
-  rowKey: {
-    type: String as PropType<(keyof VModel)>,
-    required: false
   }
 })
 
