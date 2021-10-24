@@ -34,7 +34,8 @@
     "murmurhash": "^2.0.0",
     "original-fs": "^1.1.0",
     "vue": "^3.2.1",
-    "vue-router": "^4.0.0-0"
+    "vue-router": "^4.0.0-0",
+    "vue3-virtual-scroller": "^0.2.3"
   },
   "devDependencies": {
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.14.5",

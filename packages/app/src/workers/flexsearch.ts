@@ -1,42 +1,30 @@
-import { Index } from 'flexsearch'
+import { Index, IndexOptions } from 'flexsearch'
 import { VModel } from '../composables/useFipe'
 
-let ftsIndex = new Index()
+let ftsIndex = new Index('match')
 let _models: VModel[] = []
-let modelIndex: Record<string, Record<string, VModel>> = {}
+let modelIndex: Record<string, VModel> = {}
 
-export const setCollection = (models: VModel[]) => {
-  ftsIndex = new Index()
+export const setCollection = (models: VModel[]): VModel[] => {
+  ftsIndex = new Index('match')
   _models = models
   modelIndex = {}
+  console.log('models', models)
   models
     .forEach(model => {
-      model?.modelYears
-        ?.forEach(modelYear => {
-          const { modelId } = model
-          if (modelId === undefined) throw Error(`undefined modelId: ${JSON.stringify(model)}`)
-          const entry = { id: `${modelId}#${modelYear}`, item: `${model.make} ${model.model} ${modelYear}`}
-          if (!modelIndex[modelId]) modelIndex[modelId] = {}
-          modelIndex[modelId][modelYear] = model
-          ftsIndex.add(entry.id, entry.item)
-        })
+      const { modelId, make, model: name , modelYear, fuelTypeCode } = model
+      if (modelId === undefined || modelYear === undefined) throw Error(`undefined modelId: ${JSON.stringify(model)}`)
+      model._key = `${modelId}#${modelYear}`
+      const item = `${make} ${name} ${fuelTypeCode} ${modelYear}`
+      ftsIndex.add(model._key, item)
+      modelIndex[model._key] = model
     })
+  return models
 }
 
-export const search = (searchQuery: string, limit: number = 100) => {
-  if (!searchQuery) return _models.slice(0, limit)
-  const filteredModels = Object.values(ftsIndex.search(searchQuery, limit)
-    .reduce((accumulator: Record<string, VModel>, entryId) => {
-      // @ts-expect-error
-      const [modelId, modelYear] = entryId.split('#')
-      const model = modelIndex[modelId][modelYear]
-      model.modelYear = parseInt(modelYear)
-      if (!accumulator[modelId]) {
-        delete model.modelYear
-        accumulator[modelId] = { ...model, modelYears: [] }
-      }
-      accumulator[modelId]?.modelYears?.push(modelYear)
-      return accumulator
-    }, {}))
+export const search = (searchQuery: string, limit: number = 100): VModel[] => {
+  if (!searchQuery) return _models
+  const filteredModels = ftsIndex.search(searchQuery, limit)
+    .map(entryId => modelIndex[entryId])
   return filteredModels
 }

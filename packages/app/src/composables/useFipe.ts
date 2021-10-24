@@ -57,7 +57,7 @@ const getModels = async (props: GetModelsProps) => {
   const offsetStatement = typeof props.offset === 'number' ? ` OFFSET ${props.offset}` : ''
   const orderStatement = Array.isArray(props.sort)
     // ? ` ORDER BY ${props.sort?.key} ${props.sort?.asc ? 'ASC' : 'DESC'}`
-    ? ` ORDER BY ${Array.isArray(props.sort) ? props.sort.map(({ key, asc = null }) => `${key}${asc === null ? '' : asc === true ? 'ASC' : 'DESC'}`) : ''}`
+    ? ` ORDER BY ${Array.isArray(props.sort) ? props.sort.map(({ key, asc = null }) => `${key}${asc === null ? '' : asc === true ? ' ASC' : ' DESC'}`) : ''}`
     : ''
   const groupByStatement = (props?.fields?.indexOf('modelYears') ?? -1) > -1 ? ' GROUP BY modelId' : ''
 

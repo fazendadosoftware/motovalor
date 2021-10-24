@@ -4,12 +4,12 @@ import { RouteRecordRaw } from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/home'
+    redirect: '/models'
   },
   {
-    path: '/home',
-    name: 'Home',
-    component: () => import('../views/Home.vue')
+    path: '/models',
+    name: 'models',
+    component: () => import('@/views/Models.vue')
   }
 ]
 

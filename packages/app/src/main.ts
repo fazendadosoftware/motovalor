@@ -2,6 +2,9 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 
+import VueVirtualScroller from 'vue3-virtual-scroller'
+import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'
+
 import { IonicVue } from '@ionic/vue'
 
 /* Core CSS required for Ionic components to work properly */
@@ -27,6 +30,7 @@ import 'tailwindcss/tailwind.css'
 
 const app = createApp(App)
   .use(IonicVue)
+  .use(VueVirtualScroller)
   .use(router)
 
 router.isReady()

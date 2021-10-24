@@ -19,17 +19,18 @@ export default class VModel {
   public deltaPrice12M?: number | null = -1
   public prices?: number[] = []
   public deltaPrices?: number[] = []
+  public _key?: string
 
   static getTableName () {
     return 'models'
   }
 
   static getKeys (): string[] {
-    return Object.keys(new VModel())
+    return Object.keys(new VModel()).filter(key => key[0] !== '_')
   }
 
   static mapFromSql (row: any, fields: (keyof VModel)[] | null = null): VModel {
-    const vmodel = (fields ?? Object.keys(new VModel()))
+    const vmodel = (fields ?? this.getKeys())
       .reduce((accumulator: VModel, key) => ({ ...accumulator, [key]: row[key] }), {})
     if (typeof vmodel.prices === 'string') vmodel.prices = JSON.parse(vmodel.prices)
     if (typeof vmodel.deltaPrices === 'string') vmodel.deltaPrices = JSON.parse(vmodel.deltaPrices)

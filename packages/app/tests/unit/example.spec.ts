@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import Home from '@/views/Home.vue'
+import Home from '@/views/Models.vue'
 
 describe('Home.vue', () => {
   test.skip('renders home vue', () => {

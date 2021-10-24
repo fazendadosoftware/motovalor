@@ -8,6 +8,12 @@
         </ion-buttons>
         -->
         <ion-buttons slot="primary">
+          <ion-button @click="() => openSortModalModal()">
+            <ion-icon
+              slot="icon-only"
+              :icon="filterOutline"
+            />
+          </ion-button>
           <ion-button @click="() => openFilterModal()">
             <ion-icon
               slot="icon-only"
@@ -38,8 +44,9 @@
 <script lang="ts" setup>
 import { ref, unref, watch, computed } from 'vue'
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonButton, IonIcon, modalController } from '@ionic/vue'
-import { optionsOutline } from 'ionicons/icons'
-import Modal from '@/components/ModelsFilterModal.vue'
+import { filterOutline, optionsOutline } from 'ionicons/icons'
+import ModelsFilterModal from '@/components/ModelsFilterModal.vue'
+import ModelsSortModal from '@/components/ModelsSortModal.vue'
 import ModelList from '@/components/ModelList.vue'
 import useFipe from '@/composables/useFipe'
 import { VModel } from '../composables/useFipe'
@@ -56,9 +63,11 @@ const reloading = ref(false)
 const buildFtsIndex = async () => {
   reloading.value = true
   try {
-    const models = await getModels({ fields: ['modelId', 'model', 'make', 'vehicleTypeCode', 'fuelTypeCode', 'modelYears'] })
-    await ftsInstance.setCollection(models)
-    rows.value = await ftsInstance.search()
+    const models = await getModels({
+      fields: ['modelId', 'model', 'make', 'vehicleTypeCode', 'fuelTypeCode', 'modelYear', 'price', 'deltaPrice12M'],
+      sort: [{ key: 'make' }, { key: 'model' }, { key: 'modelYear', asc: false }]
+    })
+    rows.value = await ftsInstance.setCollection(models)
   } finally {
     reloading.value = false
   }
@@ -68,7 +77,13 @@ watch(searchQuery, async searchQuery => { rows.value = await ftsInstance.search(
 
 const openFilterModal = async () => {
   const modal = await modalController
-    .create({ component: Modal, componentProps: { title: 'Model Filter' } })
+    .create({ component: ModelsFilterModal, componentProps: { title: 'Filtrar' } })
+  return modal.present()
+}
+
+const openSortModalModal = async () => {
+  const modal = await modalController
+    .create({ component: ModelsSortModal, componentProps: { title: 'Ordenar port' } })
   return modal.present()
 }
 
