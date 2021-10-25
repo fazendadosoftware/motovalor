@@ -37,14 +37,12 @@ const useModels = () => {
     }
   }
 
-  const fetchNextModelPage = async () => {
+  const fetchNextModelPage = async (): Promise<VModel[]> => {
     loading.value++
     try {
       const offset = unref(models).length
-      const count = await getModelCount({})
-      console.log('COUNT', count)
       let modelPage = await getModels({
-        fields: ['id', 'model', 'make', 'fuelTypeCode', 'modelYear', 'price', 'deltaPrice12M'],
+        fields: ['id', 'model', 'make', 'fuelTypeCode', 'vehicleTypeCode', 'modelYear', 'price', 'deltaPrice12M'],
         id: unref(filteringIds),
         offset,
         limit: pageSize,
@@ -52,16 +50,16 @@ const useModels = () => {
       })
       if (Array.isArray(unref(filteringIds))) {
         const modelPageIndex = modelPage
-          .reduce((accumulator: Record<ModelId, VModel>, model) => ({ ...accumulator, [model?.id || -1]: model }), {})
+          .reduce((accumulator: Record<ModelId, VModel>, model) => ({ ...accumulator, [model?.id ?? -1]: model }), {})
         modelPage = (unref(filteringIds) ?? [])
           .reduce((accumulator: VModel[], id) => {
             const model = modelPageIndex[id]
-            if (model) accumulator.push(model)
+            if (model !== undefined) accumulator.push(model)
             return accumulator
           }, [])
       }
       unref(models).push(...modelPage)
-      return models
+      return unref(models)
     } finally {
       loading.value--
     }

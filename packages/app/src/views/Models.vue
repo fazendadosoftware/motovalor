@@ -33,11 +33,11 @@
       :debounce="250"
       :placeholder="totalCount === null ? 'Search models' : `Search ${totalCount} model${totalCount === 1 ? '' : 's'}`"/>
     <ion-content :fullscreen="false">
-      <ion-list :lines="'inset'">
+      <ion-list lines="full">
         <dynamic-scroller
           class="h-full"
           :items="models"
-          :min-item-size="30"
+          :min-item-size="10"
           key-field="id"
           v-slot="{ item, index, active }">
           <dynamic-scroller-item
@@ -64,7 +64,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonButton, IonIcon, modalController, IonInfiniteScrollContent, IonInfiniteScroll, IonList } from '@ionic/vue'
 import { filterOutline, optionsOutline } from 'ionicons/icons'
 import ModelListItem from '@/components/ModelListItem.vue'
@@ -89,8 +88,10 @@ const openSortModalModal = async () => {
 }
 
 const loadData = async (evt: any) => {
-  console.log('LOADING DATA')
-  await fetchNextModelPage()
-  evt.target.complete()
+  try {
+    await fetchNextModelPage()
+  } finally {
+    evt.target.complete()
+  }
 }
 </script>

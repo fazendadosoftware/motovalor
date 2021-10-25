@@ -16,7 +16,7 @@ export default class VModel {
   public modelYear?: number = -1
   public modelYears?: number[] = []
   public price?: number = -1
-  public deltaPrice12M?: number | null = -1
+  public deltaPrice12M?: number = -1
   public prices?: number[] = []
   public deltaPrices?: number[] = []
 

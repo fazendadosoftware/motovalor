@@ -10,7 +10,6 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 12,
-    parser: '@typescript-eslint/parser',
     sourceType: 'module',
     project: ['./tsconfig.json'],
     extraFileExtensions: ['.vue']
@@ -23,7 +22,8 @@ module.exports = {
     'no-unused-vars': 'off',
     'vue/script-setup-uses-vars': 'error',
     'vue/max-attributes-per-line': 'off',
-    'vue/html-closing-bracket-newline': 'off'
+    'vue/html-closing-bracket-newline': 'off',
+    'vue/require-default-prop': 'off'
   },
   globals: {
     defineProps: 'readonly',
