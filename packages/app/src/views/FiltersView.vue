@@ -2,7 +2,6 @@
   <ion-page>
     <ion-tabs @ionTabsWillChange="beforeTabChange" @ionTabsDidChange="afterTabChange">
       <ion-router-outlet />
-      fwefewew
       <ion-tab-bar slot="bottom">
         <ion-tab-button tab="schedule" href="/filters/current">
           <ion-icon :icon="calendar" />
