@@ -15,6 +15,16 @@ const routes: RouteRecordRaw[] = [
     path: '/models',
     name: 'models',
     component: async () => await import('@/views/Models.vue')
+  },
+  {
+    path: '/filters',
+    name: 'filters',
+    redirect: '/filters/current',
+    component: async () => await import('@/views/FiltersView.vue'),
+    children: [
+      { path: 'current', name: 'currentFilter', component: async () => await import('@/components/TabFiltersCurrent.vue') },
+      { path: 'saved', name: 'savedFilters', component: async () => await import('@/components/TabFiltersSaved.vue') }
+    ]
   }
 ]
 

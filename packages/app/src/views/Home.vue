@@ -14,7 +14,7 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :scroll-y="false">
-      <div class="h-full flex items-center justify-center">
+      <div class="h-full flex items-center justify-center space-x-2">
         <button
           class="border border-gray-200 p-4 rounded-md shadow-md bg-gray-200 cursor-pointer"
           @click="() => router.push({ name: 'models' })">

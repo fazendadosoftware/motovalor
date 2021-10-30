@@ -61,7 +61,6 @@ const { model } = toRefs(props)
 const darkMode: Ref<boolean> = ref(window.matchMedia('(prefers-color-scheme: dark)').matches)
 
 const style = computed(() => {
-  console.log('MODEL', model.value.vehicleTypeCode)
   let style = []
   if (unref(darkMode)) style.push('--border-color: #ffffff20')
   const backgroundColors = ['#38A16920', '#D53F8C20', '#D69E2E20']

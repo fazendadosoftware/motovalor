@@ -1,5 +1,4 @@
 import { createApp } from 'vue'
-import { SplashScreen } from '@capacitor/splash-screen'
 import App from './App.vue'
 import router from './router'
 
@@ -33,7 +32,6 @@ import useModels from '@/composables/useModels'
 const { init: initModels } = useModels()
 
 void initModels()
-
 const app = createApp(App)
   .use(IonicVue)
   .use(VueVirtualScroller)

@@ -3,20 +3,17 @@
     <ion-header :translucent="true">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="/" text="" />
+          <back-button to="home" />
         </ion-buttons>
         <ion-buttons slot="primary">
-          <ion-button @click="() => openSortModalModal()">
+          <ion-button>
             <ion-icon
               slot="icon-only"
               :icon="filterOutline"
             />
           </ion-button>
-          <ion-button @click="() => openFilterModal()">
-            <ion-icon
-              slot="icon-only"
-              :icon="optionsOutline"
-            />
+          <ion-button @click="router.push({ name: 'filters'})">
+            <ion-icon slot="icon-only" :icon="optionsOutline" />
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
@@ -27,7 +24,7 @@
       :debounce="250"
       :placeholder="totalCount === null ? 'Search models' : `Search ${totalCount} model${totalCount === 1 ? '' : 's'}`"/>
     <ion-content :fullscreen="false">
-      <ion-list lines="full">
+      <ion-list lines="full" class="pt-0">
         <dynamic-scroller
           class="h-full"
           :items="models"
@@ -59,12 +56,15 @@
 
 <script lang="ts" setup>
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonButton, IonBackButton, IonIcon, modalController, IonInfiniteScrollContent, IonInfiniteScroll, IonList } from '@ionic/vue'
-import { filterOutline, optionsOutline } from 'ionicons/icons'
+import { useRouter } from 'vue-router'
+import { filterOutline, optionsOutline, chevronBackOutline } from 'ionicons/icons'
 import ModelListItem from '@/components/ModelListItem.vue'
 import ModelsFilterModal from '@/components/ModelsFilterModal.vue'
 import ModelsSortModal from '@/components/ModelsSortModal.vue'
+import BackButton from '@/components/BackButton.vue'
 import useModels from '@/composables/useModels'
 
+const router = useRouter()
 const { searchQuery, models, fetchNextModelPage, hasNextPage, totalCount } = useModels()
 
 // watch(searchQuery, async searchQuery => { rows.value = await ftsInstance.search(searchQuery) })
