@@ -1,16 +1,14 @@
 <template>
   <ion-page>
     <ion-header :translucent="true">
-      <ion-toolbar>
+      <ion-toolbar color="primary">
         <ion-buttons slot="start">
           <back-button to="home" />
         </ion-buttons>
+        <ion-title>Modelos</ion-title>
         <ion-buttons slot="primary">
           <ion-button>
-            <ion-icon
-              slot="icon-only"
-              :icon="filterOutline"
-            />
+            <ion-icon slot="icon-only" :icon="filterOutline" />
           </ion-button>
           <ion-button @click="router.push({ name: 'filters'})">
             <ion-icon slot="icon-only" :icon="optionsOutline" />

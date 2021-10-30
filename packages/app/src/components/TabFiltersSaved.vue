@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-header>
-      <ion-toolbar>
+      <ion-toolbar color="secondary">
         <ion-buttons slot="start">
           <back-button to="models" close />
         </ion-buttons>

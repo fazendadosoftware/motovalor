@@ -5,10 +5,11 @@ module.exports = {
     jest: true
   },
   extends: [
-    'plugin:vue/vue3-recommended',
-    'standard-with-typescript'
+    'standard-with-typescript',
+    'plugin:vue/vue3-recommended'
   ],
   parserOptions: {
+    parser: '@typescript-eslint/parser',
     ecmaVersion: 12,
     sourceType: 'module',
     project: ['./tsconfig.json'],
