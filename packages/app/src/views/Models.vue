@@ -2,11 +2,9 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
-        <!--
         <ion-buttons slot="start">
-          <ion-menu-button auto-hide="false" />
+          <ion-back-button defaultHref="/" text="" />
         </ion-buttons>
-        -->
         <ion-buttons slot="primary">
           <ion-button @click="() => openSortModalModal()">
             <ion-icon
@@ -21,10 +19,6 @@
             />
           </ion-button>
         </ion-buttons>
-
-        <ion-title>
-          Motovalor
-        </ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-searchbar
@@ -64,7 +58,7 @@
 </template>
 
 <script lang="ts" setup>
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonButton, IonIcon, modalController, IonInfiniteScrollContent, IonInfiniteScroll, IonList } from '@ionic/vue'
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonButton, IonBackButton, IonIcon, modalController, IonInfiniteScrollContent, IonInfiniteScroll, IonList } from '@ionic/vue'
 import { filterOutline, optionsOutline } from 'ionicons/icons'
 import ModelListItem from '@/components/ModelListItem.vue'
 import ModelsFilterModal from '@/components/ModelsFilterModal.vue'

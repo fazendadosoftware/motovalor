@@ -23,7 +23,8 @@ module.exports = {
     'vue/script-setup-uses-vars': 'error',
     'vue/max-attributes-per-line': 'off',
     'vue/html-closing-bracket-newline': 'off',
-    'vue/require-default-prop': 'off'
+    'vue/require-default-prop': 'off',
+    'vue/no-deprecated-slot-attribute': 'off'
   },
   globals: {
     defineProps: 'readonly',

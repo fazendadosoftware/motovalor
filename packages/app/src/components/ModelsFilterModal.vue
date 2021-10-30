@@ -1,7 +1,10 @@
 <template>
   <ion-header>
     <ion-toolbar>
-      <ion-title>{{ title }}</ion-title>
+      <ion-buttons slot="start">
+        <ion-back-button />
+      </ion-buttons>
+      <ion-title>Filtrar</ion-title>
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding">
@@ -11,7 +14,7 @@
 
 <script lang="ts" setup>
 import { toRefs, ref } from 'vue'
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/vue'
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton } from '@ionic/vue'
 const props = defineProps({
   title: {
     type: String,

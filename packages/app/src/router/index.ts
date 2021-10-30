@@ -1,15 +1,20 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router'
 import { RouteRecordRaw } from 'vue-router'
 
-const routes: Array<RouteRecordRaw> = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/models'
+    redirect: '/home'
+  },
+  {
+    path: '/home',
+    name: 'home',
+    component: async () => await import('@/views/Home.vue')
   },
   {
     path: '/models',
     name: 'models',
-    component: () => import('@/views/Models.vue')
+    component: async () => await import('@/views/Models.vue')
   }
 ]
 
