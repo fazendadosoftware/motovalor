@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full p-6 space-y-6 flex flex-col items-center">
+  <div class="h-full p-6 space-y-8 flex flex-col items-center">
     <vehicle-type-selector v-model="vehicleTypeIds" />
     <vehicle-condition-segment v-model="vehicleCondition" />
     <div class="text-xs text-gray-400 italic flex items-center">

@@ -1,12 +1,12 @@
 <template>
   <div
-    class="flex space-x-4 transition duration-200 ease-in-out"
+    class="flex space-x-7 transition duration-200 ease-in-out"
     :class="{ 'opacity-50 cursor-not-allowed': disabled }">
     <vehicle-type-avatar
       v-for="vehicleTypeId in vehicleTypeIds"
       :key="vehicleTypeId"
       :vehicle-type-id="vehicleTypeId"
-      class="h-10 w-10 rounded-full shadow-md"
+      class="h-14 w-14 rounded-full shadow-md"
       :class="{
         'cursor-pointer': !disabled
       }"

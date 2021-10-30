@@ -20,8 +20,6 @@
     </ion-header>
     <ion-searchbar
       v-model="searchQuery"
-      class="p-0 bg-white"
-      style="--border-radius: 0; --background: transparent"
       :disabled="totalCount === null"
       :debounce="250"
       :placeholder="totalCount === null ? 'Search models' : `Search ${totalCount} model${totalCount === 1 ? '' : 's'}`" />
