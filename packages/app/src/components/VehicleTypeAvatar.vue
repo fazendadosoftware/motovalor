@@ -39,6 +39,8 @@
 <script lang="ts" setup>
 import { ref, unref, toRefs, computed } from 'vue'
 
+const emit = defineEmits(['clear'])
+
 const props = defineProps({
   vehicleTypeId: { type: Number, required: true },
   backgroundColor: { type: String, required: false },

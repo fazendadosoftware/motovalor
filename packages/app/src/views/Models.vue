@@ -5,7 +5,9 @@
         <ion-buttons slot="start">
           <back-button to="home" />
         </ion-buttons>
-        <ion-title>Modelos</ion-title>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <img class="h-9" src="../../public/assets/img/motovalor_logo.svg">
+        </div>
         <ion-buttons slot="primary">
           <ion-button>
             <ion-icon slot="icon-only" :icon="filterOutline" />
@@ -18,17 +20,19 @@
     </ion-header>
     <ion-searchbar
       v-model="searchQuery"
+      class="p-0 bg-white"
+      style="--border-radius: 0; --background: transparent"
       :disabled="totalCount === null"
       :debounce="250"
-      :placeholder="totalCount === null ? 'Search models' : `Search ${totalCount} model${totalCount === 1 ? '' : 's'}`"/>
+      :placeholder="totalCount === null ? 'Search models' : `Search ${totalCount} model${totalCount === 1 ? '' : 's'}`" />
     <ion-content :fullscreen="false">
       <ion-list lines="full" class="pt-0">
         <dynamic-scroller
+          v-slot="{ item, index, active }"
           class="h-full"
           :items="models"
           :min-item-size="10"
-          key-field="id"
-          v-slot="{ item, index, active }">
+          key-field="id">
           <dynamic-scroller-item
             :item="item"
             :active="active"
@@ -39,14 +43,13 @@
         </dynamic-scroller>
       </ion-list>
       <ion-infinite-scroll
-        @ionInfinite="loadData($event)" 
-        threshold="90%"
         id="infinite-scroll"
-        :disabled="!hasNextPage">
+        threshold="90%"
+        :disabled="!hasNextPage"
+        @ionInfinite="loadData($event)">
         <ion-infinite-scroll-content
           loading-spinner="bubbles"
-          loading-text="Loading more data...">
-        </ion-infinite-scroll-content>
+          loading-text="Loading more data..." />
       </ion-infinite-scroll>
     </ion-content>
   </ion-page>
