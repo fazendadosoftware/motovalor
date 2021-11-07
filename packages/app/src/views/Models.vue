@@ -6,7 +6,7 @@
           <back-button to="home" />
         </ion-buttons>
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <img class="h-9" src="../../public/assets/img/motovalor_logo.svg">
+          <img class="h-9" src="@/assets/img/motovalor_logo_full.svg">
         </div>
         <ion-buttons slot="primary">
           <ion-button>

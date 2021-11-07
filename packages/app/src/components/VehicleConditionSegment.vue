@@ -1,5 +1,5 @@
 <template>
-  <ion-segment @ionChange="segmentChanged($event)" :value="'used'">
+  <ion-segment :value="'used'" @ionChange="segmentChanged($event)">
     <ion-segment-button :value="'new'">
       <ion-label>Novos</ion-label>
     </ion-segment-button>

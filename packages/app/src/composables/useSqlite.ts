@@ -11,7 +11,7 @@ import { SQLiteConnection, SQLiteDBConnection, CapacitorSQLite } from '@capacito
 // import AdmZip from 'adm-zip'
 
 const DB_FILE_NAME = 'fipe.db'
-const getMigratedFilename = (filename: string) => filename.replace(/.db/, 'SQLite.db')
+const getMigratedFilename = (filename: string): string => filename.replace(/.db/, 'SQLite.db')
 
 let initialized: boolean | null = null
 let db: SQLiteDBConnection | null = null
@@ -19,7 +19,7 @@ let db: SQLiteDBConnection | null = null
 // const sqlite = useSQLite()
 const sqlite = new SQLiteConnection(CapacitorSQLite)
 
-applyPolyfills().then(() => jeepSqlite(window))
+void applyPolyfills().then(async () => await jeepSqlite(window))
 
 /*
 const getLocalDb = async (filename: string): Promise<string> => {
@@ -55,19 +55,20 @@ const getLocalDb = async (filename: string): Promise<string> => {
 
 const checkIfDbExists = async (dbName: string): Promise<boolean> => {
   const { values: databaseList = [] } = await sqlite.getDatabaseList().catch(() => ({ values: [] }))
-  return databaseList.indexOf(dbName) > -1
+  return databaseList.includes(dbName)
 }
 export interface InitProps {
   syncDatabase?: boolean
 }
 // https://github.com/capacitor-community/sqlite/blob/master/docs/Ionic-Vue-Usage.md#vue-sqlite-hook-definition
-const init = async (props?: InitProps) => {
+const init = async (props?: InitProps): Promise<void> => {
   // initialized will be false during initialization process
   if (initialized === false) {
     let interval: any
     await new Promise((resolve, reject) => {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       interval = setInterval(async () => {
-        if (initialized === true && (await db?.isDBOpen())?.result) {
+        if (initialized === true && (((await db?.isDBOpen())?.result) ?? false)) {
           clearInterval(interval)
           interval = undefined
           resolve(undefined)
@@ -91,7 +92,6 @@ const init = async (props?: InitProps) => {
   const platform = Capacitor.getPlatform()
 
   if (platform !== 'web') await sqlite.deleteOldDatabases().catch(() => {})
-  if (props?.syncDatabase === true) await deleteDatabase(DB_FILE_NAME).catch(() => {})
 
   try {
     if (platform === 'web') {
@@ -102,9 +102,9 @@ const init = async (props?: InitProps) => {
       }
     }
 
-    await sqlite.copyFromAssets()
-    if (!await checkIfDbExists(getMigratedFilename(DB_FILE_NAME))) {
-      await sqlite.copyFromAssets()
+    // overwrite existing database if not exists or forced via syncDatabase flag
+    if (!await checkIfDbExists(getMigratedFilename(DB_FILE_NAME)) || props?.syncDatabase === true) {
+      await sqlite.copyFromAssets(true)
       if (!await checkIfDbExists(getMigratedFilename(DB_FILE_NAME))) throw Error('Could not find database!')
     }
 
@@ -115,7 +115,7 @@ const init = async (props?: InitProps) => {
     db = isConsistent && isConn
       ? await sqlite.retrieveConnection(DB_FILE_NAME)
       : await sqlite.createConnection(DB_FILE_NAME, false, 'no-encryption', 1)
-    if (!await db.isDBOpen().then(({ result }) => result)) await db.open()
+    if (!((await db.isDBOpen().then(({ result }) => result)) ?? false)) await db.open()
   } finally {
     initialized = true
   }
@@ -123,14 +123,15 @@ const init = async (props?: InitProps) => {
 
 const getInstance = async (): Promise<SQLiteDBConnection> => {
   if (db !== null) return db
-  else if (!initialized) await init({ syncDatabase: true })
+  else if (!(initialized ?? false)) await init({ syncDatabase: true })
   if (db === null) throw Error('could not initialize db')
   return db
 }
-const deleteDatabase = async (databaseName: string) => {
+
+const deleteDatabase = async (databaseName: string): Promise<void> => {
   // first we check if database exists
   const { values: existingDatabases = [] } = await sqlite.getDatabaseList().catch(() => ({ values: [] }))
-  if (existingDatabases.indexOf(getMigratedFilename(databaseName)) > -1) {
+  if (existingDatabases.includes(getMigratedFilename(databaseName))) {
     const { result: isConsistent = false } = await sqlite.checkConnectionsConsistency()
     const { result: isConn = false } = await sqlite.isConnection(DB_FILE_NAME)
     isConsistent && isConn
@@ -149,7 +150,12 @@ const executeSQL = async <T>(sqlStatement: string, args?: any[]): Promise<T[]> =
   return values
 }
 
-const useSqlite = () => ({
+export interface IUseSqlite {
+  getInstance: () => Promise<SQLiteDBConnection>
+  executeSQL: <T>(sqlStatement: string, args?: any[]) => Promise<T[]>
+}
+
+const useSqlite = (): IUseSqlite => ({
   getInstance,
   executeSQL
 })
