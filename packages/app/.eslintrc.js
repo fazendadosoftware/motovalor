@@ -1,36 +1,56 @@
 module.exports = {
-  env: {
-    browser: true,
-    es2021: true,
-    jest: true
-  },
+  root: true,
   extends: [
-    'standard-with-typescript',
-    'plugin:vue/vue3-recommended'
+    '@react-native-community/eslint-config', // Default RN config
+    'standard-with-typescript', // Installed in step 2
+    'eslint-config-prettier' // Installed in step 3
   ],
-  parserOptions: {
-    parser: '@typescript-eslint/parser',
-    ecmaVersion: 12,
-    sourceType: 'module',
-    project: ['./tsconfig.json'],
-    extraFileExtensions: ['.vue']
-  },
+  parser: '@typescript-eslint/parser', // Installed in step 2
   plugins: [
-    'vue',
-    '@typescript-eslint'
+    '@typescript-eslint', // Installed in step 2
+    'react', // Installed in step 1
+    'react-native' // Installed in step 1
   ],
-  rules: {
-    'no-unused-vars': 'off',
-    'vue/script-setup-uses-vars': 'error',
-    'vue/max-attributes-per-line': 'off',
-    'vue/html-closing-bracket-newline': 'off',
-    'vue/require-default-prop': 'off',
-    'vue/no-deprecated-slot-attribute': 'off'
+  'parserOptions': {
+    'ecmaFeatures': {
+      'jsx': true
+    },
+    'project': './tsconfig.json' // Required for Standard plugin
   },
-  globals: {
-    defineProps: 'readonly',
-    defineEmits: 'readonly',
-    defineExpose: 'readonly',
-    withDefaults: 'readonly'
+  'env': {
+    'react-native/react-native': true
+  },
+  'rules': {
+    'prettier/prettier': 'off', // Turn off prettier
+    // These are the rules that I use
+    'react-native/no-unused-styles': 'warn',
+    'react-native/no-inline-styles': 'error',
+    'react-native/no-raw-text': ['warn', {
+      skip: ['CustomText']
+    }],
+    'react-native/no-single-element-style-arrays': 'warn',
+    'object-curly-spacing': 'error',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/strict-boolean-expressions': 'off',
+    '@typescript-eslint/no-floating-promises': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/require-array-sort-compare': ['error', {
+      ignoreStringArrays: true
+    }],
+    'react/jsx-curly-spacing': ['error', {
+      when: 'always',
+      allowMultiline: true,
+      children: true
+    }],
+    'eol-last': ['error', 'always'],
+    'no-multiple-empty-lines': 'error',
+    semi: ['error', 'never'],
+    // Indent with 2 spaces
+    indent: ['error', 2],
+    // Indent JSX with 2 spaces
+    'react/jsx-indent': ['error', 2],
+    // Indent props with 2 spaces
+    'react/jsx-indent-props': ['error', 2],
+    'react-native/no-inline-styles': 'off'
   }
 }
