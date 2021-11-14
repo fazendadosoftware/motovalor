@@ -1,7 +1,7 @@
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { View, TouchableOpacity } from 'react-native'
-import SearchScreen from '../screens/SearchScreen'
+import VehiclesMasterScreen from '../screens/VehiclesMasterScreen'
 import AccountScreen from '../screens/AccountScreen'
 import { Icon } from 'react-native-elements'
 
@@ -13,7 +13,7 @@ const HomeTabs: React.FC<{ screenOptions: any }> = ({ screenOptions }) => {
       screenOptions={ screenOptions }>
       <Tab.Screen
         name='Search'
-        component={ SearchScreen }
+        component={ VehiclesMasterScreen }
         options={ ({ navigation }) => ({
           tabBarLabel: 'Buscar',
           tabBarIcon: ({ color, size }) => <Icon name='magnify' type='material-community' size={ size } color={ color } />,
