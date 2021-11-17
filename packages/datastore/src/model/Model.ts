@@ -1,5 +1,7 @@
 import { v3 } from 'murmurhash'
-export type ModelYear = string
+import { ObjectSchema } from 'realm'
+import ModelYear from './ModelYear'
+import Make from './Make'
 
 const MODEL_ID_SEED = 982034890
 
@@ -15,16 +17,35 @@ export type VehicleTypeCode = 1 | 2 | 3
 export type FuelTypeCode = 'A' | 'D' | 'G'
 export default class Model {
   public id: number = -1
-  public makeId: number = -1
-  public vehicleTypeCode: VehicleTypeCode = 1
-  public name: string = ''
-  public fipeCode: string = ''
-  public fuelTypeCode: FuelTypeCode = 'G'
+  public makeId?: number = -1
+  public make?: Make
+  public vehicleTypeCode?: VehicleTypeCode = 1
+  public name?: string = ''
+  public fipeCode?: string = ''
+  public fuelTypeCode?: FuelTypeCode = 'G'
 
   static FUEL_TYPE_DICTIONARY = {
     G: 'G',
     D: 'D',
     Á: 'A'
+  }
+
+  static schema: ObjectSchema = {
+    name: 'Model',
+    primaryKey: 'id',
+    properties: {
+      id: 'int',
+      make: 'Make',
+      vehicleTypeCode: 'int',
+      name: 'string',
+      fipeCode: 'string',
+      fuelTypeCode: 'string',
+      modelYears: {
+        type: 'linkingObjects',
+        objectType: ModelYear.schema.name,
+        property: 'model'
+      }
+    }
   }
 
   static getModelFieldIndexes (columns: string[]) {
