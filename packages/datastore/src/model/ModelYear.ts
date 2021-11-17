@@ -1,9 +1,7 @@
 export default class ModelYear {
   public modelId: number = -1
   public year: number = -1
-  public refDate: number = -1
   public prices: Record<number, number> = {}
-  public deltaPrices: number[] = []
 
   constructor (modelId: number, year: number, prices?: Record<number, number>) {
     this.modelId = modelId
@@ -22,6 +20,6 @@ export default class ModelYear {
   }
 
   static getJsonKeys (): string[] {
-    return ['prices', 'deltaPrices']
+    return ['prices']
   }
 }
