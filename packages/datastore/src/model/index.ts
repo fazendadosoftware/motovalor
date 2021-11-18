@@ -1,11 +1,12 @@
 import FipeTable from './FipeTable'
 import Make from './Make'
 import Model from './Model'
-import ModelYear from './ModelYear'
+import ModelYear, { ModelYearSchema } from './ModelYear'
 
 export {
   FipeTable,
   Make,
   Model,
-  ModelYear
+  ModelYear,
+  ModelYearSchema
 }

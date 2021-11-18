@@ -1,24 +1,21 @@
 import Realm, { open } from 'realm'
 import Fuse from 'fuse.js'
-import { FipeTable, Make, Model, ModelYear } from './model'
+import { FipeTable, Make, Model, ModelYearSchema } from './model'
 
 export interface RepositoryData {
   fipeTables: FipeTable[]
   makes: Make[]
   models: Model[]
-  modelYears: ModelYear[]
+  modelYears: ModelYearSchema[]
 }
 
 export const openRealm = async (path?: string): Promise<Realm> => {
-  const realm = await open({ path, schema: [FipeTable, Make, Model, ModelYear] })
+  const realm = await open({ path, schema: [Make, Model, ModelYearSchema] })
   return realm
 }
 
-const getDeltaMonthIndexesSet = (windowYearSize: number) => new Set([...Array(Math.ceil(windowYearSize)).keys()]
-  .map(year => year === 0 ? [1, 3, 6] : year * 12).flat())
-
 const windowYearSize = 3
-const deltaPriceIndexes = getDeltaMonthIndexesSet(5)
+const deltaPriceIndexes = ModelYearSchema.getDeltaMonthIndexesSet(5)
 
 export const updateDatabaseFromData = async (realm: Realm, data: RepositoryData) => {
   const { fipeTables, makes, models, modelYears } = data
@@ -46,24 +43,25 @@ export const updateDatabaseFromData = async (realm: Realm, data: RepositoryData)
     modelYears
       .filter(modelYear => !isNaN(modelYear.prices[tableDates[0]])) // filter modelYears with price listing for the latest table...
       .forEach(modelYear => {
-        const { prices, deltaPrices } = tableDates
-          .reduce((accumulator: { prices: number[], deltaPrices: number[] }, date, i) => {
-            let price = modelYear.prices[date]
-            if (price === undefined) {
-              price = getPreviousPrice(i, tableDates, modelYear.prices)
-              if (price === null) {
-                console.log('no previous price')
-                return accumulator
-              }
-            }
+        const { prices, deltas } = tableDates
+          .reduce((accumulator: { prices: number[], deltaPrices: number[], deltas: number[] }, date, i) => {
+            const price = modelYear.prices[date] ?? getPreviousPrice(i, tableDates, modelYear.prices)
+            if (price === null) return accumulator
             accumulator.prices.push(price)
-            if (deltaPriceIndexes.has(i)) accumulator.deltaPrices.push(accumulator.prices[0] - price)
+            if (deltaPriceIndexes.has(i)) {
+              const delta = (accumulator.prices[0] / price) - 1
+              accumulator.deltas.push(delta)
+              accumulator.deltaPrices.push(accumulator.prices[0] - price)
+            }
             return accumulator
-          }, { prices: [], deltaPrices: [] })
+          }, { prices: [], deltaPrices: [], deltas: [] })
         modelYear.model = { id: modelYear.modelId }
         modelYear.prices = prices
-        modelYear.deltaPrices = deltaPrices
-        realm.create<ModelYear>(ModelYear.schema.name, modelYear, Realm.UpdateMode.All)
+        modelYear.price = prices[0]
+
+        const deltaFields = ModelYearSchema.getDeltaFields(deltas)
+        Object.entries(deltaFields).forEach(([key, value]) => { modelYear[key] = value })
+        realm.create<ModelYearSchema>(ModelYearSchema.schema.name, modelYear, Realm.UpdateMode.All)
       })
     realm.commitTransaction()
   } catch (error) {

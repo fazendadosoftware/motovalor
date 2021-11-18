@@ -1,6 +1,6 @@
 import { v3 } from 'murmurhash'
 import { ObjectSchema } from 'realm'
-import ModelYear from './ModelYear'
+import { ModelYearSchema } from './ModelYear'
 import Make from './Make'
 
 const MODEL_ID_SEED = 982034890
@@ -42,7 +42,7 @@ export default class Model {
       fuelTypeCode: 'string',
       modelYears: {
         type: 'linkingObjects',
-        objectType: ModelYear.schema.name,
+        objectType: ModelYearSchema.schema.name,
         property: 'model'
       }
     }
