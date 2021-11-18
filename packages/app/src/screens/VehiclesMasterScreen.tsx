@@ -1,8 +1,5 @@
 import React from 'react'
-import {
-  Text,
-  View
-} from 'react-native'
+import { View } from 'react-native'
 import SearchBar from '../components/SearchBar'
 import ModelListItem from '../components/ModelListItem'
 
@@ -13,7 +10,15 @@ export default function VehiclesMasterScreen () {
         <SearchBar />
       </View>
       <View style={ { flex: 1, padding: 10 } }>
-        <ModelListItem />
+        <ModelListItem
+          vehicleTypeId={ 1 }
+          make="HARLEY-DAVIDSON"
+          name="FAT BOY"
+          modelYear={ 2012 }
+          price={ 73000 }
+          delta1M={ 0 }
+          delta6M={ 0.08026257157325745 }
+          delta12M={ -0.07171680778265 }/>
       </View>
     </View>
   )
