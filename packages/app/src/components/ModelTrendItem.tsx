@@ -10,7 +10,7 @@ const ModelTrendItem: React.FC<{ window: string, value?: number }> = ({ window, 
 
   return (
     <View style={ { flexDirection: 'row', alignItems: 'center' } }>
-      <View style={ { flexBasis: 50, flexGrow: 1, flexDirection: 'row', justifyContent: 'flex-end' } }>
+      <View style={ { flexGrow: 1, flexDirection: 'row', justifyContent: 'flex-end' } }>
         <Text style={ { fontSize: 11, fontWeight: 'bold' } }>
           { percentage }
         </Text>

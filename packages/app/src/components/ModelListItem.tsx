@@ -22,7 +22,6 @@ export interface ModelListItemProps {
 }
 const ModelListItem: React.FC<ModelListItemProps> = props => {
   const { vehicleTypeId, make, name, modelYear, price, delta1M, delta6M, delta12M } = props
-  console.log('PRICE', price, typeof price)
   const priceBRL = currencyFilter(price)
   
   return (
@@ -32,12 +31,12 @@ const ModelListItem: React.FC<ModelListItemProps> = props => {
       </View>
       <View style={ styles.middleSection }>
         <View>
-          <Text style={ { fontSize: 10 } }>
+          <Text numberOfLines={ 2 } style={ { fontSize: 10 } }>
             { make }
           </Text>
         </View>
         <View>
-          <Text style={ { fontSize: 12, fontWeight: 'bold' } }>
+          <Text numberOfLines={ 2 } style={ { fontSize: 12, fontWeight: 'bold' } }>
             { name }
           </Text>
         </View>
@@ -104,7 +103,8 @@ const styles = StyleSheet.create<Styles>({
   },
   vehiclePrice: {
     fontSize: 20,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    paddingHorizontal: 5
   }
 })
 

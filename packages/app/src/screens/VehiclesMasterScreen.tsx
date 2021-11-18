@@ -13,12 +13,12 @@ export default function VehiclesMasterScreen () {
         <ModelListItem
           vehicleTypeId={ 1 }
           make="HARLEY-DAVIDSON"
-          name="FAT BOY"
+          name="FAT BOY BLA CLAJIFOEJFIOEWJIOF  FEJFIOWEJFIOj"
           modelYear={ 2012 }
           price={ 73000 }
           delta1M={ 0 }
           delta6M={ 0.08026257157325745 }
-          delta12M={ -0.07171680778265 }/>
+          delta12M={ -2.07171680778265 }/>
       </View>
     </View>
   )
