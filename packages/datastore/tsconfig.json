@@ -4,6 +4,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "declaration": true,
+    "declarationMap": true,
     "outDir": "lib/cjs",
     "sourceMap": true,
     "esModuleInterop": true,
