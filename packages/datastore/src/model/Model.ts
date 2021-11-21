@@ -1,6 +1,6 @@
 import { v3 } from 'murmurhash'
-import { ObjectSchema } from 'realm'
-import { ModelYearSchema } from './ModelYear'
+import Realm from 'realm'
+import ModelYear from './ModelYear'
 import Make from './Make'
 
 const MODEL_ID_SEED = 982034890
@@ -18,11 +18,16 @@ export type FuelTypeCode = 'A' | 'D' | 'G'
 export default class Model {
   public id: number = -1
   public makeId?: number = -1
-  public make?: Make
+  public make: Make | { id: number }
   public vehicleTypeCode?: VehicleTypeCode = 1
   public name?: string = ''
   public fipeCode?: string = ''
   public fuelTypeCode?: FuelTypeCode = 'G'
+  public modelYears?: Realm.Results<ModelYear>
+
+  constructor (id?: number) {
+    if (id !== undefined) this.id = id
+  }
 
   static FUEL_TYPE_DICTIONARY = {
     G: 'G',
@@ -30,7 +35,7 @@ export default class Model {
     Á: 'A'
   }
 
-  static schema: ObjectSchema = {
+  static schema: Realm.ObjectSchema = {
     name: 'Model',
     primaryKey: 'id',
     properties: {
@@ -42,7 +47,7 @@ export default class Model {
       fuelTypeCode: 'string',
       modelYears: {
         type: 'linkingObjects',
-        objectType: ModelYearSchema.schema.name,
+        objectType: ModelYear.schema.name,
         property: 'model'
       }
     }
@@ -67,15 +72,10 @@ export default class Model {
     model.id = v3(Model.getModelIdString(model), MODEL_ID_SEED)
     model.makeId = makeId
     if (model.fuelTypeCode !== undefined) {
-      // @ts-ignore
       const ftCode = Model.FUEL_TYPE_DICTIONARY[model.fuelTypeCode]
       if (ftCode === undefined) throw Error(`Invalid fuel type code ${model.fuelTypeCode}`)
       model.fuelTypeCode = ftCode
     }
     return model
-  }
-
-  static getKeys (): string[] {
-    return Object.keys(new Model())
   }
 }

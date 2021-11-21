@@ -1,31 +1,5 @@
-import { ObjectSchema } from 'realm'
+import Realm from 'realm'
 import Model from './Model'
-export default class ModelYear {
-  public modelId: number = -1
-  public model?: Model
-  public year: number = -1
-  public prices: Record<number, number> | number[] = {}
-
-  constructor (modelId: number, year: number, prices?: Record<number, number>) {
-    this.modelId = modelId
-    this.year = year
-    if (prices !== undefined) this.prices = prices
-  }
-
-  public putPrice (dateIndex: number | string, value: number) {
-    this.prices[dateIndex] = value
-  }
-
-  static getModelYearPKey = (modelYear: ModelYear) => (`${modelYear.modelId}_${modelYear.year}`)
-
-  static getKeys (): string[] {
-    return Object.keys(new ModelYear(-1, -1, {}))
-  }
-
-  static getJsonKeys (): string[] {
-    return ['prices']
-  }
-}
 
 export interface ModelYearDeltas {
   delta1M?: number
@@ -35,8 +9,13 @@ export interface ModelYearDeltas {
   delta24M?: number
   delta36M?: number
 }
-export class ModelYearSchema extends ModelYear {
-  public price: number
+
+export default class ModelYear {
+  public modelId: number = -1
+  public model: Model | { id: number }
+  public year: number = -1
+  public prices: Record<number, number> | number[] = {}
+  public price?: number
   public delta1M?: number
   public delta3M?: number
   public delta6M?: number
@@ -44,7 +23,7 @@ export class ModelYearSchema extends ModelYear {
   public delta24M?: number
   public delta36M?: number
 
-  static schema: ObjectSchema = {
+  static schema: Realm.ObjectSchema = {
     name: 'ModelYear',
     properties: {
       model: 'Model',
@@ -73,5 +52,25 @@ export class ModelYearSchema extends ModelYear {
         return accumulator
       }, {})
     return deltaFields
+  }
+
+  constructor (modelId: number, year: number, prices?: Record<number, number>) {
+    this.modelId = modelId
+    this.year = year
+    if (prices !== undefined) this.prices = prices
+  }
+
+  public putPrice (dateIndex: number | string, value: number) {
+    this.prices[dateIndex] = value
+  }
+
+  static getModelYearPKey = (modelYear: ModelYear) => (`${modelYear.modelId}_${modelYear.year}`)
+
+  static getKeys (): string[] {
+    return Object.keys(new ModelYear(-1, -1, {}))
+  }
+
+  static getJsonKeys (): string[] {
+    return ['prices']
   }
 }

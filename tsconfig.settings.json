@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "incremental": true /* Enable incremental compilation */,
+    "declaration": true /* Generates corresponding '.d.ts' file. */,
+    "sourceMap": true /* Generates corresponding '.map' file. */,
+    "composite": true /* Enable project compilation */,
+    "importHelpers": true /* Import emit helpers from 'tslib'. */,
+    "strict": true /* Enable all strict type-checking options. */,
+    "moduleResolution": "node",
+    "esModuleInterop": true
+  }
+}

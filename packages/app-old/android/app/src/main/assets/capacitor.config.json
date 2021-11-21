@@ -1,6 +1,0 @@
-{
-	"appId": "com.motovalor.app",
-	"appName": "Motovalor",
-	"webDir": "dist",
-	"bundledWebRuntime": false
-}

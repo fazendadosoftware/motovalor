@@ -1,21 +1,21 @@
 import Realm, { open } from 'realm'
 import Fuse from 'fuse.js'
-import { FipeTable, Make, Model, ModelYearSchema } from './model'
+import { FipeTable, Make, Model, ModelYear } from './model'
 
 export interface RepositoryData {
   fipeTables: FipeTable[]
   makes: Make[]
   models: Model[]
-  modelYears: ModelYearSchema[]
+  modelYears: ModelYear[]
 }
 
 export const openRealm = async (path?: string): Promise<Realm> => {
-  const realm = await open({ path, schema: [Make, Model, ModelYearSchema] })
+  const realm = await open({ path, schema: [Make, Model, ModelYear] })
   return realm
 }
 
 const windowYearSize = 3
-const deltaPriceIndexes = ModelYearSchema.getDeltaMonthIndexesSet(5)
+const deltaPriceIndexes = ModelYear.getDeltaMonthIndexesSet(5)
 
 export const updateDatabaseFromData = async (realm: Realm, data: RepositoryData) => {
   const { fipeTables, makes, models, modelYears } = data
@@ -59,9 +59,9 @@ export const updateDatabaseFromData = async (realm: Realm, data: RepositoryData)
         modelYear.prices = prices
         modelYear.price = prices[0]
 
-        const deltaFields = ModelYearSchema.getDeltaFields(deltas)
+        const deltaFields = ModelYear.getDeltaFields(deltas)
         Object.entries(deltaFields).forEach(([key, value]) => { modelYear[key] = value })
-        realm.create<ModelYearSchema>(ModelYearSchema.schema.name, modelYear, Realm.UpdateMode.All)
+        realm.create<ModelYear>(ModelYear.schema.name, modelYear, Realm.UpdateMode.All)
       })
     realm.commitTransaction()
   } catch (error) {

@@ -7,7 +7,6 @@ import { parse } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 import { parallelLimit } from 'async'
 import { FipeTable, Make, Model, ModelYear } from './model'
-import { TableId } from './schema/FipeTableSchema'
 
 let repository: Repository
 
@@ -106,10 +105,7 @@ export const getIndexOfExistingReferenceTablesInRepository = async () => {
       .filter(entry => entry.isFile())
       .reduce((accumulator: any, entry) => {
         const groups = entry.name().match(/^(\d+).zip/)
-        if (Array.isArray(groups) && groups.length === 2) {
-          accumulator[groups[1]] = true
-          // return accumulator
-        }
+        if (Array.isArray(groups) && groups.length === 2) accumulator[groups[1]] = true
         return accumulator
       }, {})
     const index: Record<number, number> = {}
@@ -185,7 +181,7 @@ const processTableData = async (tableData: any): Promise<OutputData> => {
   const modelYearIndex: Record<string, ModelYear> = {}
 
   rows.forEach((row: any) => {
-    const make = Make.fromRow(row, makeColumnIndex)
+    const make = Make.create(row[makeColumnIndex])
     makeIndex[make.id] = make
     const model = Model.fromRow(row, modelKeys, make.id)
 
@@ -224,7 +220,7 @@ export const buildIndexesFromRepository = async (): Promise<RepositoryData> => {
   const folder = await HEAD.getEntry(baseFolder)
   if (folder.isDirectory()) {
     const entries = await folder.getTree().then(tree => tree.entries())
-    const files: TableId[] = entries
+    const files: number[] = entries
       .filter(entry => entry.isFile())
       .reduce((accumulator: number[], entry: TreeEntry) => {
         const groups = entry.name().match(/^(\d+).zip/)

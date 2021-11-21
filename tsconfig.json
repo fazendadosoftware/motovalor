@@ -1,0 +1,8 @@
+{
+  "references": [
+    { "path": "./packages/datastore" },
+    { "path": "./packages/app" }
+  ],
+  "files": [],
+  "exclude": ["**/*.spec.ts"]
+}

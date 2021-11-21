@@ -1,14 +1,24 @@
 {
   "name": "motovalor",
   "private": true,
-  "workspaces": ["./packages/*"],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": []
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "android": "npm run android --workspace app",
     "electron": "npm run electron --workspace app",
+    "app": "npm run android --workspace app",
     "build:android": "npm run build:android --workspace app",
-    "serve": "npm run serve --workspace app"
+    "serve": "npm run serve --workspace app",
+    "build:datastore": "npm run build --workspace datastore",
+    "reset": "find . -type dir -name node_modules | xargs rm -rf && rm -rf yarn.lock"
   },
-  "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "ts-node": "^10.4.0"
+  }
 }
