@@ -3,4 +3,3 @@ import Make from './Make';
 import Model from './Model';
 import ModelYear from './ModelYear';
 export { FipeTable, Make, Model, ModelYear };
-//# sourceMappingURL=index.d.ts.map

@@ -1,6 +1,8 @@
+import Model from './Model';
 export default class ModelYear {
     constructor(modelId, year, prices) {
         this.modelId = -1;
+        this.model = new Model();
         this.year = -1;
         this.prices = {};
         this.modelId = modelId;
@@ -13,12 +15,15 @@ export default class ModelYear {
         const deltaFields = deltaPrices
             .slice(0, deltaMonthIndexes.length)
             .reduce((accumulator, deltaPrice, i) => {
+            // @ts-expect-error
             accumulator[`delta${deltaMonthIndexes[i]}M`] = deltaPrice;
             return accumulator;
         }, {});
         return deltaFields;
     }
     putPrice(dateIndex, value) {
+        if (typeof dateIndex === 'string')
+            dateIndex = parseInt(dateIndex);
         this.prices[dateIndex] = value;
     }
     static getKeys() {

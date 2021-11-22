@@ -5,9 +5,7 @@
   "description": "Motovalor Datastore",
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
-  "files": [
-    "lib/"
-  ],
+  "files": ["lib/"],
   "scripts": {
     "test": "ava",
     "build": "tsc -p tsconfig.json && tsc -p tsconfig.esm.json",

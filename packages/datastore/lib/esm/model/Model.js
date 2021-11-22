@@ -1,5 +1,6 @@
 import { v3 } from 'murmurhash';
 import ModelYear from './ModelYear';
+import Make from './Make';
 const MODEL_ID_SEED = 982034890;
 const modelKeyIndex = {
     makeId: 'Marca',
@@ -9,13 +10,15 @@ const modelKeyIndex = {
     name: 'Modelo'
 };
 export default class Model {
-    constructor() {
+    constructor(id) {
         this.id = -1;
-        this.makeId = -1;
+        this.make = new Make();
         this.vehicleTypeCode = 1;
         this.name = '';
         this.fipeCode = '';
         this.fuelTypeCode = 'G';
+        if (id !== undefined)
+            this.id = id;
     }
     static getModelFieldIndexes(columns) {
         const modelKeys = Object.entries(modelKeyIndex)
@@ -30,24 +33,23 @@ export default class Model {
         if (model.name !== undefined)
             model.name = model.name.toUpperCase();
         model.id = v3(Model.getModelIdString(model), MODEL_ID_SEED);
-        model.makeId = makeId;
+        model.make.id = makeId;
         if (model.fuelTypeCode !== undefined) {
-            // @ts-ignore
-            const ftCode = Model.FUEL_TYPE_DICTIONARY[model.fuelTypeCode];
+            const ftCode = Model.translateFuelType(model.fuelTypeCode);
             if (ftCode === undefined)
                 throw Error(`Invalid fuel type code ${model.fuelTypeCode}`);
             model.fuelTypeCode = ftCode;
         }
         return model;
     }
-    static getKeys() {
-        return Object.keys(new Model());
-    }
 }
-Model.FUEL_TYPE_DICTIONARY = {
-    G: 'G',
-    D: 'D',
-    Á: 'A'
+Model.translateFuelType = (input) => {
+    if (typeof input !== 'string')
+        throw Error(`invalid fuel type code ${input}`);
+    const normalizedInput = input.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (['A', 'G', 'D'].indexOf(normalizedInput) < 0)
+        throw Error(`invalid fuel type code ${normalizedInput}`);
+    return normalizedInput;
 };
 Model.schema = {
     name: 'Model',
@@ -66,5 +68,5 @@ Model.schema = {
         }
     }
 };
-Model.getModelIdString = (model) => `${model.makeId} ${model.name} ${model.fuelTypeCode}`.replace(/ /g, '_');
+Model.getModelIdString = (model) => `${model.make.id} ${model.name} ${model.fuelTypeCode}`.replace(/ /g, '_');
 //# sourceMappingURL=Model.js.map

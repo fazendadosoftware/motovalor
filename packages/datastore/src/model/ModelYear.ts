@@ -11,8 +11,7 @@ export interface ModelYearDeltas {
 }
 
 export default class ModelYear {
-  public modelId: number = -1
-  public model: Model | { id: number }
+  public model: Model = new Model()
   public year: number = -1
   public prices: Record<number, number> | number[] = {}
   public price?: number
@@ -48,6 +47,7 @@ export default class ModelYear {
     const deltaFields = deltaPrices
       .slice(0, deltaMonthIndexes.length)
       .reduce((accumulator: ModelYearDeltas, deltaPrice, i) => {
+        // @ts-expect-error
         accumulator[`delta${deltaMonthIndexes[i]}M`] = deltaPrice
         return accumulator
       }, {})
@@ -55,16 +55,17 @@ export default class ModelYear {
   }
 
   constructor (modelId: number, year: number, prices?: Record<number, number>) {
-    this.modelId = modelId
+    this.model = new Model(modelId)
     this.year = year
     if (prices !== undefined) this.prices = prices
   }
 
   public putPrice (dateIndex: number | string, value: number) {
+    if (typeof dateIndex === 'string') dateIndex = parseInt(dateIndex)
     this.prices[dateIndex] = value
   }
 
-  static getModelYearPKey = (modelYear: ModelYear) => (`${modelYear.modelId}_${modelYear.year}`)
+  static getModelYearPKey = (modelYear: ModelYear) => (`${modelYear.model.id}_${modelYear.year}`)
 
   static getKeys (): string[] {
     return Object.keys(new ModelYear(-1, -1, {}))

@@ -4,7 +4,7 @@
     "module": "ES2020",
     "outDir": "./lib/esm",
     "rootDir": "./src",
-    "baseUrl": ".",
+    "baseUrl": "."
   },
   "include": ["src"],
   "exclude": ["node_modules", "lib", "**/*.spec.ts"]

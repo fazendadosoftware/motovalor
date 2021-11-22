@@ -1,4 +1,4 @@
-import { ObjectSchema } from 'realm';
+import Realm from 'realm';
 import Model from './Model';
 export interface ModelYearDeltas {
     delta1M?: number;
@@ -10,7 +10,7 @@ export interface ModelYearDeltas {
 }
 export default class ModelYear {
     modelId: number;
-    model?: Model;
+    model: Model;
     year: number;
     prices: Record<number, number> | number[];
     price?: number;
@@ -20,7 +20,7 @@ export default class ModelYear {
     delta12M?: number;
     delta24M?: number;
     delta36M?: number;
-    static schema: ObjectSchema;
+    static schema: Realm.ObjectSchema;
     static getDeltaMonthIndexesSet: (windowYearSize: number) => Set<number>;
     static getDeltaFields(deltaPrices: number[]): ModelYearDeltas;
     constructor(modelId: number, year: number, prices?: Record<number, number>);

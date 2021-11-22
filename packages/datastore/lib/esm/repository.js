@@ -96,10 +96,8 @@ export const getIndexOfExistingReferenceTablesInRepository = async () => {
             .filter(entry => entry.isFile())
             .reduce((accumulator, entry) => {
             const groups = entry.name().match(/^(\d+).zip/);
-            if (Array.isArray(groups) && groups.length === 2) {
+            if (Array.isArray(groups) && groups.length === 2)
                 accumulator[groups[1]] = true;
-                // return accumulator
-            }
             return accumulator;
         }, {});
         const index = {};
@@ -160,7 +158,7 @@ const processTableData = async (tableData) => {
     const modelIndex = {};
     const modelYearIndex = {};
     rows.forEach((row) => {
-        const make = Make.fromRow(row, makeColumnIndex);
+        const make = Make.create(row[makeColumnIndex]);
         makeIndex[make.id] = make;
         const model = Model.fromRow(row, modelKeys, make.id);
         if (modelIndex[model.id] === undefined)
@@ -218,21 +216,21 @@ export const buildIndexesFromRepository = async () => {
             const { tableId, refDate, makeIndex: tableMakeIndex, modelIndex: tableModelIndex, modelYearIndex: tableModelYearIndex } = outputData;
             fipeTables.push(new FipeTable(tableId, refDate));
             const makeIndexCallbacks = Object.entries(tableMakeIndex)
-                .map(([makeId, make]) => callback => {
+                .map(([makeId, make]) => (callback) => {
                 if (makeIndex[makeId] === undefined)
                     makeIndex[makeId] = make;
                 callback(null);
             });
             parallelLimit(makeIndexCallbacks, processes);
             const modelIndexCallbacks = Object.entries(tableModelIndex)
-                .map(([modelId, model]) => callback => {
+                .map(([modelId, model]) => (callback) => {
                 if (modelIndex[modelId] === undefined)
                     modelIndex[modelId] = model;
                 callback(null);
             });
             parallelLimit(modelIndexCallbacks, processes);
             const modelYearCallbacks = Object.entries(tableModelYearIndex)
-                .map(([modelYearId, modelYear]) => callback => {
+                .map(([modelYearId, modelYear]) => (callback) => {
                 if (modelYearIndex[modelYearId] === undefined)
                     modelYearIndex[modelYearId] = modelYear;
                 else {

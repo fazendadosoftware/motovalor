@@ -17,22 +17,22 @@ export type VehicleTypeCode = 1 | 2 | 3
 export type FuelTypeCode = 'A' | 'D' | 'G'
 export default class Model {
   public id: number = -1
-  public makeId?: number = -1
-  public make: Make | { id: number }
-  public vehicleTypeCode?: VehicleTypeCode = 1
-  public name?: string = ''
-  public fipeCode?: string = ''
-  public fuelTypeCode?: FuelTypeCode = 'G'
+  public make?: Make
+  public vehicleTypeCode?: VehicleTypeCode
+  public name?: string
+  public fipeCode?: string
+  public fuelTypeCode?: FuelTypeCode
   public modelYears?: Realm.Results<ModelYear>
 
   constructor (id?: number) {
     if (id !== undefined) this.id = id
   }
 
-  static FUEL_TYPE_DICTIONARY = {
-    G: 'G',
-    D: 'D',
-    Á: 'A'
+  static translateFuelType = (input: any): FuelTypeCode => {
+    if (typeof input !== 'string') throw Error(`invalid fuel type code ${input}`)
+    const normalizedInput = input.normalize('NFD').replace(/[\u0300-\u036f]/g, '') as FuelTypeCode
+    if (['A', 'G', 'D'].indexOf(normalizedInput) < 0) throw Error(`invalid fuel type code ${normalizedInput}`)
+    return normalizedInput
   }
 
   static schema: Realm.ObjectSchema = {
@@ -64,18 +64,19 @@ export default class Model {
     return { makeColumnIndex, modelKeys, priceColIndex, modelYearColumnIndex }
   }
 
-  static getModelIdString = (model: Model) => `${model.makeId} ${model.name} ${model.fuelTypeCode}`.replace(/ /g, '_')
+  static getModelIdString = (model: Model & { makeId: string }) => `${model.makeId} ${model.name} ${model.fuelTypeCode}`.replace(/ /g, '_')
 
   static fromRow (row: any, modelKeys: (string | number)[][], makeId: number): Model {
-    const model: Model = modelKeys.reduce((accumulator: any, [key, idx]) => ({ ...accumulator, [key]: row[idx] }), {})
+    const model: any = modelKeys.reduce((accumulator: any, [key, idx]) => ({ ...accumulator, [key]: row[idx] }), {})
     if (model.name !== undefined) model.name = model.name.toUpperCase()
     model.id = v3(Model.getModelIdString(model), MODEL_ID_SEED)
-    model.makeId = makeId
+    model.make = new Make(makeId)
     if (model.fuelTypeCode !== undefined) {
-      const ftCode = Model.FUEL_TYPE_DICTIONARY[model.fuelTypeCode]
+      const ftCode = Model.translateFuelType(model.fuelTypeCode)
       if (ftCode === undefined) throw Error(`Invalid fuel type code ${model.fuelTypeCode}`)
       model.fuelTypeCode = ftCode
     }
+    delete model.makeId
     return model
   }
 }

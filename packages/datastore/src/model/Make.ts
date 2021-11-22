@@ -6,8 +6,8 @@ const MAKE_SEED = 3210809412
 
 export default class Make {
   public id: number = -1
-  public name: string = ''
-  public models: Realm.Results<Model> = null
+  public name?: string
+  public models?: Realm.Results<Model>
 
   constructor (id?: number) {
     if (id !== undefined) this.id = id

@@ -6,4 +6,3 @@ export default class FipeTable {
     constructor(id?: number, date?: number);
     static schema: ObjectSchema;
 }
-//# sourceMappingURL=FipeTable.d.ts.map

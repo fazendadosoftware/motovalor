@@ -20,32 +20,28 @@ const deltaPriceIndexes = ModelYear.getDeltaMonthIndexesSet(5)
 export const updateDatabaseFromData = async (realm: Realm, data: RepositoryData) => {
   const { fipeTables, makes, models, modelYears } = data
 
-  const tableDates = fipeTables.map(({ date }) => date)
+  const tableDates = fipeTables
+    .map(({ date }) => date)
     .sort()
     .reverse()
-    .slice(0, windowYearSize * 12 + 1)
+    .slice(0, windowYearSize * 12 + 1) as number[]
 
   realm.beginTransaction()
   try {
-    makes
-      .forEach(make => realm.create<Make>(Make.schema.name, make, Realm.UpdateMode.All))
-    models
-      .forEach(model => {
-        model.make = { id: model.makeId }
-        realm.create<Model>(Model.schema.name, model, Realm.UpdateMode.All)
-      })
+    makes.forEach(make => realm.create<Make>(Make.schema.name, make, Realm.UpdateMode.All))
+    models.forEach(model => realm.create<Model>(Model.schema.name, model, Realm.UpdateMode.All))
 
-    const getPreviousPrice = (i: number, tableDates: number[], modelYearPrices: Record<number, number>) => {
+    const getPreviousPrice = (i: number, tableDates: number[], modelYearPrices: Record<number, number>): number | null => {
       if (modelYearPrices[tableDates[i]] === undefined && (i + 1) < tableDates.length) return getPreviousPrice(i + 1, tableDates, modelYearPrices)
       else return modelYearPrices[tableDates[i]] ?? null
     }
 
     modelYears
-      .filter(modelYear => !isNaN(modelYear.prices[tableDates[0]])) // filter modelYears with price listing for the latest table...
+      .filter(modelYear => !isNaN(modelYear.prices[tableDates?.[0] ?? -1])) // filter modelYears with price listing for the latest table...
       .forEach(modelYear => {
         const { prices, deltas } = tableDates
           .reduce((accumulator: { prices: number[], deltaPrices: number[], deltas: number[] }, date, i) => {
-            const price = modelYear.prices[date] ?? getPreviousPrice(i, tableDates, modelYear.prices)
+            const price = modelYear.prices[date ?? -1] ?? getPreviousPrice(i, tableDates, modelYear.prices)
             if (price === null) return accumulator
             accumulator.prices.push(price)
             if (deltaPriceIndexes.has(i)) {
@@ -55,11 +51,11 @@ export const updateDatabaseFromData = async (realm: Realm, data: RepositoryData)
             }
             return accumulator
           }, { prices: [], deltaPrices: [], deltas: [] })
-        modelYear.model = { id: modelYear.modelId }
         modelYear.prices = prices
         modelYear.price = prices[0]
 
         const deltaFields = ModelYear.getDeltaFields(deltas)
+        // @ts-ignore
         Object.entries(deltaFields).forEach(([key, value]) => { modelYear[key] = value })
         realm.create<ModelYear>(ModelYear.schema.name, modelYear, Realm.UpdateMode.All)
       })

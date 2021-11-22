@@ -19,4 +19,3 @@ export interface RepositoryData {
     modelYears: ModelYear[];
 }
 export declare const buildIndexesFromRepository: () => Promise<RepositoryData>;
-//# sourceMappingURL=repository.d.ts.map

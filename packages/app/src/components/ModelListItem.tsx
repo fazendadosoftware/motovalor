@@ -9,19 +9,11 @@ import {
 import VehicleTypeIcon from './VehicleTypeIcon'
 import ModelTrendItem from './ModelTrendItem'
 import currencyFilter from '../filters/currency'
+import ModelYear from 'datastore/src/model/ModelYear'
 
-export interface ModelListItemProps {
-  vehicleTypeId: 1 | 2 | 3
-  make: string
-  name: string
-  modelYear: number
-  price: number
-  delta1M?: number
-  delta6M?: number
-  delta12M?: number
-}
-const ModelListItem: React.FC<ModelListItemProps> = props => {
-  const { vehicleTypeId, make, name, modelYear, price, delta1M, delta6M, delta12M } = props
+const ModelListItem: React.FC<{ modelYear: ModelYear }> = props => {
+  const { vehicleTypeId, make, model: { vehicleTypeId }, year, price, delta1M, delta6M, delta12M } = props.modelYear
+  
   const priceBRL = currencyFilter(price)
   
   return (

@@ -1,21 +1,19 @@
-import { ObjectSchema } from 'realm';
+import Realm from 'realm';
+import ModelYear from './ModelYear';
 import Make from './Make';
 export declare type VehicleTypeCode = 1 | 2 | 3;
 export declare type FuelTypeCode = 'A' | 'D' | 'G';
 export default class Model {
     id: number;
-    makeId?: number;
-    make?: Make;
+    make: Make;
     vehicleTypeCode?: VehicleTypeCode;
     name?: string;
     fipeCode?: string;
     fuelTypeCode?: FuelTypeCode;
-    static FUEL_TYPE_DICTIONARY: {
-        G: string;
-        D: string;
-        Á: string;
-    };
-    static schema: ObjectSchema;
+    modelYears?: Realm.Results<ModelYear>;
+    constructor(id?: number);
+    static translateFuelType: (input: any) => FuelTypeCode;
+    static schema: Realm.ObjectSchema;
     static getModelFieldIndexes(columns: string[]): {
         makeColumnIndex: number;
         modelKeys: (string | number)[][];
@@ -24,6 +22,4 @@ export default class Model {
     };
     static getModelIdString: (model: Model) => string;
     static fromRow(row: any, modelKeys: (string | number)[][], makeId: number): Model;
-    static getKeys(): string[];
 }
-//# sourceMappingURL=Model.d.ts.map

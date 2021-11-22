@@ -2,19 +2,18 @@ import { v3 } from 'murmurhash';
 import Model from './Model';
 const MAKE_SEED = 3210809412;
 export default class Make {
-    constructor(name) {
-        if (name !== undefined) {
-            this.name = name.toUpperCase();
-            this.id = v3(this.name, MAKE_SEED);
-        }
+    constructor(id) {
+        this.id = -1;
+        this.name = '';
+        this.models = null;
+        if (id !== undefined)
+            this.id = id;
     }
-    static fromRow(row, makeColumnIndex) {
-        const makeName = row[makeColumnIndex];
-        const make = new Make(makeName);
+    static create(name) {
+        const make = new Make();
+        make.name = name;
+        make.id = v3(name, MAKE_SEED);
         return make;
-    }
-    static getKeys() {
-        return Object.keys(new Make(''));
     }
 }
 Make.schema = {

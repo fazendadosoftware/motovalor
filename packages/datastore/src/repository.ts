@@ -177,13 +177,13 @@ const processTableData = async (tableData: any): Promise<OutputData> => {
     .toISOString()
     .split('T')[0].replace(/-/g, '').slice(0, -2))
   const makeIndex: Record<number, Make> = {}
-  const modelIndex: Record<string, Model> = {}
+  const modelIndex: Record<string, Model & { makeId: string }> = {}
   const modelYearIndex: Record<string, ModelYear> = {}
 
   rows.forEach((row: any) => {
     const make = Make.create(row[makeColumnIndex])
     makeIndex[make.id] = make
-    const model = Model.fromRow(row, modelKeys, make.id)
+    const model = Model.fromRow(row, modelKeys, make.id) as Model & { makeId: string }
 
     if (modelIndex[model.id] === undefined) modelIndex[model.id] = model
     // check for collisions...
@@ -234,7 +234,7 @@ export const buildIndexesFromRepository = async (): Promise<RepositoryData> => {
     }
     const interval = setInterval(() => logProgress(), 2000)
     const fipeTables: FipeTable[] = []
-    const makeIndex: Record<number, Make> = {}
+    const makeIndex: Record<string, Make> = {}
     const modelIndex: Record<string, Model> = {}
     const modelYearIndex: Record<string, ModelYear> = {}
 
@@ -247,21 +247,21 @@ export const buildIndexesFromRepository = async (): Promise<RepositoryData> => {
       fipeTables.push(new FipeTable(tableId, refDate))
 
       const makeIndexCallbacks = Object.entries(tableMakeIndex)
-        .map(([makeId, make]) => callback => {
+        .map(([makeId, make]) => (callback: any) => {
           if (makeIndex[makeId] === undefined) makeIndex[makeId] = make
           callback(null)
         })
       parallelLimit(makeIndexCallbacks, processes)
 
       const modelIndexCallbacks = Object.entries(tableModelIndex)
-        .map(([modelId, model]) => callback => {
+        .map(([modelId, model]) => (callback: any) => {
           if (modelIndex[modelId] === undefined) modelIndex[modelId] = model
           callback(null)
         })
       parallelLimit(modelIndexCallbacks, processes)
 
       const modelYearCallbacks = Object.entries(tableModelYearIndex)
-        .map(([modelYearId, modelYear]) => callback => {
+        .map(([modelYearId, modelYear]) => (callback: any) => {
           if (modelYearIndex[modelYearId] === undefined) modelYearIndex[modelYearId] = modelYear
           else {
             Object.entries(modelYear.prices)
