@@ -15,19 +15,14 @@ const deltaPriceIndexes = model_1.ModelYear.getDeltaMonthIndexesSet(5);
 const updateDatabaseFromData = async (realm, data) => {
     const { fipeTables, makes, models, modelYears } = data;
     const tableDates = fipeTables
-        .filter(({ date }) => isNaN(date ?? -1))
         .map(({ date }) => date)
         .sort()
         .reverse()
         .slice(0, windowYearSize * 12 + 1);
     realm.beginTransaction();
     try {
-        makes
-            .forEach(make => realm.create(model_1.Make.schema.name, make, realm_1.default.UpdateMode.All));
-        models
-            .forEach(model => {
-            realm.create(model_1.Model.schema.name, model, realm_1.default.UpdateMode.All);
-        });
+        makes.forEach(make => realm.create(model_1.Make.schema.name, make, realm_1.default.UpdateMode.All));
+        models.forEach(model => realm.create(model_1.Model.schema.name, model, realm_1.default.UpdateMode.All));
         const getPreviousPrice = (i, tableDates, modelYearPrices) => {
             if (modelYearPrices[tableDates[i]] === undefined && (i + 1) < tableDates.length)
                 return getPreviousPrice(i + 1, tableDates, modelYearPrices);
@@ -50,7 +45,6 @@ const updateDatabaseFromData = async (realm, data) => {
                 }
                 return accumulator;
             }, { prices: [], deltaPrices: [], deltas: [] });
-            modelYear.model.id = modelYear.modelId;
             modelYear.prices = prices;
             modelYear.price = prices[0];
             const deltaFields = model_1.ModelYear.getDeltaFields(deltas);

@@ -4,8 +4,6 @@ const MAKE_SEED = 3210809412;
 export default class Make {
     constructor(id) {
         this.id = -1;
-        this.name = '';
-        this.models = null;
         if (id !== undefined)
             this.id = id;
     }

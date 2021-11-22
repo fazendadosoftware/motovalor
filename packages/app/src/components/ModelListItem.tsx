@@ -12,19 +12,18 @@ import currencyFilter from '../filters/currency'
 import ModelYear from 'datastore/src/model/ModelYear'
 
 const ModelListItem: React.FC<{ modelYear: ModelYear }> = props => {
-  const { vehicleTypeId, make, model: { vehicleTypeId }, year, price, delta1M, delta6M, delta12M } = props.modelYear
-  
+  const { model: { name, vehicleTypeCode, make }, year, price, delta1M, delta6M, delta12M } = props.modelYear
   const priceBRL = currencyFilter(price)
   
   return (
     <View style={ styles.container }>
       <View style={ styles.leftSection }>
-        <VehicleTypeIcon vehicleTypeId={ vehicleTypeId } size={ 50 } color="black" backgroundColor="#E5E5E5" />
+        <VehicleTypeIcon vehicleTypeCode={ vehicleTypeCode } size={ 50 } color="black" backgroundColor="#E5E5E5" />
       </View>
       <View style={ styles.middleSection }>
         <View>
           <Text numberOfLines={ 2 } style={ { fontSize: 10 } }>
-            { make }
+            { make?.name ?? 'n/a' }
           </Text>
         </View>
         <View>
@@ -34,7 +33,7 @@ const ModelListItem: React.FC<{ modelYear: ModelYear }> = props => {
         </View>
         <View>
           <Text style={ { fontSize: 24 } }>
-            { modelYear }
+            { year }
           </Text>
         </View>
         
@@ -70,7 +69,11 @@ const styles = StyleSheet.create<Styles>({
     height: 80,
     borderRadius: 10,
     backgroundColor: 'white',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    marginBottom: 10,
+    marginHorizontal: 10,
+    borderColor: 'black',
+    borderWidth: 1
   },
   leftSection: {
     borderRadius: 10,

@@ -4,11 +4,10 @@ const tslib_1 = require("tslib");
 const Model_1 = (0, tslib_1.__importDefault)(require("./Model"));
 class ModelYear {
     constructor(modelId, year, prices) {
-        this.modelId = -1;
         this.model = new Model_1.default();
         this.year = -1;
         this.prices = {};
-        this.modelId = modelId;
+        this.model = new Model_1.default(modelId);
         this.year = year;
         if (prices !== undefined)
             this.prices = prices;
@@ -55,5 +54,5 @@ ModelYear.schema = {
 // 1M, 3M, 6M, 12M, 24M, 36M, 48M
 ModelYear.getDeltaMonthIndexesSet = (windowYearSize) => new Set([...Array(Math.ceil(windowYearSize)).keys()]
     .map(year => year === 0 ? [1, 3, 6] : year * 12).flat());
-ModelYear.getModelYearPKey = (modelYear) => (`${modelYear.modelId}_${modelYear.year}`);
+ModelYear.getModelYearPKey = (modelYear) => (`${modelYear.model.id}_${modelYear.year}`);
 //# sourceMappingURL=ModelYear.js.map

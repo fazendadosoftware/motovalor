@@ -5,7 +5,7 @@ export declare type VehicleTypeCode = 1 | 2 | 3;
 export declare type FuelTypeCode = 'A' | 'D' | 'G';
 export default class Model {
     id: number;
-    make: Make;
+    make?: Make;
     vehicleTypeCode?: VehicleTypeCode;
     name?: string;
     fipeCode?: string;
@@ -20,6 +20,8 @@ export default class Model {
         priceColIndex: number;
         modelYearColumnIndex: number;
     };
-    static getModelIdString: (model: Model) => string;
+    static getModelIdString: (model: Model & {
+        makeId: string;
+    }) => string;
     static fromRow(row: any, modelKeys: (string | number)[][], makeId: number): Model;
 }

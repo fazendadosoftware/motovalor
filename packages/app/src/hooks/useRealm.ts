@@ -5,7 +5,6 @@ import RNFS from 'react-native-fs'
 import { Image } from 'react-native'
 import { unzip } from 'react-native-zip-archive'
 import Realm from 'realm'
-import { Make, Model, ModelYear } from 'datastore/src/model'
 
 const ARCHIVE_FILENAME = 'fipe.zip'
 const DATABASE_FILENAME = 'fipe.realm'
@@ -47,7 +46,7 @@ const getInstance = async (): Promise<Realm> => {
     isSyncing = true
     try {
       if (!await databaseExists()) await loadDatabaseFromAssets()
-      realm = await Realm.open({ path: DATABASE_FILENAME, schema: [Make, Model, ModelYear], readOnly: true })
+      realm = await Realm.open({ path: DATABASE_FILENAME, schema: [], readOnly: true })
     } finally {
       isSyncing = false
     }

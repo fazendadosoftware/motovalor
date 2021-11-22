@@ -12,11 +12,6 @@ const modelKeyIndex = {
 export default class Model {
     constructor(id) {
         this.id = -1;
-        this.make = new Make();
-        this.vehicleTypeCode = 1;
-        this.name = '';
-        this.fipeCode = '';
-        this.fuelTypeCode = 'G';
         if (id !== undefined)
             this.id = id;
     }
@@ -33,13 +28,14 @@ export default class Model {
         if (model.name !== undefined)
             model.name = model.name.toUpperCase();
         model.id = v3(Model.getModelIdString(model), MODEL_ID_SEED);
-        model.make.id = makeId;
+        model.make = new Make(makeId);
         if (model.fuelTypeCode !== undefined) {
             const ftCode = Model.translateFuelType(model.fuelTypeCode);
             if (ftCode === undefined)
                 throw Error(`Invalid fuel type code ${model.fuelTypeCode}`);
             model.fuelTypeCode = ftCode;
         }
+        delete model.makeId;
         return model;
     }
 }
@@ -68,5 +64,5 @@ Model.schema = {
         }
     }
 };
-Model.getModelIdString = (model) => `${model.make.id} ${model.name} ${model.fuelTypeCode}`.replace(/ /g, '_');
+Model.getModelIdString = (model) => `${model.makeId} ${model.name} ${model.fuelTypeCode}`.replace(/ /g, '_');
 //# sourceMappingURL=Model.js.map

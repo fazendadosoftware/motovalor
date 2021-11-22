@@ -9,7 +9,6 @@ export interface ModelYearDeltas {
     delta36M?: number;
 }
 export default class ModelYear {
-    modelId: number;
     model: Model;
     year: number;
     prices: Record<number, number> | number[];

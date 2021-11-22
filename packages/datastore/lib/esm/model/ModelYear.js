@@ -1,11 +1,10 @@
 import Model from './Model';
 export default class ModelYear {
     constructor(modelId, year, prices) {
-        this.modelId = -1;
         this.model = new Model();
         this.year = -1;
         this.prices = {};
-        this.modelId = modelId;
+        this.model = new Model(modelId);
         this.year = year;
         if (prices !== undefined)
             this.prices = prices;
@@ -51,5 +50,5 @@ ModelYear.schema = {
 // 1M, 3M, 6M, 12M, 24M, 36M, 48M
 ModelYear.getDeltaMonthIndexesSet = (windowYearSize) => new Set([...Array(Math.ceil(windowYearSize)).keys()]
     .map(year => year === 0 ? [1, 3, 6] : year * 12).flat());
-ModelYear.getModelYearPKey = (modelYear) => (`${modelYear.modelId}_${modelYear.year}`);
+ModelYear.getModelYearPKey = (modelYear) => (`${modelYear.model.id}_${modelYear.year}`);
 //# sourceMappingURL=ModelYear.js.map
