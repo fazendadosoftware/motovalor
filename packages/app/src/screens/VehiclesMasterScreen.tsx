@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { View, FlatList } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import SearchBar from '../components/SearchBar'
 import ModelListItem from '../components/ModelListItem'
 import useRealm from '../hooks/useRealm'
@@ -17,7 +18,7 @@ export default function VehiclesMasterScreen () {
       })
   })
   return (
-    <View style={ { flex: 1, backgroundColor: '#E4E4E7',  } }>
+    <SafeAreaView style={ { flex: 1, backgroundColor: '#E4E4E7',  } }>
       <View style={ { padding: 10, paddingBottom: 0 } }>
         <SearchBar />
       </View>
@@ -25,8 +26,9 @@ export default function VehiclesMasterScreen () {
         <FlatList
           data={ modelYears }
           renderItem={ ({ item }) => <ModelListItem modelYear={item} /> }
-          keyExtractor={ modelYear => `${modelYear.model.id}${modelYear.year}`}/>
+          keyExtractor={ modelYear => `${modelYear.model.id}${modelYear.year}`}
+          showsVerticalScrollIndicator={false}/>
       </View>
-    </View>
+    </SafeAreaView>
   )
 }

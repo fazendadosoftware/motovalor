@@ -23,7 +23,7 @@ const VehicleTypeIcon: React.FC<{ vehicleTypeCode: 1 | 2 | 3 | undefined, backgr
 
     break
   }
-  const style = { padding: size / 10, backgroundColor, width: size, height: size, borderRadius: size }
+  const style = { padding: size / 8, backgroundColor, width: size, height: size, borderRadius: size }
   return <View style={ style }>{ element }</View>
 }
 

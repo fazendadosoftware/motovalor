@@ -18,38 +18,27 @@ const ModelListItem: React.FC<{ modelYear: ModelYear }> = props => {
   return (
     <View style={ styles.container }>
       <View style={ styles.leftSection }>
-        <VehicleTypeIcon vehicleTypeCode={ vehicleTypeCode } size={ 50 } color="black" backgroundColor="#E5E5E5" />
+        <VehicleTypeIcon vehicleTypeCode={ vehicleTypeCode } size={ 35 } color="black" backgroundColor="#E5E5E5" />
       </View>
       <View style={ styles.middleSection }>
-        <View>
-          <Text numberOfLines={ 2 } style={ { fontSize: 10 } }>
-            { make?.name ?? 'n/a' }
-          </Text>
-        </View>
-        <View>
-          <Text numberOfLines={ 2 } style={ { fontSize: 12, fontWeight: 'bold' } }>
-            { name }
-          </Text>
-        </View>
-        <View>
-          <Text style={ { fontSize: 24 } }>
-            { year }
-          </Text>
-        </View>
-        
+        <Text numberOfLines={ 2 } style={{ fontSize: 9, paddingBottom: 5 }}>
+          { make?.name ?? 'n/a' }
+        </Text>
+        <Text numberOfLines={2} style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', width: '100%' }}>
+          {name}
+        </Text>
+        <Text style={{ fontSize: 18, fontWeight: '300', textAlign: 'right', width: '100%' }}>
+          {year}
+        </Text>
       </View>
       <View style={ styles.rightSection }>
-        <View style={ { flexDirection: 'row', justifyContent: 'center', borderColor: '#E5E5E5', borderBottomWidth: 1 } }>
+        <View style={ { flexDirection: 'row', justifyContent: 'center', borderColor: '#E5E5E5', borderBottomWidth: 1, paddingVertical: 3 } }>
           <Text style={ styles.vehiclePrice }>
             { priceBRL }
           </Text>
         </View>
         
-        <View style={ { paddingHorizontal: 5 } }>
-          <ModelTrendItem window="1M" value={ delta1M } />
-          <ModelTrendItem window="6M" value={ delta6M } />
-          <ModelTrendItem window="12M" value={ delta12M } />
-        </View>
+        <ModelTrendItem window="12M" value={delta12M} />
         
       </View>
     </View>
@@ -70,10 +59,7 @@ const styles = StyleSheet.create<Styles>({
     borderRadius: 10,
     backgroundColor: 'white',
     flexDirection: 'row',
-    marginBottom: 10,
-    marginHorizontal: 10,
-    borderColor: 'black',
-    borderWidth: 1
+    marginBottom: 10
   },
   leftSection: {
     borderRadius: 10,
@@ -87,9 +73,11 @@ const styles = StyleSheet.create<Styles>({
   },
   middleSection: {
     flex: 1,
+    justifyContent: 'space-around',
+    alignItems: 'flex-start',
     borderColor: '#E5E5E5',
     borderRightWidth: 1,
-    paddingVertical: 5
+    paddingRight: 5
   },
   rightSection: {
     borderRadius: 10,
@@ -97,8 +85,7 @@ const styles = StyleSheet.create<Styles>({
     borderBottomLeftRadius: 0
   },
   vehiclePrice: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 18,
     paddingHorizontal: 5
   }
 })
