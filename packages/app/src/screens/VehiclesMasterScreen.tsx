@@ -4,16 +4,17 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import SearchBar from '../components/SearchBar'
 import ModelListItem from '../components/ModelListItem'
 import useRealm from '../hooks/useRealm'
+import { Results } from 'realm'
 import { Make, ModelYear } from 'datastore/src/model'
 
 export default function VehiclesMasterScreen () {
   const { getInstance } = useRealm()
-  const [modelYears, setModelYears] = useState<ModelYear[] | null>(null)
+  const [modelYears, setModelYears] = useState<Results<ModelYear & Object> | null>(null)
   useEffect(() => {
     getInstance()
       .then(realm => {
         // https://docs.mongodb.com/realm-legacy/docs/javascript/latest/api/Realm.Results.html
-        const results: ModelYear[] = realm.objects<ModelYear>(ModelYear.schema.name).filtered('model.make.name BEGINSWITH "HARLEY" LIMIT (10)').toJSON()
+        const results = realm.objects<ModelYear>(ModelYear.schema.name).filtered('model.make.name BEGINSWITH "HARLEY"')
         setModelYears(results)
       })
   })
@@ -22,7 +23,7 @@ export default function VehiclesMasterScreen () {
       <View style={ { padding: 10, paddingBottom: 0 } }>
         <SearchBar />
       </View>
-      <View style={ { flex: 1, padding: 10 } }>
+      <View style={{ flex: 1, padding: 10 }}>
         <FlatList
           data={ modelYears }
           renderItem={ ({ item }) => <ModelListItem modelYear={item} /> }

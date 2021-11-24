@@ -1,6 +1,7 @@
 import Realm, { open } from 'realm'
 import Fuse from 'fuse.js'
 import { FipeTable, Make, Model, ModelYear } from './model'
+import { ObjectId } from 'bson'
 
 export interface RepositoryData {
   fipeTables: FipeTable[]
@@ -51,6 +52,7 @@ export const updateDatabaseFromData = async (realm: Realm, data: RepositoryData)
             }
             return accumulator
           }, { prices: [], deltaPrices: [], deltas: [] })
+        modelYear.id = new ObjectId()
         modelYear.prices = prices
         modelYear.price = prices[0]
 

@@ -1,4 +1,5 @@
 import Realm from 'realm'
+import { ObjectId } from 'bson'
 import Model from './Model'
 
 export interface ModelYearDeltas {
@@ -11,6 +12,7 @@ export interface ModelYearDeltas {
 }
 
 export default class ModelYear {
+  public id: ObjectId = new ObjectId()
   public model: Model = new Model()
   public year: number = -1
   public prices: Record<number, number> | number[] = {}
@@ -25,6 +27,7 @@ export default class ModelYear {
   static schema: Realm.ObjectSchema = {
     name: 'ModelYear',
     properties: {
+      id: 'objectId',
       model: 'Model',
       year: { type: 'int', indexed: true },
       price: 'int',
@@ -35,7 +38,8 @@ export default class ModelYear {
       delta12M: 'float?',
       delta24M: 'float?',
       delta36M: 'float?'
-    }
+    },
+    primaryKey: 'id'
   }
 
   // 1M, 3M, 6M, 12M, 24M, 36M, 48M

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   View,
   Text,
@@ -12,8 +12,11 @@ import currencyFilter from '../filters/currency'
 import ModelYear from 'datastore/src/model/ModelYear'
 
 const ModelListItem: React.FC<{ modelYear: ModelYear }> = props => {
-  const { model: { name, vehicleTypeCode, make }, year, price, delta1M, delta6M, delta12M } = props.modelYear
-  const priceBRL = currencyFilter(price)
+  const { model: { name, vehicleTypeCode, make }, year, price, delta12M } = props.modelYear
+  const [priceBRL, setPriceBRL] = useState<string | undefined>()
+  useEffect(() => {
+    setPriceBRL(currencyFilter(price))
+  }, [])
   
   return (
     <View style={ styles.container }>
