@@ -1,16 +1,18 @@
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { View, TouchableOpacity } from 'react-native'
+import { useTheme } from 'react-native-elements'
 import VehiclesMasterScreen from '../screens/VehiclesMasterScreen'
 import AccountScreen from '../screens/AccountScreen'
 import { Icon } from 'react-native-elements'
 
 const HomeTabs: React.FC<{ screenOptions: any }> = ({ screenOptions }) => {
+  const { theme } = useTheme()
   const Tab = createBottomTabNavigator()
 
   return (
     <Tab.Navigator
-      screenOptions={ screenOptions }>
+      screenOptions={{ ...screenOptions, tabBarActiveTintColor: theme.colors?.primary }}>
       <Tab.Screen
         name='Search'
         component={ VehiclesMasterScreen }
