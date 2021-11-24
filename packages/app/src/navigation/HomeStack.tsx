@@ -1,7 +1,7 @@
 import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
 import HomeTabs from './HomeTabs'
-import FilterScreen from '../screens/FilterScreen'
+import FilterTabs from './FilterTabs'
 
 export default function HomeStack() {
   const Stack = createStackNavigator()
@@ -19,7 +19,7 @@ export default function HomeStack() {
         options={ { headerShown: false } }>
         { props => <HomeTabs screenOptions={ screenOptions }  /> }
       </Stack.Screen>
-      <Stack.Screen name='Filter' component={ FilterScreen } />
+      <Stack.Screen name='Filter' component={ FilterTabs } />
     </Stack.Navigator>
   )
 }

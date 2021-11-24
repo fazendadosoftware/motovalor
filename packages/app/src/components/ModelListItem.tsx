@@ -21,22 +21,22 @@ const ModelListItem: React.FC<{ modelYear: ModelYear }> = props => {
   return (
     <View style={ styles.container }>
       <View style={ styles.leftSection }>
-        <VehicleTypeIcon vehicleTypeCode={ vehicleTypeCode } size={ 35 } color="black" backgroundColor="#E5E5E5" />
+        <VehicleTypeIcon vehicleTypeCode={ vehicleTypeCode } size={ 40 } color="black" backgroundColor="#E5E5E5" />
       </View>
       <View style={ styles.middleSection }>
-        <Text numberOfLines={ 2 } style={{ fontSize: 9, paddingBottom: 5 }}>
+        <Text numberOfLines={ 2 } style={{ fontSize: 10, textAlign: 'center', width: '100%' }}>
           { make?.name ?? 'n/a' }
         </Text>
         <Text numberOfLines={2} style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', width: '100%' }}>
           {name}
         </Text>
-        <Text style={{ fontSize: 18, fontWeight: '300', textAlign: 'right', width: '100%' }}>
+        <Text style={{ fontSize: 18, fontWeight: '300', textAlign: 'center', width: '100%' }}>
           {year}
         </Text>
       </View>
       <View style={ styles.rightSection }>
         <View style={ { flexDirection: 'row', justifyContent: 'center', borderColor: '#E5E5E5', borderBottomWidth: 1, paddingVertical: 3 } }>
-          <Text style={ styles.vehiclePrice }>
+          <Text style={{ fontSize: 18, paddingHorizontal: 5 }}>
             { priceBRL }
           </Text>
         </View>
@@ -53,7 +53,6 @@ interface Styles {
   leftSection: ViewStyle
   middleSection: ViewStyle
   rightSection: ViewStyle
-  vehiclePrice: TextStyle
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -76,7 +75,7 @@ const styles = StyleSheet.create<Styles>({
   },
   middleSection: {
     flex: 1,
-    justifyContent: 'space-around',
+    justifyContent: 'center',
     alignItems: 'flex-start',
     borderColor: '#E5E5E5',
     borderRightWidth: 1,
@@ -86,10 +85,6 @@ const styles = StyleSheet.create<Styles>({
     borderRadius: 10,
     borderTopLeftRadius: 0,
     borderBottomLeftRadius: 0
-  },
-  vehiclePrice: {
-    fontSize: 18,
-    paddingHorizontal: 5
   }
 })
 

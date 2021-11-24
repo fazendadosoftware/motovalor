@@ -11,6 +11,9 @@ const DATABASE_FILENAME = 'fipe.realm'
 const ARCHIVE_FILE = `${RNFS.CachesDirectoryPath}/${ARCHIVE_FILENAME}`
 const DATABASE_FILE = `${RNFS.DocumentDirectoryPath}/${DATABASE_FILENAME}`
 
+let realm: Realm | null = null
+let isSyncing: boolean = false
+
 const databaseExists = async () => {
   const { uri: fileUri } = Image.resolveAssetSource(zipFile)
   const [, assetHash = null] = fileUri.match(/[?&]hash=([^&]+).*$/) ?? []
@@ -27,20 +30,43 @@ const loadDatabaseFromAssets = async () => {
 }
 
 const getInstance = async (): Promise<Realm> => {
-  if (!await databaseExists()) await loadDatabaseFromAssets()
-  const realm = await Realm.open({ path: DATABASE_FILENAME, schema: [], readOnly: true })
+  if (realm !== null) return realm
+  else if (isSyncing) {
+    await new Promise(resolve => {
+      let interval: any
+      interval = setInterval(() => {
+        if (!isSyncing) {
+          clearInterval(interval)
+          interval = undefined
+          resolve(undefined)
+        }
+      }, 500)
+    })
+  } else {
+    isSyncing = true
+    try {
+      if (!await databaseExists()) await loadDatabaseFromAssets()
+      realm = await Realm.open({ path: DATABASE_FILENAME, schema: [], readOnly: true })
+    } finally {
+      isSyncing = false
+    }
+  }
   if (realm === null) throw Error('could not open db')
   return realm
 }
 
+const close = async () => { if (!realm?.isClosed) realm?.close(); realm = null }
+
 const getModelYears = async () => {
    const realm = await getInstance()
-   const results = realm.objects<ModelYear>(ModelYear.schema.name).filtered('model.make.name BEGINSWITH "HARLEY"')
+   const results = realm.objects<ModelYear>(ModelYear.schema.name).filtered('model.make.name BEGINSWITH "HARLEY" LIMIT(10)')
+   return results
 }
 
 const useRealm = () => {
   return {
-    getInstance
+    getModelYears,
+    close
   }
 }
 

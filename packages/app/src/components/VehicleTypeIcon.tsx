@@ -1,10 +1,18 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
 
-const VehicleTypeIcon: React.FC<{ vehicleTypeCode: 1 | 2 | 3 | undefined, backgroundColor?: string, color?: string, size?: number }> = props => {
+export interface VehicleTypeIconProps {
+  vehicleTypeCode: 1 | 2 | 3 | undefined
+  backgroundColor ?: string
+  color ?: string
+  size ?: number,
+  containerStyle?: ViewStyle
+}
+
+const VehicleTypeIcon: React.FC<VehicleTypeIconProps> = props => {
   let element
-  const { vehicleTypeCode, backgroundColor = 'white', color = 'black', size = 50 } = props
+  const { vehicleTypeCode, backgroundColor = 'white', color = 'black', size = 50, containerStyle = {} } = props
   switch (vehicleTypeCode) {
   case 1:
     element = <Svg width="100%" height="100%" viewBox="0 0 34 27">
@@ -24,7 +32,11 @@ const VehicleTypeIcon: React.FC<{ vehicleTypeCode: 1 | 2 | 3 | undefined, backgr
     break
   }
   const style = { padding: size / 8, backgroundColor, width: size, height: size, borderRadius: size }
-  return <View style={ style }>{ element }</View>
+  return (
+    <View style={[style, containerStyle]}>
+      {element}
+    </View>
+  )
 }
 
 export default VehicleTypeIcon

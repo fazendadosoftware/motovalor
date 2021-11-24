@@ -3,19 +3,18 @@ import { View, FlatList } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import SearchBar from '../components/SearchBar'
 import ModelListItem from '../components/ModelListItem'
-import useRealm from '../hooks/useRealm'
+import useFipe from '../hooks/useFipe'
 import { Results } from 'realm'
 import { Make, ModelYear } from 'datastore/src/model'
 
 export default function VehiclesMasterScreen () {
-  const { getInstance } = useRealm()
+  const { getModelYears } = useFipe()
   const [modelYears, setModelYears] = useState<Results<ModelYear & Object> | null>(null)
   useEffect(() => {
-    getInstance()
-      .then(realm => {
+    getModelYears()
+      .then(modelYears => {
         // https://docs.mongodb.com/realm-legacy/docs/javascript/latest/api/Realm.Results.html
-        const results = realm.objects<ModelYear>(ModelYear.schema.name).filtered('model.make.name BEGINSWITH "HARLEY"')
-        setModelYears(results)
+        setModelYears(modelYears)
       })
   })
   return (

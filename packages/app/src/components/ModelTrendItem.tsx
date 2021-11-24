@@ -19,7 +19,7 @@ const ModelTrendItem: React.FC<{ window: string, value?: number }> = ({ window, 
           {percentage}
         </Text>
         <Text style={{ fontSize: 8, fontStyle: 'italic', lineHeight: 8 }}>
-          {window}
+          /{window}
         </Text>
       </View>
     </View>
