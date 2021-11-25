@@ -20,14 +20,15 @@ const HomeTabs: React.FC<{ screenOptions: any }> = ({ screenOptions }) => {
           tabBarLabel: 'Buscar',
           tabBarIcon: ({ color, size }) => <Icon name='magnify' type='material-community' size={ size } color={ color } />,
           headerTitle: 'Buscar',
-          headerRight: () => <View style={ { flexDirection: 'row' } }>
-            <TouchableOpacity style={ { marginRight: 10 } }>
-              <Icon name='sort-variant' type='material-community' size={ 24 } color='white' />
+          headerRight: () => <View style={{ flexDirection: 'row' }}>
+            <TouchableOpacity
+              style={{ marginRight: 10 }}>
+              <Icon name='sort-variant' type='material-community' size={24} color='white' style={{ padding: 5 }} />
             </TouchableOpacity>
             <TouchableOpacity
-              style={ { marginRight: 10 } }
+              style={{ marginRight: 10 }}
               onPress={ () => navigation.navigate('Filter') }>
-              <Icon name='tune' type='material-community' size={ 24 } color='white' style={ { marginRight: 10 } } />
+              <Icon name='tune' type='material-community' size={ 24 } color='white' style={{ padding: 5 }} />
             </TouchableOpacity>
           </View>
         }) }
@@ -37,7 +38,7 @@ const HomeTabs: React.FC<{ screenOptions: any }> = ({ screenOptions }) => {
         component={ AccountScreen }
         options={ {
           tabBarLabel: 'Conta',
-          tabBarIcon: ({ color, size }) => <Icon name='account' type='material-community' size={ size } color={ color } />
+          tabBarIcon: ({ color, size }) => <Icon name='account' type='material-community' size={size} color={color} />
         } }
       />
     </Tab.Navigator>

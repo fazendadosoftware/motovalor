@@ -1,12 +1,12 @@
 import React from 'react'
-import { createStackNavigator } from '@react-navigation/stack'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useTheme } from 'react-native-elements'
 import HomeTabs from './HomeTabs'
 import FilterTabs from './FilterTabs'
 
 export default function HomeStack() {
   const { theme } = useTheme()
-  const Stack = createStackNavigator()
+  const Stack = createNativeStackNavigator()
 
   const screenOptions = {
     headerTintColor: 'white',
