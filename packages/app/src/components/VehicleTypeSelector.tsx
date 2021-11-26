@@ -12,9 +12,9 @@ const getVehicleTypeIconProps = (vehicleTypeCode: VehicleType, vehicleTypes: Set
     borderWidth: 1,
     borderColor: theme.colors?.primary
   }
-  const color = vehicleTypes.has(vehicleTypeCode) ? isDark ? 'white' : theme.colors?.primary : 'red'
+  const color = vehicleTypes.has(vehicleTypeCode) ? 'white' : theme.colors?.primary
   const backgroundColor = vehicleTypes.has(vehicleTypeCode) ? theme.colors?.primary : 'white'
-  return { vehicleTypeCode, containerStyle, color, backgroundColor, size: 60 }
+  return { vehicleTypeCode, containerStyle, color, backgroundColor, size: 45 }
 }
 
 export interface VehicleTypeSelectorProps {

@@ -19,6 +19,7 @@ const FilterTabs: React.FC = () => {
       />
       <Tab.Screen
         name='Salvos'
+        disabled={true}
         component={FilterList}
       />
     </Tab.Navigator>

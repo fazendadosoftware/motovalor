@@ -5,6 +5,12 @@ const common: Theme = {
     buttonStyle: {
       borderRadius: 20
     }
+  },
+  SearchBar: {
+    lightTheme: true,
+    inputContainerStyle: {
+      borderRadius: 10
+    }
   }
 }
 

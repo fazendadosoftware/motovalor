@@ -36,10 +36,10 @@ const HomeTabs: React.FC<{ screenOptions: any }> = ({ screenOptions }) => {
       <Tab.Screen
         name='Account'
         component={ AccountScreen }
-        options={ {
+        options={{
           tabBarLabel: 'Conta',
           tabBarIcon: ({ color, size }) => <Icon name='account' type='material-community' size={size} color={color} />
-        } }
+        }}
       />
     </Tab.Navigator>
   )

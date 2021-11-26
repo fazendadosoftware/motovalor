@@ -1,5 +1,6 @@
 // @ts-expect-error
 import zipFile from '../assets/fipe.zip'
+import { useEffect } from 'react'
 import RNFS from 'react-native-fs'
 import { Image } from 'react-native'
 import { unzip } from 'react-native-zip-archive'
@@ -59,15 +60,25 @@ const close = async () => { if (!realm?.isClosed) realm?.close(); realm = null }
 
 const getModelYears = async () => {
    const realm = await getInstance()
-   const results = realm.objects<ModelYear>(ModelYear.schema.name).filtered('model.make.name BEGINSWITH "HARLEY" LIMIT(10)')
-   return results
+   return realm.objects<ModelYear>(ModelYear.schema.name).filtered('model.make.name BEGINSWITH "HARLEY" LIMIT(10)').toJSON() as ModelYear[]
 }
 
-const useRealm = () => {
+const getMakes = async () => {
+  const realm = await getInstance()
+  const makes = realm.objects<Make>(Make.schema.name).sorted('name')
+  return makes
+}
+
+const useFipe = () => {
+  useEffect(() => {
+    getInstance()
+    return () => { close() }
+  }, [])
   return {
+    getMakes,
     getModelYears,
     close
   }
 }
 
-export default useRealm
+export default useFipe

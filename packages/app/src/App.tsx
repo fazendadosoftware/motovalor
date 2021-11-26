@@ -3,7 +3,7 @@ import { useColorScheme } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { NavigationContainer } from '@react-navigation/native'
 import { ThemeProvider } from 'react-native-elements'
-import HomeStack from './navigation/HomeStack'
+import RootStack from './navigation/RootStack'
 import theme from './theme'
 
 const App = () => {
@@ -13,7 +13,7 @@ const App = () => {
     <ThemeProvider theme={colorScheme === 'dark' ? theme.dark : theme.light}>
       <SafeAreaProvider>
         <NavigationContainer>
-          <HomeStack />
+          <RootStack />
         </NavigationContainer>
       </SafeAreaProvider>
     </ThemeProvider>

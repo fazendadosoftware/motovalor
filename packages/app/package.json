@@ -36,7 +36,8 @@
     "react-native-tab-view": "^3.1.1",
     "react-native-vector-icons": "^9.0.0",
     "react-native-zip-archive": "^6.0.5",
-    "realm": "^10.10.1"
+    "realm": "^10.10.1",
+    "recompose": "^0.30.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
@@ -46,6 +47,7 @@
     "@types/jest": "^26.0.23",
     "@types/react-native": "^0.65.0",
     "@types/react-test-renderer": "^17.0.1",
+    "@types/recompose": "^0.30.9",
     "@typescript-eslint/eslint-plugin": "4",
     "babel-jest": "^26.6.3",
     "eslint": "7",

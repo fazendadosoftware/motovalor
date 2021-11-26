@@ -4,8 +4,8 @@ import { useTheme } from 'react-native-elements'
 
 const Button: React.FC<{
   label: string,
-  model: boolean,
-  onPress: () => void, disabled?: boolean,
+  model?: boolean,
+  onPress?: () => void, disabled?: boolean,
   containerStyle?: ViewStyle
 }> = ({ label, model, onPress, disabled, containerStyle = {} }) => {
   const { theme } = useTheme()
@@ -15,7 +15,7 @@ const Button: React.FC<{
     <TouchableOpacity
       disabled={disabled}
       style={[styles.button, { backgroundColor: model ? theme.colors?.primary : 'white', borderColor: theme.colors?.primary, ...containerStyle }]}
-      onPress={() => onPress()} >
+      onPress={() => onPress?.()} >
       <Text style={{ color: model ? 'white' : isDark ? 'white' : theme.colors?.primary, fontWeight: '500', fontSize: 16 }}>
         {label}
       </Text>
