@@ -5,13 +5,16 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import SearchBar from '../components/SafeSearchBar'
 import ModelListItem from '../components/ModelListItem'
 import useFipe from '../hooks/useFipe'
+import useModelYearFilter from '../hooks/useModelYearFilter'
 import { ModelYear } from 'datastore/src/model'
 
 export default function VehiclesMasterScreen () {
+  const { modelYearFilter, setFtsQuery } = useModelYearFilter()
   const { theme } = useTheme()
   const { getModelYears } = useFipe()
-  const [query, setQuery] = useState('')
+
   const [modelYears, setModelYears] = useState<ModelYear[] | null>(null)
+
   useEffect(() => { getModelYears().then(setModelYears) }, [])
 
   return (
@@ -22,8 +25,8 @@ export default function VehiclesMasterScreen () {
           containerStyle={{ backgroundColor: theme.colors?.grey5, paddingHorizontal: 10 }}
           inputContainerStyle={{ borderRadius: 10 }}
           platform="default"
-          value={query}
-          onChangeText={setQuery}
+          value={modelYearFilter.ftsQuery}
+          onChangeText={setFtsQuery}
           placeholder="Pesquisar modelos"
         />
         <FlatList
