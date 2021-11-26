@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, memo } from 'react'
 import { FlatList, View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme, Icon } from 'react-native-elements'
-import { useModelYearFilterState, useModelYearFilterDispatch, ModelYearFilterAction } from '../hooks/useModelYearFilter'
+import { useModelYearFilterState, useModelYearFilterDispatch, ModelYearFilterAction, IModelYearFilter } from '../hooks/useModelYearFilter'
 import SearchBar from '../components/SafeSearchBar'
 import useFipe from '../hooks/useFipe'
 import { Make } from 'datastore/src/model'
@@ -15,18 +15,20 @@ const MakeListItem: React.FC<MakeListItemProps> = memo(({ make, isSelected }) =>
 
   const { theme } = useTheme()
 
-  const onPress = useCallback(() => {
+  const onPress = useCallback((modelYearFilter: IModelYearFilter, isSelected: boolean) => {
     const { makeIndex } = modelYearFilter
     isSelected ? delete makeIndex[make.id] : makeIndex[make.id] = make
     dispatch?.({ type: ModelYearFilterAction.SetMakeIndex, payload: makeIndex })
-  }, [isSelected])
+  }, [])
 
   return (
     <TouchableOpacity
       style={[makeListItemStyles.container, { backgroundColor: 'white' }]}
-      onPress={onPress}>
-      <Text style={{ fontSize: 16 }}>{make.name}</Text>
-      {isSelected ? <Icon name='check' type='material-community' color={theme.colors?.primary} size={16} /> : null}
+      onPress={() => onPress(modelYearFilter, isSelected)}>
+      <Text style={{ fontSize: 16 }}>
+        {make.name}
+      </Text>
+      {isSelected ? <Icon name='check' type='material-community' color={theme.colors?.primary} /> : null}
     </TouchableOpacity>
   )
 }, (prev: MakeListItemProps, next: MakeListItemProps) => prev.isSelected === next.isSelected)
@@ -36,7 +38,7 @@ const makeListItemStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
+    paddingHorizontal: 20,
     height: 60
   }
 })
@@ -67,7 +69,7 @@ const MakeSelectionListHeader: React.FC<MakeSelectionListHeaderProps> = ({ query
     if (selectedMakes.length === 0) return null
     return (
       <View style={{ backgroundColor: theme.colors?.grey5, padding: 10 }}>
-        <Text style={{ fontSize: 12, marginBottom: 10 }}>Fabricantes selectionados:</Text>
+        <Text style={{ fontSize: 12, fontWeight: 'bold', marginBottom: 5 }}>Fabricantes selectionados:</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
           {selectedMakes.map(make => {
             return (
@@ -79,9 +81,10 @@ const MakeSelectionListHeader: React.FC<MakeSelectionListHeaderProps> = ({ query
                   alignItems: 'center',
                   paddingVertical: 1,
                   borderRadius: 5,
+                  borderColor: theme.colors?.greyOutline,
                   backgroundColor: 'white',
-                  marginRight: 10,
-                  marginBottom: 10,
+                  marginRight: 5,
+                  marginBottom: 5,
                 }}>
                 <Text style={{ fontSize: 14, marginLeft: 5 }}>{make.name}</Text>
                 <Icon
@@ -131,7 +134,7 @@ const MakeSelectionScreen: React.FC<MakeSelectionScreenProps> = () => {
 
   const renderItem = useCallback(
     ({ item }: { item: Make }) => <MakeListItem make={item} isSelected={modelYearFilter.makeIndex[item.id] !== undefined} />,
-    []
+    [modelYearFilter]
   )
 
   return (

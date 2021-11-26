@@ -22,11 +22,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ value, onChangeText, placeholder 
         />
         { value.length === 0 ? (
           <TouchableOpacity>
-            <Icon name='search' size={ 24 } color='#333' />
+            <Icon name='search' color='#333' />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity onPress={ () => onChangeText?.('') }>
-            <Icon name='cancel' size={ 24 } color='#333' />
+            <Icon name='cancel' color='#333' />
           </TouchableOpacity>
         ) }
       </View>

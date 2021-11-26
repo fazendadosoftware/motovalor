@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer } from 'react'
 import { Make } from 'datastore/src/model'
 
-interface ModelYearFilter {
+export interface IModelYearFilter {
   ftsQuery: string
   makeIndex: Record<number, Make>
 }
@@ -15,7 +15,7 @@ type Action = {
   payload: unknown
 }
 
-const INITIAL_STATE: ModelYearFilter = {
+const INITIAL_STATE: IModelYearFilter = {
   ftsQuery: '',
   makeIndex: {}
 }
@@ -34,14 +34,19 @@ export const ModelYearFilterProvider: React.FC = ({ children }) => {
   )
 }
 
-const modelYearFilterReducer = (state: ModelYearFilter, action: Action) => {
-  const { type, payload } = action
-  let newState: ModelYearFilter
+const modelYearFilterReducer = (state: IModelYearFilter, action: Action) => {
+  const { type, payload = null } = action
+  let newState: IModelYearFilter
   switch (type) {
     case ModelYearFilterAction.SetMakeIndex:
-      const makeIndex = payload as Record<number, Make>
+      const makeIndex = payload === null ? {} : payload as Record<number, Make>
+      console.log('SETTING', payload)
       newState = { ...state, makeIndex }
+      break
+    default:
+      newState = state
   }
+  console.log('NEW STATE', state, newState)
   return newState
 }
 

@@ -11,6 +11,9 @@ const common: Theme = {
     inputContainerStyle: {
       borderRadius: 10
     }
+  },
+  Icon: {
+    size: 24
   }
 }
 

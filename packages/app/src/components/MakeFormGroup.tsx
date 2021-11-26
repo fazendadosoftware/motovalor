@@ -27,11 +27,15 @@ const MakeFormGroup = () => {
           Fabricantes
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          {Object.values(modelYearFilter.makeIndex).map(make => <MakeItem key={make.id} make={make} />)}
+          {
+            Object.values(modelYearFilter.makeIndex)
+              .sort(({ name: A = '' }, { name: B = '' }) => A > B ? 1 : A < B ? -1 : 0)
+              .map(make => <MakeItem key={make.id} make={make} />)
+          }
         </View> 
       </View>
       <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-        <Icon name='chevron-right' type='material-community' size={28} />
+        <Icon name='chevron-right' type='material-community' />
       </View>
     </Pressable>
   )
