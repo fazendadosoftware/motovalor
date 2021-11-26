@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, FlatList, Platform } from 'react-native'
+import { FlatList } from 'react-native'
 import { useTheme } from 'react-native-elements'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import SearchBar from '../components/SafeSearchBar'
@@ -15,25 +15,24 @@ export default function VehiclesMasterScreen () {
   useEffect(() => { getModelYears().then(setModelYears) }, [])
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors?.grey5 } }>
-      <SearchBar
-        // @ts-expect-error
-        lightTheme
-        containerStyle={{ backgroundColor: theme.colors?.grey5, paddingHorizontal: 10 }}
-        inputContainerStyle={{ borderRadius: 10 }}
-        platform="default"
-        value={query}
-        onChangeText={setQuery}
-        placeholder="Pesquisar modelos"
-      />
-      <FlatList
-        contentContainerStyle={{ paddingHorizontal: 10 }}
-        data={modelYears}
-        renderItem={({ item }) => <ModelListItem modelYear={item} />}
-        keyExtractor={ modelYear => `${modelYear.model.id}${modelYear.year}`}
-        showsVerticalScrollIndicator={false}
-      />
-
-    </SafeAreaView>
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors?.grey5 }}>
+        <SearchBar
+          // @ts-expect-error
+          lightTheme
+          containerStyle={{ backgroundColor: theme.colors?.grey5, paddingHorizontal: 10 }}
+          inputContainerStyle={{ borderRadius: 10 }}
+          platform="default"
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Pesquisar modelos"
+        />
+        <FlatList
+          contentContainerStyle={{ paddingHorizontal: 10 }}
+          data={modelYears}
+          renderItem={({ item }) => <ModelListItem modelYear={item} />}
+          keyExtractor={modelYear => `${modelYear.model.id}${modelYear.year}`}
+          showsVerticalScrollIndicator={false}
+        />
+      </SafeAreaView>
   )
 }

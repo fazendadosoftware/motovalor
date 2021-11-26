@@ -65,7 +65,7 @@ const getModelYears = async () => {
 
 const getMakes = async () => {
   const realm = await getInstance()
-  const makes = realm.objects<Make>(Make.schema.name).sorted('name')
+  const makes = realm.objects<Make>(Make.schema.name).sorted('name').toJSON()
   return makes
 }
 

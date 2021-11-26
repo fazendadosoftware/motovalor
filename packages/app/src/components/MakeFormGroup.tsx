@@ -2,18 +2,9 @@ import React from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Icon, useTheme } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
-import { MakeSelectionScreenNavigationProp } from '@/navigation/RootStack'
+import { MakeSelectionScreenNavigationProp } from '../navigation/RootStack'
+import { useModelYearFilterState } from '../hooks/useModelYearFilter'
 import { Make } from 'datastore/src/model'
-
-const makes: Make[] = [
-  { id: 1, name: 'HARLEY-DAVIDSON' },
-  { id: 2, name: 'TRIUMPH' },
-  { id: 3, name: 'DUCATI' },
-  { id: 4, name: 'SUZUKI' },
-  { id: 5, name: 'ROYAL-ENFIELD' },
-  { id: 6, name: 'HONDA' },
-  { id: 7, name: 'KAWAZAKI' }
-]
 
 const MakeItem: React.FC<{ make: Make}> = ({ make }) => {
   const { theme } = useTheme()
@@ -25,6 +16,7 @@ const MakeItem: React.FC<{ make: Make}> = ({ make }) => {
 }
 
 const MakeFormGroup = () => {
+  const modelYearFilter = useModelYearFilterState()
   const navigation = useNavigation<MakeSelectionScreenNavigationProp>()
   return (
     <Pressable
@@ -35,7 +27,7 @@ const MakeFormGroup = () => {
           Fabricantes
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          {makes.map((make, i) => <MakeItem key={i} make={make} />)}
+          {Object.values(modelYearFilter.makeIndex).map(make => <MakeItem key={make.id} make={make} />)}
         </View> 
       </View>
       <View style={{ justifyContent: 'center', alignItems: 'center' }}>

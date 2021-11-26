@@ -30,10 +30,7 @@ export default function RootStack() {
         {props => <HomeTabs screenOptions={screenOptions} /> }
       </RootStack.Screen>
       <RootStack.Screen name='Filter' component={FilterTabs} />
-      <RootStack.Screen
-        name='MakeSelection'
-        component={MakeSelectionScreen}
-      />
+      <RootStack.Screen name='MakeSelection' component={MakeSelectionScreen} />
     </RootStack.Navigator>
   )
 }
