@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from 'react'
-import { FlatList, View, Text, GestureResponderEvent, Pressable, StyleSheet } from 'react-native'
+import { FlatList, View, Text, GestureResponderEvent, TouchableOpacity, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme, Icon } from 'react-native-elements'
 import Realm from 'realm'
@@ -14,15 +14,14 @@ export interface MakeListItemProps {
 }
 
 const MakeListItem: React.FC<MakeListItemProps> = memo(({ make, selected, onPress }) => {
+  const { theme } = useTheme()
   return (
-    <Pressable
+    <TouchableOpacity
       style={[makeListItemStyles.container, { backgroundColor: 'white' }]}
       onPress={(event: GestureResponderEvent) => onPress(make, event)}>
-      <Text style={{ fontSize: 18 }}>{make.name}</Text>
-      <View>
-        <Icon name={ selected ? 'checkbox-marked-outline' : 'checkbox-blank-outline' } type='material-community' size={28} />
-      </View>
-    </Pressable>
+      <Text style={{ fontSize: 16 }}>{make.name}</Text>
+      {selected ? <Icon name='check' type='material-community' color={theme.colors?.primary} size={16} /> : null}
+    </TouchableOpacity>
   )
 })
 
@@ -35,6 +34,35 @@ const makeListItemStyles = StyleSheet.create({
     height: 60
   }
 })
+
+const SelectedMakes: React.FC = () => {
+  return (
+    <View style={{ backgroundColor: 'white' }}>
+      <Text style={{ padding: 10, fontSize: 12 }}>
+        Fabricantes selectionados:
+      </Text>
+    </View>
+  )
+}
+
+const MakeSelectionListHeader: React.FC<{ query: string, onQueryChange: (text: string) => void }> = ({ query, onQueryChange }) => {
+  const { theme } = useTheme()
+  return (
+    <View>
+      <SearchBar
+        // @ts-expect-error
+        lightTheme
+        containerStyle={{ backgroundColor: theme.colors?.grey4, paddingHorizontal: 10, borderRadius: 0 }}
+        inputContainerStyle={{ borderRadius: 10 }}
+        platform="default"
+        value={query}
+        onChangeText={onQueryChange}
+        placeholder="Pesquisar fabricantes"
+      />
+      <SelectedMakes />
+    </View>
+  )
+}
 
 export interface MakeSelectionScreenProps {
   // makeIds: Set<number>
@@ -66,16 +94,7 @@ const MakeSelectionScreen: React.FC<MakeSelectionScreenProps> = () => {
   return (
     <SafeAreaView style={{ backgroundColor: theme.colors?.grey5 }}>
       <FlatList
-        ListHeaderComponent={<SearchBar
-          // @ts-expect-error
-          lightTheme
-          containerStyle={{ backgroundColor: theme.colors?.grey5, paddingHorizontal: 10 }}
-          inputContainerStyle={{ borderRadius: 10 }}
-          platform="default"
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Pesquisar fabricantes"
-        />}
+        ListHeaderComponent={<MakeSelectionListHeader query={query} onQueryChange={setQuery}/>}
         stickyHeaderIndices={[0]}
         ItemSeparatorComponent={() => <View style={{ height: 1, width: '100%', backgroundColor: theme.colors?.greyOutline }}/>}
         removeClippedSubviews={true}

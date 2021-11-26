@@ -1,6 +1,6 @@
 import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { NativeStackNavigationProp, NativeStackNavigationOptions } from '@react-navigation/native-stack'
 import { useTheme } from 'react-native-elements'
 import HomeTabs from './HomeTabs'
 import FilterTabs from './FilterTabs'
@@ -18,9 +18,10 @@ export default function RootStack() {
   const { theme } = useTheme()
   const RootStack = createNativeStackNavigator<RootStackParamList>()
 
-  const screenOptions = {
+  const screenOptions: NativeStackNavigationOptions = {
     headerTintColor: 'white',
-    headerStyle: { backgroundColor: theme.colors?.primary }
+    headerStyle: { backgroundColor: theme.colors?.primary },
+    headerShadowVisible: true
   }
 
   return (
@@ -29,7 +30,10 @@ export default function RootStack() {
         {props => <HomeTabs screenOptions={screenOptions} /> }
       </RootStack.Screen>
       <RootStack.Screen name='Filter' component={FilterTabs} />
-      <RootStack.Screen name='MakeSelection' component={MakeSelectionScreen} />
+      <RootStack.Screen
+        name='MakeSelection'
+        component={MakeSelectionScreen}
+      />
     </RootStack.Navigator>
   )
 }
