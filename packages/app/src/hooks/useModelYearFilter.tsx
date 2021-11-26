@@ -24,7 +24,7 @@ type Action = {
 const INITIAL_STATE: IModelYearFilter = {
   ftsQuery: '',
   zeroKm: false,
-  vehicleTypeIds: new Set(),
+  vehicleTypeIds: new Set([1, 2, 3]),
   makeIndex: {}
 }
 
@@ -57,8 +57,9 @@ const modelYearFilterReducer = (state: IModelYearFilter, action: Action) => {
       if (payload === null) newState = { ...state, vehicleTypeIds: new Set() }
       else if (typeof payload === 'number' && [1, 2, 3].includes(payload)) {
         const vehicleTypeId = payload as 1 | 2 | 3
-        const vehicleTypeIds = new Set([...state.vehicleTypeIds])
+        let vehicleTypeIds = new Set([...state.vehicleTypeIds])
         vehicleTypeIds.has(vehicleTypeId) ? vehicleTypeIds.delete(vehicleTypeId) : vehicleTypeIds.add(vehicleTypeId)
+        if (vehicleTypeIds.size === 0) vehicleTypeIds = INITIAL_STATE.vehicleTypeIds
         newState = { ...state, vehicleTypeIds }
       }
       break
