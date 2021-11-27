@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Icon, useTheme } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
 import { MakeSelectionScreenNavigationProp } from '../navigation/RootStack'
-import useModelYearFilter from '../hooks/useModelYearFilter'
+import { useFipeContext }  from '../context/fipe'
 import { Make } from 'datastore/src/model'
 
 const MakeItem: React.FC<{ make: Make}> = ({ make }) => {
@@ -16,7 +16,7 @@ const MakeItem: React.FC<{ make: Make}> = ({ make }) => {
 }
 
 const MakeFormGroup = () => {
-  const { modelYearFilter } = useModelYearFilter()
+  const fipeContext = useFipeContext()
   const navigation = useNavigation<MakeSelectionScreenNavigationProp>()
   return (
     <Pressable
@@ -28,7 +28,7 @@ const MakeFormGroup = () => {
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
           {
-            Object.values(modelYearFilter.makeIndex)
+            Object.values(fipeContext.state.modelYearFilter.makeIndex)
               .sort(({ name: A = '' }, { name: B = '' }) => A > B ? 1 : A < B ? -1 : 0)
               .map(make => <MakeItem key={make.id} make={make} />)
           }

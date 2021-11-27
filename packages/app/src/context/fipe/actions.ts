@@ -1,11 +1,10 @@
 // @ts-ignore
 import zipFile from '../../assets/fipe.zip'
-import { IModelYearFilter, Make } from '../../types.d'
 import RNFS from 'react-native-fs'
 import { Image } from 'react-native'
 import { unzip } from 'react-native-zip-archive'
 import Realm from 'realm'
-import { IFipeActions, IFipeReducer, FipeActionType } from './types.d'
+import { IFipeActions, IFipeReducer, FipeActionType, IModelYearFilter, Make } from './types.d'
 
 const ARCHIVE_FILENAME = 'fipe.zip'
 const DATABASE_FILENAME = 'fipe.realm'
@@ -53,15 +52,20 @@ export const fetchMakes = async (reducer: IFipeReducer, options?: FetchMakesOpti
 }
 
 
-export const setModelYearFilter = async (reducer: IFipeReducer, modelYearFilter: IModelYearFilter | null) => {
-  const type = modelYearFilter === null ? FipeActionType.ResetModelYearFilter : FipeActionType.SetModelYearFilter
-  reducer.dispatch?.({ type, payload: modelYearFilter })
+export const setModelYearFilter = async (reducer: IFipeReducer, modelYearFilter: IModelYearFilter) => {
+  reducer.dispatch?.({ type: FipeActionType.SetModelYearFilter, payload: modelYearFilter })
 }
+
+export const resetModelYearFilter = async (reducer: IFipeReducer) => reducer.dispatch?.({ type: FipeActionType.ResetModelYearFilter, payload: null })
+
+export const resetModelYearFilterMakes = async (reducer: IFipeReducer) => reducer.dispatch?.({ type: FipeActionType.ResetModelYearFilter, payload: null })
 
 const getActions: (reducer: IFipeReducer) => IFipeActions = reducer => ({
   openRealm,
   initContext: () => initContext(reducer),
-  setModelYearFilter: (modelYearFilter: IModelYearFilter | null) => setModelYearFilter(reducer, modelYearFilter),
+  setModelYearFilter: (modelYearFilter: IModelYearFilter) => setModelYearFilter(reducer, modelYearFilter),
+  resetModelYearFilter: () => resetModelYearFilter(reducer),
+  resetModelYearFilterMakes: () => resetModelYearFilterMakes(reducer),
   fetchMakes: ({ query, sorted }: { query?: string, sorted?: string} = {}) => fetchMakes(reducer, { query, sorted })
 })
 

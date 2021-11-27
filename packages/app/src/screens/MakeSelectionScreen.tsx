@@ -2,29 +2,29 @@ import React, { useState, useEffect, useCallback, memo } from 'react'
 import { FlatList, View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme, Icon } from 'react-native-elements'
-import useModelYearFilter from '../hooks/useModelYearFilter'
 import SearchBar from '../components/SafeSearchBar'
-import { IModelYearFilter } from '../types'
 import { useFipeContext } from '../context/fipe'
 import { Make } from 'datastore/src/model'
+import { FipeActionType } from '../context/fipe/types.d'
 
 interface MakeListItemProps { make: Make, isSelected: boolean }
 
 const MakeListItem: React.FC<MakeListItemProps> = memo(({ make, isSelected }) => {
-  const { modelYearFilter, setMakeIndex } = useModelYearFilter()
+  const fipeContext = useFipeContext()
 
   const { theme } = useTheme()
 
-  const onPress = useCallback((modelYearFilter: IModelYearFilter, isSelected: boolean) => {
-    const { makeIndex } = modelYearFilter
+  const onPress = useCallback(() => {
+    const { makeIndex } = fipeContext.state.modelYearFilter
+    const isSelected = makeIndex[make.id] !== undefined
     isSelected ? delete makeIndex[make.id] : makeIndex[make.id] = make
-    setMakeIndex(makeIndex)
-  }, [])
+    fipeContext.dispatch?.({ type: FipeActionType.SetModelYearFilterMakeIndex, payload: makeIndex })
+  }, [fipeContext.state.modelYearFilter.makeIndex, make])
 
   return (
     <TouchableOpacity
       style={[makeListItemStyles.container, { backgroundColor: 'white' }]}
-      onPress={() => onPress(modelYearFilter, isSelected)}>
+      onPress={onPress}>
       <Text style={{ fontSize: 16 }}>
         {make.name}
       </Text>
@@ -50,19 +50,20 @@ export interface MakeSelectionListHeaderProps {
 
 const MakeSelectionListHeader: React.FC<MakeSelectionListHeaderProps> = ({ query, onQueryChange }) => {
   const { theme } = useTheme()
-  const { modelYearFilter, setMakeIndex } = useModelYearFilter()
+  const fipeContext = useFipeContext()
   const [selectedMakes, setSelectedMakes] = useState<Make[]>([])
 
   useEffect(() => {
-    const _selectedMakes = Object.values(modelYearFilter.makeIndex)
+    const _selectedMakes = Object.values(fipeContext.state.modelYearFilter.makeIndex)
       .sort(({ name: A = '' }, { name: B = ''}) => A > B ? 1 : A < B ? -1 : 0)
     setSelectedMakes(_selectedMakes)
-  }, [modelYearFilter])
+  }, [fipeContext.state.modelYearFilter._])
 
   const onPress = useCallback((make: Make) => {
-    delete modelYearFilter.makeIndex[make.id]
-    setMakeIndex(modelYearFilter.makeIndex)
-  }, [])
+    const { makeIndex } = fipeContext.state.modelYearFilter
+    delete makeIndex[make.id]
+    fipeContext.dispatch?.({ type: FipeActionType.SetModelYearFilterMakeIndex, payload: makeIndex })
+  }, [fipeContext.state.modelYearFilter._])
 
   const selectedMakesComponent = useCallback(() => {
     if (selectedMakes.length === 0) return null
@@ -123,14 +124,13 @@ export interface MakeSelectionScreenProps {
 }
 
 const MakeSelectionScreen: React.FC<MakeSelectionScreenProps> = () => {
-  const { state: fipeState } = useFipeContext()
-  const { modelYearFilter } = useModelYearFilter()
+  const fipeContext = useFipeContext()
   const { theme } = useTheme()
   const [query, setQuery] = useState('')
 
   const renderItem = useCallback(
-    ({ item }: { item: Make }) => <MakeListItem make={item} isSelected={modelYearFilter.makeIndex[item.id] !== undefined} />,
-    [modelYearFilter]
+    ({ item }: { item: Make }) => <MakeListItem make={item} isSelected={fipeContext.state.modelYearFilter.makeIndex[item.id] !== undefined} />,
+    [fipeContext.state.modelYearFilter.makeIndex]
   )
 
   return (
@@ -140,7 +140,7 @@ const MakeSelectionScreen: React.FC<MakeSelectionScreenProps> = () => {
         stickyHeaderIndices={[0]}
         ItemSeparatorComponent={() => <View style={{ height: 1, width: '100%', backgroundColor: theme.colors?.greyOutline }}/>}
         removeClippedSubviews={true}
-        data={fipeState.makes}
+        data={fipeContext.state.makes}
         renderItem={renderItem}
         keyExtractor={({ id }) => id.toString()}
         showsVerticalScrollIndicator={false}

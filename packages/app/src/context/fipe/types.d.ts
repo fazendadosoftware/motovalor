@@ -3,9 +3,13 @@ export { Make, Action }
 
 export enum FipeActionType {
   Reset = 'RESET',
-  ResetModelYearFilter = 'RESET_MODEL_YEAR_FILTER',
   SetMakes = 'SET_MAKES',
-  SetModelYearFilter = 'SET_MODEL_YEAR_FILTER'
+  SetModelYearFilter = 'SET_MODEL_YEAR_FILTER',
+  ToggleModelYearFilterVehicleTypeId = 'TOGGLE_MODEL_YEAR_FILTER_VEHICLE_TYPE_ID',
+  ResetModelYearFilter = 'RESET_MODEL_YEAR_FILTER',
+  ResetModelYearFilterMakes = 'RESET_MODEL_YEAR_FILTER_MAKES',
+  ResetModelYearFilterVehicleTypeIds = 'RESET_MODEL_YEAR_FILTER_VEHICLE_TYPE_IDS',
+  SetModelYearFilterMakeIndex = 'SET_MODEL_YEAR_FILTER_MAKE_INDEX'
 }
 
 export type IFipeAction = Action<FipeActionType, unknown>
@@ -26,6 +30,9 @@ export interface IFipeState {
 export interface IFipeActions {
   openRealm: () => Promise<Realm>
   initContext: () => Promise<void>
+  setModelYearFilter: (modelYearFilter: IModelYearFilter) => Promise<void>
+  resetModelYearFilter: () => Promise<void>
+  resetModelYearFilterMakes: () => Promise<void>
   fetchMakes: ({ query, sorted }: { query?: string, sorted?: string }) => Promise<Make[]>
 }
 

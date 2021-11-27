@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import useModelYearFilter from './useModelYearFilter'
+import useModelYearFilter from './_useModelYearFilter'
 import debounce from 'lodash.debounce'
 import { ModelYear, IModelYearFilter } from '../types.d'
 import { useFipeContext } from '../context/fipe'

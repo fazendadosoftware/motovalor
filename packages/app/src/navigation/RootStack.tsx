@@ -1,11 +1,11 @@
-import React, { useCallback }from 'react'
+import React, { useCallback } from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { NativeStackNavigationProp, NativeStackNavigationOptions } from '@react-navigation/native-stack'
 import { useTheme, Icon } from 'react-native-elements'
 import HomeTabs from './HomeTabs'
 import FilterTabs from './FilterTabs'
 import MakeSelectionScreen from '../screens/MakeSelectionScreen'
-import useModelYearFilter from '../hooks/useModelYearFilter'
+import { useFipeContext } from '../context/fipe'
 
 export type RootStackParamList = {
   Home: undefined
@@ -17,7 +17,7 @@ export type FilterScreenNavigationProp = NativeStackNavigationProp<RootStackPara
 export type MakeSelectionScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'MakeSelection'>
 
 export default function RootStack() {
-  const { resetFilter, setMakeIndex } = useModelYearFilter()
+  const fipeContext = useFipeContext()
   const { theme } = useTheme()
   const RootStack = createNativeStackNavigator<RootStackParamList>()
 
@@ -32,7 +32,7 @@ export default function RootStack() {
     type='material-community'
     color='white'
     style={{ padding: 5 }}
-    onPress={resetFilter}
+    onPress={fipeContext.actions.resetModelYearFilter}
   />, [])
 
   const headerRightMakeSelection = useCallback(() => <Icon
@@ -40,7 +40,7 @@ export default function RootStack() {
     type='material-community'
     color='white'
     style={{ padding: 5 }}
-    onPress={() => setMakeIndex(null)}
+    onPress={fipeContext.actions.resetModelYearFilterMakes}
   />, [])
 
   return (

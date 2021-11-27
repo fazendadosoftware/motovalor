@@ -4,7 +4,7 @@ import { useTheme } from 'react-native-elements'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import SearchBar from '../components/SafeSearchBar'
 import ModelListItem from '../components/ModelListItem'
-import useModelYearFilter from '../hooks/useModelYearFilter'
+import useModelYearFilter from '../hooks/_useModelYearFilter'
 import useFipe from '../hooks/useFipe'
 
 export default function VehiclesMasterScreen () {

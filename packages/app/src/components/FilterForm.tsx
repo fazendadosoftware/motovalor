@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { View, Text } from 'react-native'
 import { useTheme } from 'react-native-elements'
 import VehicleTypeSelector from './VehicleTypeSelector'
@@ -6,27 +6,42 @@ import Button from './Button'
 import MakeFormGroup from './MakeFormGroup'
 import ModelYearFormGroup from './ModelYearFormGroup'
 import PriceFormGroup from './PriceFormGroup'
-import useModelYearFilter from '../hooks/useModelYearFilter'
+import { useFipeContext } from '../context/fipe'
+import { FipeActionType } from '../context/fipe/types.d'
 
 const FilterForm = () => {
+  const fipeContext = useFipeContext()
   const { theme } = useTheme()
-  const { modelYearFilter, setZeroKm, setVehicleTypeId } = useModelYearFilter()
+
+  const setZeroKm = useCallback((zeroKm: boolean) => {
+    const { modelYearFilter } = fipeContext.state
+    modelYearFilter.zeroKm = true
+    fipeContext.dispatch?.({ type: FipeActionType.SetModelYearFilter, payload: { ...modelYearFilter, zeroKm } })
+  }, [fipeContext])
+
+  const setVehicleTypeId = useCallback((vehicleTypeId: 1 | 2 | 3) => {
+    fipeContext.dispatch?.({ type: FipeActionType.ToggleModelYearFilterVehicleTypeId, payload: vehicleTypeId })
+  }, [fipeContext])
+
+  useEffect(() => {
+    console.log('MODEL YER FILTER CHANGED', fipeContext.state.modelYearFilter)
+  }, [fipeContext.state.modelYearFilter._])
 
   return (
     <View style={{ backgroundColor: theme.colors?.grey5, flex: 1 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 15, borderBottomWidth: 1, borderBottomColor: theme.colors?.greyOutline }}>
         <Button
-          model={modelYearFilter.zeroKm}
+          model={fipeContext.state.modelYearFilter.zeroKm}
           label="Novos"
           onPress={() => setZeroKm(true)}
-          disabled={modelYearFilter.zeroKm}
+          disabled={fipeContext.state.modelYearFilter.zeroKm}
           containerStyle={{ marginRight: 5 }}
         />
         <Button
-          model={!modelYearFilter.zeroKm}
+          model={!fipeContext.state.modelYearFilter.zeroKm}
           label="Usados"
           onPress={() => setZeroKm(false)}
-          disabled={!modelYearFilter.zeroKm}
+          disabled={!fipeContext.state.modelYearFilter.zeroKm}
           containerStyle={{ marginLeft: 5 }}
         />
       </View>
@@ -35,7 +50,7 @@ const FilterForm = () => {
           Tipos de Veículo
         </Text>
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-          <VehicleTypeSelector vehicleTypes={modelYearFilter.vehicleTypeIds} onPress={setVehicleTypeId}/>
+          <VehicleTypeSelector vehicleTypes={fipeContext.state.modelYearFilter.vehicleTypeIds} onPress={setVehicleTypeId}/>
         </View>
       </View>
       <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: theme.colors?.greyOutline }}>

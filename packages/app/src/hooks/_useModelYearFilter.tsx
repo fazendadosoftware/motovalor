@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
-import { Make } from '../types.d'
-import { useModelYearContext, ModelYearFilterAction } from '../contexts/ModelYearFilterContext'
+import { Make } from '../types'
+import { useModelYearContext, ModelYearFilterAction } from '../contexts/_ModelYearFilterContext'
 
 const useModelYearFilter = () => {
   const { modelYearFilter, dispatch } = useModelYearContext()
