@@ -1,4 +1,4 @@
-import { useReducer, createContext, useContext } from 'react'
+import React, { useReducer, createContext, useContext } from 'react'
 import { Make, IModelYearFilter, Action } from '../types.d'
 
 export enum ModelYearFilterAction {
@@ -10,6 +10,7 @@ export enum ModelYearFilterAction {
 }
 
 export const getInitialState: () => IModelYearFilter = () => ({
+  _: 0,
   ftsQuery: '',
   zeroKm: false,
   vehicleTypeIds: new Set([1, 2, 3]),
@@ -47,6 +48,7 @@ const reducer = (state: IModelYearFilter, action: Action<ModelYearFilterAction, 
       newState = { ...state, ftsQuery: payload as string }
       break
   }
+  newState._++
   return newState
 }
 
