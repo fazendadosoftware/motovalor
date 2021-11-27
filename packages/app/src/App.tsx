@@ -6,7 +6,7 @@ import { ThemeProvider } from 'react-native-elements'
 import { useNoSleep } from 'react-native-no-sleep'
 import RootStack from './navigation/RootStack'
 import { ModelYearFilterContextProvider } from './contexts/ModelYearFilterContext'
-import { FipeContextProvider } from './contexts/FipeContext'
+import { FipeProvider } from './context/fipe'
 import theme from './theme'
 
 const App: React.FC = () => {
@@ -15,7 +15,7 @@ const App: React.FC = () => {
 
   return (
     <ModelYearFilterContextProvider>
-      <FipeContextProvider>
+      <FipeProvider>
         <ThemeProvider theme={colorScheme === 'dark' ? theme.dark : theme.light}>
           <SafeAreaProvider>
             <NavigationContainer>
@@ -23,7 +23,7 @@ const App: React.FC = () => {
             </NavigationContainer>
           </SafeAreaProvider>
         </ThemeProvider>
-      </FipeContextProvider>
+      </FipeProvider>
     </ModelYearFilterContextProvider>
   )
 }

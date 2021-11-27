@@ -9,11 +9,6 @@ export interface IModelYearFilter {
   makeIndex: Record<number, Make>
 }
 
-export interface IFipe {
-  _: number
-  makes: Make[],
-}
-
 export interface Action<T,P> {
   type: T
   payload: P

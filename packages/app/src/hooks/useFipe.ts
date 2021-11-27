@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import useModelYearFilter from './useModelYearFilter'
 import debounce from 'lodash.debounce'
 import { ModelYear, IModelYearFilter } from '../types.d'
-import { useFipeContext } from '../contexts/FipeContext'
+import { useFipeContext } from '../context/fipe'
 
 const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
   const { zeroKm, vehicleTypeIds, makeIndex } = modelYearFilter
@@ -24,7 +24,7 @@ const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
 }
 
 const useFipe = () => {
-  const { actions: { openRealm } } = useFipeContext()
+  const fipeContext = useFipeContext()
   const { modelYearFilter } = useModelYearFilter()
   const [filteredModelYears, setFilteredModelYears] = useState<ModelYear[]>([])
 
@@ -35,7 +35,7 @@ const useFipe = () => {
     realm.close()
   }, 200), [])
 
-  useEffect(() => { updateFilteredModelYears(openRealm, modelYearFilter, setFilteredModelYears) }, [modelYearFilter])
+  useEffect(() => { updateFilteredModelYears(fipeContext.actions.openRealm, modelYearFilter, setFilteredModelYears) }, [modelYearFilter])
 
   return {
     filteredModelYears

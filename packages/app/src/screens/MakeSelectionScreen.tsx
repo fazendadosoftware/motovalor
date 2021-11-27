@@ -5,7 +5,7 @@ import { useTheme, Icon } from 'react-native-elements'
 import useModelYearFilter from '../hooks/useModelYearFilter'
 import SearchBar from '../components/SafeSearchBar'
 import { IModelYearFilter } from '../types'
-import { useFipeContext } from '../contexts/FipeContext'
+import { useFipeContext } from '../context/fipe'
 import { Make } from 'datastore/src/model'
 
 interface MakeListItemProps { make: Make, isSelected: boolean }
