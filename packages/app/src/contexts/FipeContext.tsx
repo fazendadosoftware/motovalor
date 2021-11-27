@@ -77,7 +77,7 @@ const reducer = (state: IFipe, action: Action<FipeAction, unknown>) => {
 
 const fetchMakes = async () => {
   const realm = await openRealm()
-  const makes = realm?.objects(Make.schema.name).toJSON() as Make[]
+  const makes = realm?.objects(Make.schema.name).sorted('name').toJSON() as Make[]
   realm.close()
   return makes
 }
