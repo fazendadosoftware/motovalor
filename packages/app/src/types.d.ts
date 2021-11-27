@@ -11,7 +11,7 @@ export interface IModelYearFilter {
 
 export interface IFipe {
   _: number
-  makes: Record<number, Make>,
+  makes: Make[],
 }
 
 export interface Action<T,P> {

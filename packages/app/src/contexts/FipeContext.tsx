@@ -34,6 +34,16 @@ const openRealm = async (): Promise<Realm> => {
   return realm
 }
 
+export interface FipeContextActions {
+  openRealm: () => Promise<Realm>
+}
+
+const getActions: (state?: IFipe, dispatch?: React.Dispatch<Action<FipeAction, unknown>>) => FipeContextActions = (state, dispatch) => {
+  return {
+    openRealm
+  }
+}
+
 export enum FipeAction {
   Reset = 'RESET',
   SetMakes = 'SET_MAKES',
@@ -47,10 +57,10 @@ export const getInitialState: () => IFipe = () => ({
 export interface FipeContextProps {
   state: IFipe
   dispatch: React.Dispatch<Action<FipeAction, unknown>> | null
-  openRealm: () => Promise<Realm>
+  actions: FipeContextActions
 }
 
-const FipeContext = createContext<FipeContextProps>({ state: getInitialState(), dispatch: null, openRealm })
+const FipeContext = createContext<FipeContextProps>({ state: getInitialState(), dispatch: null, actions: getActions() })
 
 const reducer = (state: IFipe, action: Action<FipeAction, unknown>) => {
   const { type, payload = null } = action
@@ -86,7 +96,7 @@ export const FipeContextProvider: React.FC = ({ children }) => {
   }, [])
 
   return (
-    <FipeContext.Provider value={{ state, dispatch, openRealm }}>
+    <FipeContext.Provider value={{ state, dispatch, actions: getActions(state, dispatch) }}>
       {children}
     </FipeContext.Provider>
   )

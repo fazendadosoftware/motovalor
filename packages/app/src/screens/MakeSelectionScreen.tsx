@@ -4,8 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme, Icon } from 'react-native-elements'
 import useModelYearFilter from '../hooks/useModelYearFilter'
 import SearchBar from '../components/SafeSearchBar'
-import useFipe from '../hooks/useFipe2'
 import { IModelYearFilter } from '../types'
+import { useFipeContext } from '../contexts/FipeContext'
 import { Make } from 'datastore/src/model'
 
 interface MakeListItemProps { make: Make, isSelected: boolean }
@@ -123,13 +123,10 @@ export interface MakeSelectionScreenProps {
 }
 
 const MakeSelectionScreen: React.FC<MakeSelectionScreenProps> = () => {
+  const { state: fipeState } = useFipeContext()
   const { modelYearFilter } = useModelYearFilter()
   const { theme } = useTheme()
-  const { getMakes } = useFipe()
-  const [makes, setMakes] = useState<Make[]>([])
   const [query, setQuery] = useState('')
-
-  useEffect(() => { getMakes().then(setMakes) }, [])
 
   const renderItem = useCallback(
     ({ item }: { item: Make }) => <MakeListItem make={item} isSelected={modelYearFilter.makeIndex[item.id] !== undefined} />,
@@ -143,7 +140,7 @@ const MakeSelectionScreen: React.FC<MakeSelectionScreenProps> = () => {
         stickyHeaderIndices={[0]}
         ItemSeparatorComponent={() => <View style={{ height: 1, width: '100%', backgroundColor: theme.colors?.greyOutline }}/>}
         removeClippedSubviews={true}
-        data={makes}
+        data={fipeState.makes}
         renderItem={renderItem}
         keyExtractor={({ id }) => id.toString()}
         showsVerticalScrollIndicator={false}
