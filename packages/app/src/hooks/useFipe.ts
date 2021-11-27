@@ -27,16 +27,15 @@ const useFipe = () => {
   const { getInstance } = useRealm()
   const { modelYearFilter } = useModelYearFilter()
   const [filteredModelYears, setFilteredModelYears] = useState<ModelYear[]>([])
+  const [loadingFilteredModelYears, setLoadingFilteredModelYears] = useState(false)
 
-  const debouncedFn = useCallback(debounce(async () => {
-    console.log('MODEL YEAR FILTER', modelYearFilter)
+  const updateFilteredModelYears = useCallback(debounce(async (getInstance: () => Promise<Realm>, modelYearFilter: IModelYearFilter, setFilteredModelYears: any) => {
     const realm = await getInstance()
-    const filteredModelYears = realm?.objects<ModelYear>(ModelYear.schema.name).filtered(getFilterQuery(modelYearFilter, 3)).toJSON() as ModelYear[]
-    console.log('FILTERED', filteredModelYears.map(({ model: { name} }) => name))
+    const filteredModelYears = realm?.objects<ModelYear>(ModelYear.schema.name).filtered(getFilterQuery(modelYearFilter, 30)).toJSON() as ModelYear[]
     setFilteredModelYears(filteredModelYears)
-  }, 1000), [getInstance, modelYearFilter, setFilteredModelYears])
+  }, 500), [])
 
-  useEffect(() => { debouncedFn() }, [modelYearFilter])
+  useEffect(() => { updateFilteredModelYears(getInstance, modelYearFilter, setFilteredModelYears) }, [modelYearFilter])
 
   return {
     filteredModelYears

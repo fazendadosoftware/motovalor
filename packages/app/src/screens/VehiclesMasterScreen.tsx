@@ -11,10 +11,7 @@ export default function VehiclesMasterScreen () {
   const { modelYearFilter, setFtsQuery } = useModelYearFilter()
   const { filteredModelYears } = useFipe()
   const { theme } = useTheme()
-  console.log('HIHI')
-  useEffect(() => {
-    console.log('RENDERING', filteredModelYears.map(modelYear => modelYear.model.name))
-  }, [filteredModelYears])
+
   return (
       <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors?.grey5 }}>
         <SearchBar
