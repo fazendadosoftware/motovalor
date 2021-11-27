@@ -20,7 +20,6 @@ const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
 
   let _query = query.join(' AND ')
   if (typeof limit === 'number') _query += ` LIMIT(${limit})`
-  console.log('QUERY', _query)
   return _query
 }
 
@@ -35,6 +34,11 @@ const useFipe = () => {
     const filteredModelYears = realm?.objects<ModelYear>(ModelYear.schema.name).filtered(getFilterQuery(modelYearFilter, 30)).toJSON() as ModelYear[]
     setFilteredModelYears(filteredModelYears)
   }, 500), [])
+
+  const buildMakeIndex = useCallback(async () => {
+    const realm = await getInstance()
+
+  }, [])
 
   useEffect(() => { updateFilteredModelYears(getInstance, modelYearFilter, setFilteredModelYears) }, [modelYearFilter])
 
