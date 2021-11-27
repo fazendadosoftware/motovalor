@@ -1,5 +1,5 @@
 import React, { useReducer, createContext, useContext } from 'react'
-import { Make, IModelYearFilter, Action } from '../types.d'
+import { Make, IModelYearFilter, Action } from '../types'
 
 export enum ModelYearFilterAction {
   Reset = 'RESET',
@@ -17,8 +17,12 @@ export const getInitialState: () => IModelYearFilter = () => ({
   makeIndex: {}
 })
 
-const ModelYearFilterContext = createContext<IModelYearFilter>(getInitialState())
-const ModelYearFilterDispatch = createContext<React.Dispatch<Action<ModelYearFilterAction, unknown>> | null>(null)
+export interface ModelYearFilterContextProps {
+  modelYearFilter: IModelYearFilter
+  dispatch: React.Dispatch<Action<ModelYearFilterAction, unknown>> | null
+}
+
+const ModelYearFilterContext = createContext<ModelYearFilterContextProps>({ modelYearFilter: getInitialState(), dispatch: null })
 
 const reducer = (state: IModelYearFilter, action: Action<ModelYearFilterAction, unknown>) => {
   const { type, payload = null } = action
@@ -52,16 +56,13 @@ const reducer = (state: IModelYearFilter, action: Action<ModelYearFilterAction, 
   return newState
 }
 
-export const ModelYearFilterProvider: React.FC = ({ children }) => {
+export const ModelYearFilterContextProvider: React.FC = ({ children }) => {
   const [modelYearFilter, dispatch] = useReducer(reducer, getInitialState())
   return (
-    <ModelYearFilterContext.Provider value={modelYearFilter}>
-      <ModelYearFilterDispatch.Provider value={dispatch}>
-        {children}
-      </ModelYearFilterDispatch.Provider>
+    <ModelYearFilterContext.Provider value={{ modelYearFilter, dispatch }}>
+      {children}
     </ModelYearFilterContext.Provider>
   )
 }
 
-export const useModelYearState = () => useContext(ModelYearFilterContext)
-export const useModelYearDispatch = () => useContext(ModelYearFilterDispatch)
+export const useModelYearContext = () => useContext(ModelYearFilterContext)

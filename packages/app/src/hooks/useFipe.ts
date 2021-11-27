@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
-import useRealm from './useRealm'
 import useModelYearFilter from './useModelYearFilter'
 import debounce from 'lodash.debounce'
 import { Make, ModelYear, IModelYearFilter } from '../types.d'
+import { useFipeContext, FipeAction } from '../contexts/FipeContext'
 
 const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
   const { zeroKm, vehicleTypeIds, makeIndex } = modelYearFilter
@@ -24,23 +24,23 @@ const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
 }
 
 const useFipe = () => {
-  const { getInstance } = useRealm()
+  const { state, dispatch, openRealm } = useFipeContext()
   const { modelYearFilter } = useModelYearFilter()
   const [filteredModelYears, setFilteredModelYears] = useState<ModelYear[]>([])
-  const [loadingFilteredModelYears, setLoadingFilteredModelYears] = useState(false)
 
-  const updateFilteredModelYears = useCallback(debounce(async (getInstance: () => Promise<Realm>, modelYearFilter: IModelYearFilter, setFilteredModelYears: any) => {
-    const realm = await getInstance()
+  const updateFilteredModelYears = useCallback(debounce(async (openRealm: () => Promise<Realm>, modelYearFilter: IModelYearFilter, setFilteredModelYears: any) => {
+    const realm = await openRealm()
     const filteredModelYears = realm?.objects<ModelYear>(ModelYear.schema.name).filtered(getFilterQuery(modelYearFilter, 30)).toJSON() as ModelYear[]
     setFilteredModelYears(filteredModelYears)
-  }, 500), [])
+    realm.close()
+  }, 200), [])
 
   const buildMakeIndex = useCallback(async () => {
-    const realm = await getInstance()
-
+    const realm = await openRealm()
+    realm.close()
   }, [])
 
-  useEffect(() => { updateFilteredModelYears(getInstance, modelYearFilter, setFilteredModelYears) }, [modelYearFilter])
+  useEffect(() => { updateFilteredModelYears(openRealm, modelYearFilter, setFilteredModelYears) }, [modelYearFilter])
 
   return {
     filteredModelYears

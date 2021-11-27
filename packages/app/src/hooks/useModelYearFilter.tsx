@@ -1,10 +1,9 @@
 import { useCallback } from 'react'
 import { Make } from '../types.d'
-import { useModelYearState, useModelYearDispatch, ModelYearFilterAction } from '../contexts/ModelYearFilter'
+import { useModelYearContext, ModelYearFilterAction } from '../contexts/ModelYearFilterContext'
 
 const useModelYearFilter = () => {
-  const modelYearFilter = useModelYearState()
-  const dispatch = useModelYearDispatch()
+  const { modelYearFilter, dispatch } = useModelYearContext()
 
   const setMakeIndex = useCallback((payload: Record<number, Make> | null) => dispatch?.({ type: ModelYearFilterAction.SetMakeIndex, payload }), [])
   const setFtsQuery = useCallback((query: string) => dispatch?.({ type: ModelYearFilterAction.SetFtsQuery, payload: query }), [])

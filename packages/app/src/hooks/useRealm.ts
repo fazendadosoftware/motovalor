@@ -1,11 +1,9 @@
 // @ts-expect-error
 import zipFile from '../assets/fipe.zip'
-import { useState, useRef, useCallback } from 'react'
 import RNFS from 'react-native-fs'
 import { Image } from 'react-native'
 import { unzip } from 'react-native-zip-archive'
 import Realm from 'realm'
-import { Make, Model, ModelYear } from 'datastore/src/model'
 
 const ARCHIVE_FILENAME = 'fipe.zip'
 const DATABASE_FILENAME = 'fipe.realm'
@@ -24,16 +22,20 @@ const loadDatabaseFromAssets = async () => {
     ? await RNFS.copyFile(fileUri, ARCHIVE_FILE)
     : await RNFS.downloadFile({ fromUrl: fileUri, toFile: ARCHIVE_FILE }).promise
   await unzip(ARCHIVE_FILE, RNFS.DocumentDirectoryPath)
-  console.log('UNZIPPED')
   if (!await RNFS.exists(DATABASE_FILE)) throw Error(`could not open database file ${DATABASE_FILE}`)
 }
 
 let isSyncing = false
-let realm: Realm | null = null
 
 const getInstance = async (): Promise<Realm> => {
-  if (realm !== null) return realm
-  else if (isSyncing) {
+  if (!await databaseExists()) {
+    try {
+      isSyncing = true
+      await loadDatabaseFromAssets()
+    } finally {
+      isSyncing = false
+    }
+  } else  if (isSyncing) {
     await new Promise(resolve => {
       let interval: any
       interval = setInterval(() => {
@@ -44,29 +46,16 @@ const getInstance = async (): Promise<Realm> => {
         }
       }, 500)
     })
-  } else {
-    isSyncing = true
-    try {
-      if (!await databaseExists()) await loadDatabaseFromAssets()
-      realm = await Realm.open({ path: DATABASE_FILENAME, schema: [], readOnly: true })
-    } finally {
-      isSyncing = false
-    }
   }
+  const realm = await Realm.open({ path: DATABASE_FILENAME, schema: [], readOnly: true })
   if (realm === null) throw Error('could not open db')
   return realm
 }
 
 
-const closeRealm = () => {
-  realm?.close()
-  realm = null
-}
-
 const useRealm = () => {
   return {
-    getInstance,
-    closeRealm
+    getInstance
   }
 }
 
