@@ -1,15 +1,18 @@
-import { Make, Action } from '../../types.d'
-export { Make, Action }
+import { Make, ModelYear, Action } from '../../types.d'
+export { Make, ModelYear, Action }
 
 export enum FipeActionType {
   Reset = 'RESET',
+  SetFTSQueryModelYears = 'SET_FTS_QUERY_MODEL_YEARS',
+  SetFTSQueryMakes = 'SET_FTS_QUERY_MAKES',
   SetMakes = 'SET_MAKES',
   SetModelYearFilter = 'SET_MODEL_YEAR_FILTER',
   ToggleModelYearFilterVehicleTypeId = 'TOGGLE_MODEL_YEAR_FILTER_VEHICLE_TYPE_ID',
   ResetModelYearFilter = 'RESET_MODEL_YEAR_FILTER',
   ResetModelYearFilterMakes = 'RESET_MODEL_YEAR_FILTER_MAKES',
   ResetModelYearFilterVehicleTypeIds = 'RESET_MODEL_YEAR_FILTER_VEHICLE_TYPE_IDS',
-  SetModelYearFilterMakeIndex = 'SET_MODEL_YEAR_FILTER_MAKE_INDEX'
+  SetModelYearFilterMakeIndex = 'SET_MODEL_YEAR_FILTER_MAKE_INDEX',
+  SetFilteredModelYears = 'SET_FILTERED_MODEL_YEARS'
 }
 
 export type IFipeAction = Action<FipeActionType, unknown>
@@ -25,6 +28,9 @@ export interface IFipeState {
   _: number
   makes: Make[],
   modelYearFilter: IModelYearFilter
+  ftsQueryModelYears: string
+  ftsQueryMakes: string
+  filteredModelYears: ModelYear[]
 }
 
 export interface IFipeActions {
@@ -34,6 +40,7 @@ export interface IFipeActions {
   resetModelYearFilter: () => Promise<void>
   resetModelYearFilterMakes: () => Promise<void>
   fetchMakes: ({ query, sorted }: { query?: string, sorted?: string }) => Promise<Make[]>
+  fetchFilteredModelYears: (modelYearFilter: IModelYearFilter) => Promise<ModelYear[]>
 }
 
 export interface IFipeReducer {
