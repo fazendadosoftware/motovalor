@@ -1,6 +1,7 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import useRealm from './useRealm'
 import useModelYearFilter from './useModelYearFilter'
+import debounce from 'lodash.debounce'
 import { Make, ModelYear, IModelYearFilter } from '../types.d'
 
 const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
@@ -22,21 +23,23 @@ const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
   return _query
 }
 
-const getFilteredModelYears = async (getInstance: () => Promise<Realm>, modelYearFilter: IModelYearFilter) => {
-  const realm = await getInstance()
-  const filteredModelYears = realm?.objects<ModelYear>(ModelYear.schema.name).filtered(getFilterQuery(modelYearFilter, 3)).toJSON() as ModelYear[]
-  return filteredModelYears
-}
-
 const useFipe = () => {
   const { getInstance } = useRealm()
   const { modelYearFilter } = useModelYearFilter()
+  const [filteredModelYears, setFilteredModelYears] = useState<ModelYear[]>([])
 
-  useEffect(() => {
-    console.log('MODEL FILTER CHANGED', modelYearFilter)
-  }, [modelYearFilter])
+  const debouncedFn = useCallback(debounce(async () => {
+    console.log('MODEL YEAR FILTER', modelYearFilter)
+    const realm = await getInstance()
+    const filteredModelYears = realm?.objects<ModelYear>(ModelYear.schema.name).filtered(getFilterQuery(modelYearFilter, 3)).toJSON() as ModelYear[]
+    console.log('FILTERED', filteredModelYears.map(({ model: { name} }) => name))
+    setFilteredModelYears(filteredModelYears)
+  }, 1000), [getInstance, modelYearFilter, setFilteredModelYears])
+
+  useEffect(() => { debouncedFn() }, [modelYearFilter])
 
   return {
+    filteredModelYears
   }
 }
 

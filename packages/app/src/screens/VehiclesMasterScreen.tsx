@@ -5,9 +5,11 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import SearchBar from '../components/SafeSearchBar'
 import ModelListItem from '../components/ModelListItem'
 import useModelYearFilter from '../hooks/useModelYearFilter'
+import useFipe from '../hooks/useFipe'
 
 export default function VehiclesMasterScreen () {
-  const { filteredModelYears, modelYearFilter, setFtsQuery } = useModelYearFilter()
+  const { modelYearFilter, setFtsQuery } = useModelYearFilter()
+  const { filteredModelYears } = useFipe()
   const { theme } = useTheme()
   console.log('HIHI')
   useEffect(() => {
