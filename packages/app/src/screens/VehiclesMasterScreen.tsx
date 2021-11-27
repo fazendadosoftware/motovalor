@@ -1,22 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { FlatList } from 'react-native'
 import { useTheme } from 'react-native-elements'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import SearchBar from '../components/SafeSearchBar'
 import ModelListItem from '../components/ModelListItem'
-import useFipe from '../hooks/useFipe'
 import useModelYearFilter from '../hooks/useModelYearFilter'
-import { ModelYear } from 'datastore/src/model'
 
 export default function VehiclesMasterScreen () {
-  const { modelYearFilter, setFtsQuery } = useModelYearFilter()
+  const { filteredModelYears, modelYearFilter, setFtsQuery } = useModelYearFilter()
   const { theme } = useTheme()
-  const { getModelYears } = useFipe()
-
-  const [modelYears, setModelYears] = useState<ModelYear[] | null>(null)
-
-  useEffect(() => { getModelYears().then(setModelYears) }, [])
-
+  console.log('HIHI')
+  useEffect(() => {
+    console.log('RENDERING', filteredModelYears.map(modelYear => modelYear.model.name))
+  }, [filteredModelYears])
   return (
       <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors?.grey5 }}>
         <SearchBar
@@ -31,9 +27,9 @@ export default function VehiclesMasterScreen () {
         />
         <FlatList
           contentContainerStyle={{ paddingHorizontal: 10 }}
-          data={modelYears}
+          data={filteredModelYears}
           renderItem={({ item }) => <ModelListItem modelYear={item} />}
-          keyExtractor={modelYear => `${modelYear.model.id}${modelYear.year}`}
+          keyExtractor={({ id }) => id.toHexString()}
           showsVerticalScrollIndicator={false}
         />
       </SafeAreaView>

@@ -5,7 +5,7 @@ import { useTheme, Icon } from 'react-native-elements'
 import HomeTabs from './HomeTabs'
 import FilterTabs from './FilterTabs'
 import MakeSelectionScreen from '../screens/MakeSelectionScreen'
-import useModelYearFilter, { useModelYearFilterDispatch, ModelYearFilterAction } from '../hooks/useModelYearFilter'
+import useModelYearFilter from '../hooks/useModelYearFilter'
 
 export type RootStackParamList = {
   Home: undefined
@@ -17,8 +17,7 @@ export type FilterScreenNavigationProp = NativeStackNavigationProp<RootStackPara
 export type MakeSelectionScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'MakeSelection'>
 
 export default function RootStack() {
-  const { resetFilter } = useModelYearFilter()
-  const dispatchModelYearFilter = useModelYearFilterDispatch()
+  const { resetFilter, setMakeIndex } = useModelYearFilter()
   const { theme } = useTheme()
   const RootStack = createNativeStackNavigator<RootStackParamList>()
 
@@ -41,7 +40,7 @@ export default function RootStack() {
     type='material-community'
     color='white'
     style={{ padding: 5 }}
-    onPress={() => dispatchModelYearFilter?.({ type: ModelYearFilterAction.SetMakeIndex, payload: null })}
+    onPress={() => setMakeIndex(null)}
   />, [])
 
   return (

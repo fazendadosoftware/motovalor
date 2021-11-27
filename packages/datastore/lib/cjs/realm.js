@@ -5,6 +5,7 @@ const tslib_1 = require("tslib");
 const realm_1 = (0, tslib_1.__importStar)(require("realm"));
 const fuse_js_1 = (0, tslib_1.__importDefault)(require("fuse.js"));
 const model_1 = require("./model");
+const bson_1 = require("bson");
 const openRealm = async (path) => {
     const realm = await (0, realm_1.open)({ path, schema: [model_1.Make, model_1.Model, model_1.ModelYear] });
     return realm;
@@ -45,6 +46,7 @@ const updateDatabaseFromData = async (realm, data) => {
                 }
                 return accumulator;
             }, { prices: [], deltaPrices: [], deltas: [] });
+            modelYear.id = new bson_1.ObjectId();
             modelYear.prices = prices;
             modelYear.price = prices[0];
             const deltaFields = model_1.ModelYear.getDeltaFields(deltas);

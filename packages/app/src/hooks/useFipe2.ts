@@ -1,16 +1,19 @@
 // @ts-expect-error
 import zipFile from '../assets/fipe.zip'
-import { useState, useRef, useCallback } from 'react'
+import { useEffect } from 'react'
 import RNFS from 'react-native-fs'
 import { Image } from 'react-native'
 import { unzip } from 'react-native-zip-archive'
 import Realm from 'realm'
-import { Make, Model, ModelYear } from 'datastore/src/model'
+import { Make, ModelYear } from 'datastore/src/model'
 
 const ARCHIVE_FILENAME = 'fipe.zip'
 const DATABASE_FILENAME = 'fipe.realm'
 const ARCHIVE_FILE = `${RNFS.CachesDirectoryPath}/${ARCHIVE_FILENAME}`
 const DATABASE_FILE = `${RNFS.DocumentDirectoryPath}/${DATABASE_FILENAME}`
+
+let realm: Realm | null = null
+let isSyncing: boolean = false
 
 const databaseExists = async () => {
   const { uri: fileUri } = Image.resolveAssetSource(zipFile)
@@ -24,12 +27,8 @@ const loadDatabaseFromAssets = async () => {
     ? await RNFS.copyFile(fileUri, ARCHIVE_FILE)
     : await RNFS.downloadFile({ fromUrl: fileUri, toFile: ARCHIVE_FILE }).promise
   await unzip(ARCHIVE_FILE, RNFS.DocumentDirectoryPath)
-  console.log('UNZIPPED')
   if (!await RNFS.exists(DATABASE_FILE)) throw Error(`could not open database file ${DATABASE_FILE}`)
 }
-
-let isSyncing = false
-let realm: Realm | null = null
 
 const getInstance = async (): Promise<Realm> => {
   if (realm !== null) return realm
@@ -57,17 +56,29 @@ const getInstance = async (): Promise<Realm> => {
   return realm
 }
 
+const close = async () => { if (!realm?.isClosed) realm?.close(); realm = null }
 
-const closeRealm = () => {
-  realm?.close()
-  realm = null
+const getModelYears = async () => {
+   const realm = await getInstance()
+   return realm.objects<ModelYear>(ModelYear.schema.name).filtered('model.make.name BEGINSWITH "HARLEY" LIMIT(10)').toJSON() as ModelYear[]
 }
 
-const useRealm = () => {
+const getMakes = async () => {
+  const realm = await getInstance()
+  const makes = realm.objects<Make>(Make.schema.name).sorted('name').toJSON()
+  return makes
+}
+
+const useFipe = () => {
+  useEffect(() => {
+    getInstance()
+    return () => { close() }
+  }, [])
   return {
-    getInstance,
-    closeRealm
+    getMakes,
+    getModelYears,
+    close
   }
 }
 
-export default useRealm
+export default useFipe

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { View, Text } from 'react-native'
 import { useTheme } from 'react-native-elements'
 import VehicleTypeSelector from './VehicleTypeSelector'
@@ -6,20 +6,11 @@ import Button from './Button'
 import MakeFormGroup from './MakeFormGroup'
 import ModelYearFormGroup from './ModelYearFormGroup'
 import PriceFormGroup from './PriceFormGroup'
-import useModelYearFilter, { useModelYearFilterDispatch, ModelYearFilterAction } from '../hooks/useModelYearFilter'
+import useModelYearFilter from '../hooks/useModelYearFilter'
 
 const FilterForm = () => {
   const { theme } = useTheme()
-  const { modelYearFilter } = useModelYearFilter()
-  const dispatchModelYearFilter = useModelYearFilterDispatch()
-
-  const onVehicleTypeSelected = (vehicleType: 1 | 2 | 3) => {
-    dispatchModelYearFilter?.({ type: ModelYearFilterAction.SetVehicleTypeId, payload: vehicleType })
-  }
-
-  const onZeroKmSelected = (zeroKm: boolean) => {
-    dispatchModelYearFilter?.({ type: ModelYearFilterAction.SetZeroKm, payload: zeroKm })
-  }
+  const { modelYearFilter, setZeroKm, setVehicleTypeId } = useModelYearFilter()
 
   return (
     <View style={{ backgroundColor: theme.colors?.grey5, flex: 1 }}>
@@ -27,14 +18,14 @@ const FilterForm = () => {
         <Button
           model={modelYearFilter.zeroKm}
           label="Novos"
-          onPress={() => onZeroKmSelected(true)}
+          onPress={() => setZeroKm(true)}
           disabled={modelYearFilter.zeroKm}
           containerStyle={{ marginRight: 5 }}
         />
         <Button
           model={!modelYearFilter.zeroKm}
           label="Usados"
-          onPress={() => onZeroKmSelected(false)}
+          onPress={() => setZeroKm(false)}
           disabled={!modelYearFilter.zeroKm}
           containerStyle={{ marginLeft: 5 }}
         />
@@ -44,7 +35,7 @@ const FilterForm = () => {
           Tipos de Veículo
         </Text>
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-          <VehicleTypeSelector vehicleTypes={modelYearFilter.vehicleTypeIds} onPress={onVehicleTypeSelected}/>
+          <VehicleTypeSelector vehicleTypes={modelYearFilter.vehicleTypeIds} onPress={setVehicleTypeId}/>
         </View>
       </View>
       <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: theme.colors?.greyOutline }}>

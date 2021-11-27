@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
+const bson_1 = require("bson");
 const Model_1 = (0, tslib_1.__importDefault)(require("./Model"));
 class ModelYear {
     constructor(modelId, year, prices) {
+        this.id = new bson_1.ObjectId();
         this.model = new Model_1.default();
         this.year = -1;
         this.prices = {};
@@ -39,6 +41,7 @@ exports.default = ModelYear;
 ModelYear.schema = {
     name: 'ModelYear',
     properties: {
+        id: 'objectId',
         model: 'Model',
         year: { type: 'int', indexed: true },
         price: 'int',
@@ -49,7 +52,8 @@ ModelYear.schema = {
         delta12M: 'float?',
         delta24M: 'float?',
         delta36M: 'float?'
-    }
+    },
+    primaryKey: 'id'
 };
 // 1M, 3M, 6M, 12M, 24M, 36M, 48M
 ModelYear.getDeltaMonthIndexesSet = (windowYearSize) => new Set([...Array(Math.ceil(windowYearSize)).keys()]

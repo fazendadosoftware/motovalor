@@ -1,4 +1,5 @@
 import Realm from 'realm';
+import { ObjectId } from 'bson';
 import Model from './Model';
 export interface ModelYearDeltas {
     delta1M?: number;
@@ -9,6 +10,7 @@ export interface ModelYearDeltas {
     delta36M?: number;
 }
 export default class ModelYear {
+    id: ObjectId;
     model: Model;
     year: number;
     prices: Record<number, number> | number[];

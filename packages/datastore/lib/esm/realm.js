@@ -1,6 +1,7 @@
 import Realm, { open } from 'realm';
 import Fuse from 'fuse.js';
 import { Make, Model, ModelYear } from './model';
+import { ObjectId } from 'bson';
 export const openRealm = async (path) => {
     const realm = await open({ path, schema: [Make, Model, ModelYear] });
     return realm;
@@ -40,6 +41,7 @@ export const updateDatabaseFromData = async (realm, data) => {
                 }
                 return accumulator;
             }, { prices: [], deltaPrices: [], deltas: [] });
+            modelYear.id = new ObjectId();
             modelYear.prices = prices;
             modelYear.price = prices[0];
             const deltaFields = ModelYear.getDeltaFields(deltas);

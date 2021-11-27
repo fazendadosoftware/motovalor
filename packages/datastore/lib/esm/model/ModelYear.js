@@ -1,6 +1,8 @@
+import { ObjectId } from 'bson';
 import Model from './Model';
 export default class ModelYear {
     constructor(modelId, year, prices) {
+        this.id = new ObjectId();
         this.model = new Model();
         this.year = -1;
         this.prices = {};
@@ -35,6 +37,7 @@ export default class ModelYear {
 ModelYear.schema = {
     name: 'ModelYear',
     properties: {
+        id: 'objectId',
         model: 'Model',
         year: { type: 'int', indexed: true },
         price: 'int',
@@ -45,7 +48,8 @@ ModelYear.schema = {
         delta12M: 'float?',
         delta24M: 'float?',
         delta36M: 'float?'
-    }
+    },
+    primaryKey: 'id'
 };
 // 1M, 3M, 6M, 12M, 24M, 36M, 48M
 ModelYear.getDeltaMonthIndexesSet = (windowYearSize) => new Set([...Array(Math.ceil(windowYearSize)).keys()]

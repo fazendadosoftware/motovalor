@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Icon, useTheme } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
 import { MakeSelectionScreenNavigationProp } from '../navigation/RootStack'
-import { useModelYearFilterState } from '../hooks/useModelYearFilter'
+import useModelYearFilter from '../hooks/useModelYearFilter'
 import { Make } from 'datastore/src/model'
 
 const MakeItem: React.FC<{ make: Make}> = ({ make }) => {
@@ -16,7 +16,7 @@ const MakeItem: React.FC<{ make: Make}> = ({ make }) => {
 }
 
 const MakeFormGroup = () => {
-  const modelYearFilter = useModelYearFilterState()
+  const { modelYearFilter } = useModelYearFilter()
   const navigation = useNavigation<MakeSelectionScreenNavigationProp>()
   return (
     <Pressable

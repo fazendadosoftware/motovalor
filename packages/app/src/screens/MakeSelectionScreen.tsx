@@ -2,23 +2,23 @@ import React, { useState, useEffect, useCallback, memo } from 'react'
 import { FlatList, View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme, Icon } from 'react-native-elements'
-import { useModelYearFilterState, useModelYearFilterDispatch, ModelYearFilterAction, IModelYearFilter } from '../hooks/useModelYearFilter'
+import useModelYearFilter from '../hooks/useModelYearFilter'
 import SearchBar from '../components/SafeSearchBar'
-import useFipe from '../hooks/useFipe'
+import useFipe from '../hooks/useFipe2'
+import { IModelYearFilter } from '../types'
 import { Make } from 'datastore/src/model'
 
 interface MakeListItemProps { make: Make, isSelected: boolean }
 
 const MakeListItem: React.FC<MakeListItemProps> = memo(({ make, isSelected }) => {
-  const modelYearFilter = useModelYearFilterState()
-  const dispatch = useModelYearFilterDispatch()
+  const { modelYearFilter, setMakeIndex } = useModelYearFilter()
 
   const { theme } = useTheme()
 
   const onPress = useCallback((modelYearFilter: IModelYearFilter, isSelected: boolean) => {
     const { makeIndex } = modelYearFilter
     isSelected ? delete makeIndex[make.id] : makeIndex[make.id] = make
-    dispatch?.({ type: ModelYearFilterAction.SetMakeIndex, payload: makeIndex })
+    setMakeIndex(makeIndex)
   }, [])
 
   return (
@@ -50,8 +50,7 @@ export interface MakeSelectionListHeaderProps {
 
 const MakeSelectionListHeader: React.FC<MakeSelectionListHeaderProps> = ({ query, onQueryChange }) => {
   const { theme } = useTheme()
-  const modelYearFilter = useModelYearFilterState()
-  const dispatch = useModelYearFilterDispatch()
+  const { modelYearFilter, setMakeIndex } = useModelYearFilter()
   const [selectedMakes, setSelectedMakes] = useState<Make[]>([])
 
   useEffect(() => {
@@ -62,7 +61,7 @@ const MakeSelectionListHeader: React.FC<MakeSelectionListHeaderProps> = ({ query
 
   const onPress = useCallback((make: Make) => {
     delete modelYearFilter.makeIndex[make.id]
-    dispatch?.({ type: ModelYearFilterAction.SetMakeIndex, payload: modelYearFilter.makeIndex })
+    setMakeIndex(modelYearFilter.makeIndex)
   }, [])
 
   const selectedMakesComponent = useCallback(() => {
@@ -124,7 +123,7 @@ export interface MakeSelectionScreenProps {
 }
 
 const MakeSelectionScreen: React.FC<MakeSelectionScreenProps> = () => {
-  const modelYearFilter = useModelYearFilterState()
+  const { modelYearFilter } = useModelYearFilter()
   const { theme } = useTheme()
   const { getMakes } = useFipe()
   const [makes, setMakes] = useState<Make[]>([])

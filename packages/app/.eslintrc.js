@@ -3,7 +3,8 @@ module.exports = {
   extends: [
     '@react-native-community/eslint-config', // Default RN config
     'standard-with-typescript', // Installed in step 2
-    'eslint-config-prettier' // Installed in step 3
+    'eslint-config-prettier', // Installed in step 3
+    'plugin:react-hooks/recommended'
   ],
   parser: '@typescript-eslint/parser', // Installed in step 2
   plugins: [
