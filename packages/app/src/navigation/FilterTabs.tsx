@@ -10,16 +10,16 @@ const FilterTabs: React.FC = () => {
 
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={ {
         tabBarIndicatorStyle: { backgroundColor: theme.colors?.primary }
-      }}>
+      } }>
       <Tab.Screen
         name='Atuais'
-        component={FilterForm}
+        component={ FilterForm }
       />
       <Tab.Screen
         name='Salvos'
-        component={FilterList}
+        component={ FilterList }
       />
     </Tab.Navigator>
   )

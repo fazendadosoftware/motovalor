@@ -9,19 +9,20 @@ import { FipeProvider } from './context/fipe'
 import theme from './theme'
 
 const App: React.FC = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   if (__DEV__) useNoSleep()
   const colorScheme = useColorScheme()
 
   return (
-      <FipeProvider>
-        <ThemeProvider theme={colorScheme === 'dark' ? theme.dark : theme.light}>
-          <SafeAreaProvider>
-            <NavigationContainer>
-              <RootStack />
-            </NavigationContainer>
-          </SafeAreaProvider>
-        </ThemeProvider>
-      </FipeProvider>
+    <FipeProvider>
+      <ThemeProvider theme={ colorScheme === 'dark' ? theme.dark : theme.light }>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <RootStack />
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </FipeProvider>
   )
 }
 

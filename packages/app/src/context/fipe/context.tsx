@@ -29,8 +29,8 @@ export const FipeProvider: React.FC = ({ children }) => {
   }, [state.modelYearIndex, state.modelYearFilter._])
 
   return (
-    <FipeContext.Provider value={{ state, dispatch, actions }}>
-      {children}
+    <FipeContext.Provider value={ { state, dispatch, actions } }>
+      { children }
     </FipeContext.Provider>
   )
 }

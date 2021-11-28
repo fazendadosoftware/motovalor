@@ -15,10 +15,10 @@ const SearchBar: React.FC<SearchBarProps> = ({ value, onChangeText, placeholder 
     <View style={ styles.searchView }>
       <View style={ styles.inputView }>
         <TextInput
-          value={value}
-          style={styles.input}
-          placeholder={placeholder}
-          onChangeText={onChangeText}
+          value={ value }
+          style={ styles.input }
+          placeholder={ placeholder }
+          onChangeText={ onChangeText }
         />
         { value.length === 0 ? (
           <TouchableOpacity>

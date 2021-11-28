@@ -14,13 +14,13 @@ const LIST_ITEM_HEIGHT = 55
 const MakeListItem: React.FC<MakeListItemProps> = memo(({ make, isSelected, onPress }) => {
   const { theme } = useTheme()
   return (
-    <ListItem key={make.id} onPress={() => onPress(make)} containerStyle={{ height: LIST_ITEM_HEIGHT }}>
+    <ListItem key={ make.id } onPress={ () => onPress(make) } containerStyle={ { height: LIST_ITEM_HEIGHT } }>
       <ListItem.Content>
         <ListItem.Title>
-          {make.name}
+          { make.name }
         </ListItem.Title>
       </ListItem.Content>
-      {isSelected ? <ListItem.Chevron iconProps={{ name: 'check', color: theme.colors?.primary }} /> : null}
+      { isSelected ? <ListItem.Chevron iconProps={ { name: 'check', color: theme.colors?.primary } } /> : null }
     </ListItem>
   )
 }, (prev, next) => prev.isSelected === next.isSelected)
@@ -34,9 +34,9 @@ const MakeSelectionListHeaderSelectedItem: React.FC<{ make: Make, onPress: (make
   const { theme } = useTheme()
   return (
     <Pressable
-      key={make.id}
-      onPress={() => onPress(make)}
-      style={{
+      key={ make.id }
+      onPress={ () => onPress(make) }
+      style={ {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 1,
@@ -45,14 +45,14 @@ const MakeSelectionListHeaderSelectedItem: React.FC<{ make: Make, onPress: (make
         backgroundColor: 'white',
         marginRight: 5,
         marginBottom: 5,
-      }}>
-      <Text style={{ fontSize: 14, marginLeft: 5 }}>{make.name}</Text>
+      } }>
+      <Text style={ { fontSize: 14, marginLeft: 5 } }>{ make.name }</Text>
       <Icon
         name='close-circle'
         type='material-community'
-        color={theme.colors?.grey3}
-        size={18}
-        containerStyle={{ marginLeft: 5, paddingHorizontal: 5 }} />
+        color={ theme.colors?.grey3 }
+        size={ 18 }
+        containerStyle={ { marginLeft: 5, paddingHorizontal: 5 } } />
     </Pressable>
   )
 }, (prev, next) => prev.make.id === next.make.id)
@@ -60,10 +60,10 @@ const MakeSelectionListHeaderSelectedItem: React.FC<{ make: Make, onPress: (make
 const MakeSelectionListHeaderSelectedItems: React.FC<{ makes: Make[], onPress: (make: Make) => void}> = ({ makes, onPress }) => {
   const { theme } = useTheme()
   return makes.length === 0 ? null : (
-    <View style={{ padding: 10, backgroundColor: theme.colors?.grey5 }}>
-      <Text style={{ fontSize: 12, fontWeight: 'bold', marginBottom: 5 }}>Fabricantes selectionados:</Text>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-        {makes.map(make => <MakeSelectionListHeaderSelectedItem key={make.id} make={make} onPress={onPress} />)}
+    <View style={ { padding: 10, backgroundColor: theme.colors?.grey5 } }>
+      <Text style={ { fontSize: 12, fontWeight: 'bold', marginBottom: 5 } }>Fabricantes selectionados:</Text>
+      <View style={ { flexDirection: 'row', flexWrap: 'wrap' } }>
+        { makes.map(make => <MakeSelectionListHeaderSelectedItem key={ make.id } make={ make } onPress={ onPress } />) }
       </View>
     </View>
   )
@@ -76,35 +76,33 @@ const MakeSelectionListHeader: React.FC<{ _: number }> = memo(() => {
   const [makes, setMakes] = useState<Make[]>([])
 
   useEffect(() => {
-    const makes = [...fipeContext.state.modelYearFilter.makeIds]
+    const _makes = [...fipeContext.state.modelYearFilter.makeIds]
       .reduce((accumulator: Make[], makeId) => {
         const make = fipeContext.state.makeIndex.get(makeId)
         if (make !== undefined) accumulator.push(make)
         return accumulator
       }, [])
-      // .sort(({ name: A = '' }, { name: B = '' }) => A > B ? 1 : A < B ? -1 : 0)
       
-    setMakes(makes)
-    console.log('=================== COMPUTED MAKES==================', makes.map(({ name }) => name).join())
-  }, [fipeContext.state.modelYearFilter._])
+    setMakes(_makes)
+  }, [fipeContext.state.makeIndex, fipeContext.state.modelYearFilter.makeIds])
 
   const onPress = useCallback((make: Make) => {
     fipeContext.dispatch?.({ type: FipeActionType.DeleteModelYearFilterMakeId, payload: make.id })
-  }, [fipeContext.state.modelYearFilter.makeIds])
+  }, [fipeContext])
 
   return (
     <View>
       <SearchBar
         // @ts-expect-error
         lightTheme
-        containerStyle={{ backgroundColor: theme.colors?.grey5, paddingHorizontal: 10, borderRadius: 0 }}
-        inputContainerStyle={{ borderRadius: 10 }}
+        containerStyle={ { backgroundColor: theme.colors?.grey5, paddingHorizontal: 10, borderRadius: 0 } }
+        inputContainerStyle={ { borderRadius: 10 } }
         platform="default"
-        value={query}
-        onChangeText={setQuery}
+        value={ query }
+        onChangeText={ setQuery }
         placeholder="Pesquisar fabricantes"
       />
-      <MakeSelectionListHeaderSelectedItems makes={makes} onPress={onPress}/>
+      <MakeSelectionListHeaderSelectedItems makes={ makes } onPress={ onPress }/>
     </View>
   )
 })
@@ -115,45 +113,45 @@ const MakeSelectionScreen = memo(() => {
   const [makes, setMakes] = useState<Make[]>([])
 
   useEffect(() => {
-    const makes = [...fipeContext.state.makeIndex.values()]
-    console.log('GOT MAKES', makes.length)
-    setMakes(makes)
+    const _makes = [...fipeContext.state.makeIndex.values()]
+
+    setMakes(_makes)
   }, [fipeContext.state.makeIndex])
 
-  const ListHeaderComponent = useCallback(() => <MakeSelectionListHeader _={fipeContext.state.modelYearFilter._} />, [])
-  const ItemSeparatorComponent = useCallback(() => <View style={{ height: 1, width: '100%', backgroundColor: theme.colors?.greyOutline }} />, [])
+  const ListHeaderComponent = useCallback(() => <MakeSelectionListHeader _={ fipeContext.state.modelYearFilter._ } />, [fipeContext.state.modelYearFilter._])
+  const ItemSeparatorComponent = useCallback(() => <View style={ { height: 1, width: '100%', backgroundColor: theme.colors?.greyOutline } } />, [])
 
   const onListItemPress = useCallback((make: Make) => {
     const isSelected = fipeContext.state.modelYearFilter.makeIds.has(make.id)
     const type = FipeActionType[isSelected ? 'DeleteModelYearFilterMakeId' : 'SetModelYearFilterMakeId']
     fipeContext.dispatch?.({ type, payload: make.id })
-  }, [])
+  }, [fipeContext])
 
   const renderItem = useCallback(
     ({ item }: { item: Make }) => <MakeListItem
-      make={item}
-      isSelected={fipeContext.state.modelYearFilter.makeIds.has(item.id)}
-      onPress={onListItemPress}/>,[])
+      make={ item }
+      isSelected={ fipeContext.state.modelYearFilter.makeIds.has(item.id) }
+      onPress={ onListItemPress }/>,[])
 
   const keyExtractor = useCallback((item: Make) => item.id.toString(), [])
   const getItemLayout = useCallback((data: Make[] | null | undefined, index: number) => ({
     length: LIST_ITEM_HEIGHT,
-    offset: LIST_ITEM_HEIGHT & index,
+    offset: LIST_ITEM_HEIGHT && index,
     index
   }), [])
 
   return (
-    <SafeAreaView style={{ backgroundColor: theme.colors?.grey5 }}>
+    <SafeAreaView style={ { backgroundColor: theme.colors?.grey5 } }>
       <FlatList
-        ListHeaderComponent={ListHeaderComponent}
-        stickyHeaderIndices={[0]}
-        ItemSeparatorComponent={ItemSeparatorComponent}
-        data={makes}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        showsVerticalScrollIndicator={false}
-        removeClippedSubviews={true}
-        getItemLayout={getItemLayout}
+        ListHeaderComponent={ ListHeaderComponent }
+        stickyHeaderIndices={ [0] }
+        ItemSeparatorComponent={ ItemSeparatorComponent }
+        data={ makes }
+        renderItem={ renderItem }
+        keyExtractor={ keyExtractor }
+        showsVerticalScrollIndicator={ false }
+        removeClippedSubviews={ true }
+        getItemLayout={ getItemLayout }
       />
     </SafeAreaView>
   )

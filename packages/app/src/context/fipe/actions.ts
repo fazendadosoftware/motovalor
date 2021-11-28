@@ -106,10 +106,10 @@ export const resetModelYearFilterMakeIds = async (reducer: IFipeReducer) => redu
 
 const getActions: (reducer: IFipeReducer) => IFipeActions = reducer => ({
   openRealm,
-  initContext: () => initContext(reducer),
-  setModelYearFilter: (modelYearFilter: IModelYearFilter) => setModelYearFilter(reducer, modelYearFilter),
-  resetModelYearFilter: () => resetModelYearFilter(reducer),
-  resetModelYearFilterMakeIds: () => resetModelYearFilterMakeIds(reducer),
+  initContext: async () => await initContext(reducer),
+  setModelYearFilter: async (modelYearFilter: IModelYearFilter) => await setModelYearFilter(reducer, modelYearFilter),
+  resetModelYearFilter: async () => await resetModelYearFilter(reducer),
+  resetModelYearFilterMakeIds: async () => await resetModelYearFilterMakeIds(reducer),
   fetchMakes,
   fetchModelYears,
   getModelYearFilterQuery
