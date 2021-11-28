@@ -68,7 +68,6 @@ export const reducer = (state: IFipeState, action: IFipeAction) => {
         const { modelYearFilter } = state
         let vehicleTypeIds = new Set([...modelYearFilter.vehicleTypeIds])
         vehicleTypeIds.has(vehicleTypeId) ? vehicleTypeIds.delete(vehicleTypeId) : vehicleTypeIds.add(vehicleTypeId)
-        if (vehicleTypeIds.size === 0) ({ vehicleTypeIds } = getModelYearFilterInitialState())
         modelYearFilter._++
         return { ...state, modelYearFilter: { ...modelYearFilter, vehicleTypeIds } }
       })()
