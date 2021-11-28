@@ -44,7 +44,14 @@ export const closeRealm = () => {
 export const initContext = async (reducer: IFipeReducer) => {
   const { fetchMakes } = getActions(reducer)
   await Promise.all([
-    fetchMakes().then(makes => reducer.dispatch?.({ type: FipeActionType.SetMakes, payload: makes })),
+    fetchMakes()
+      .then(makes => {
+        const makeIndex = makes.reduce((accumulator: Record<string, Make>, make) => {
+          accumulator[make.id.toString()] = make
+          return accumulator
+        }, {})
+        reducer.dispatch?.({ type: FipeActionType.SetMakeIndex, payload: makeIndex })
+      }),
     fetchModelYears().then(modelYears => {
       const modelYearIndex = modelYears
         .reduce((accumulator: Record<string, ModelYear>, modelYear) => {
@@ -57,8 +64,7 @@ export const initContext = async (reducer: IFipeReducer) => {
 }
 
 const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
-  const { zeroKm, vehicleTypeIds, makeIndex } = modelYearFilter
-  const makeIds = Object.values(makeIndex).map(({ id }) => id)
+  const { zeroKm, vehicleTypeIds, makeIds } = modelYearFilter
 
   const query = []
   // 0km
@@ -67,7 +73,7 @@ const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
   if (vehicleTypeIds.size < 3 && vehicleTypeIds.size > 0) query.push(`(${[...vehicleTypeIds].map(id => `model.vehicleTypeCode == ${id}`).join(' OR ')})`)
   // makes
   // if (makeIds.length > 0) query.push(`model.make.id in ${JSON.stringify(makeIds)}`)
-  if (makeIds.length > 0) query.push(`(${makeIds.map(id => `model.make.id == ${id}`).join(' OR ')})`)
+  if (makeIds.size > 0) query.push(`(${[...makeIds].map(id => `model.make.id == ${id}`).join(' OR ')})`)
   // limit
 
   let _query = query.join(' AND ')

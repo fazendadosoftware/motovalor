@@ -4,13 +4,13 @@ export const getModelYearFilterInitialState: () => IModelYearFilter = () => ({
   _: 0,
   zeroKm: false,
   vehicleTypeIds: new Set([1, 2, 3]),
-  makeIndex: {}
+  makeIds: new Set()
 })
 
 export const getInitialState: () => IFipeState = () => ({
   _: 0,
   isSyncing: false,
-  makes: [],
+  makeIndex: {},
   modelYearIndex: {},
   modelYearFilter: getModelYearFilterInitialState(),
   ftsQueryModelYears: '',
@@ -37,15 +37,15 @@ export const reducer = (state: IFipeState, action: IFipeAction) => {
         const ftsQueryMakes = payload as string
         return { ...state, ftsQueryMakes }
       })()
-    case FipeActionType.SetMakes:
+    case FipeActionType.SetMakeIndex:
       return (() => {
-        const makes = payload as Make[]
-        return { ...state, makes }
+        const makeIndex = payload as Map<number, Make>
+        return { ...state, makeIndex }
       })()
     case FipeActionType.SetModelYearIndex:
       return (() => {
-        const modelYearIndex = payload as Record<string, ModelYear>
-        return { ...state, modelYearIndex } as IFipeState
+        const modelYearIndex = payload as Map<string, ModelYear>
+        return { ...state, modelYearIndex }
       })()
     case FipeActionType.SetModelYearFilter:
       return (() => {
@@ -55,13 +55,6 @@ export const reducer = (state: IFipeState, action: IFipeAction) => {
       })()
     case FipeActionType.ResetModelYearFilter:
       return { ...state, modelYearFilter: getModelYearFilterInitialState() }
-    case FipeActionType.ResetModelYearFilterMakes:
-      return (() => {
-        const { modelYearFilter } = state
-        modelYearFilter.makeIndex = {}
-        modelYearFilter._++
-        return { ...state, modelYearFilter }
-      })()
     case FipeActionType.ToggleModelYearFilterVehicleTypeId:
       return (() => {
         const vehicleTypeId = payload as 1 | 2 | 3
@@ -76,19 +69,29 @@ export const reducer = (state: IFipeState, action: IFipeAction) => {
       const { vehicleTypeIds } = getModelYearFilterInitialState()
       modelYearFilter._++
       return { ...state, modelYearFilter: { ...modelYearFilter, vehicleTypeIds } } as IFipeState
-    case FipeActionType.ResetModelYearFilterMakes:
+    case FipeActionType.ResetModelYearFilterMakeIds:
       return (() => {
         const { modelYearFilter } = state
-        modelYearFilter.makeIndex = {}
+        modelYearFilter.makeIds = new Set()
         modelYearFilter._++
         return { ...state, modelYearFilter }
       })()
-    case FipeActionType.SetModelYearFilterMakeIndex:
+    case FipeActionType.SetModelYearFilterMakeId:
       return (() => {
-        const makeIndex = payload as Record<number, Make>
-        const { modelYearFilter } = state
-        modelYearFilter.makeIndex = makeIndex
-        modelYearFilter._++
+        const makeId = payload as number
+        if (!modelYearFilter.makeIds.has(makeId)) {
+          modelYearFilter.makeIds.add(makeId)
+          modelYearFilter._++
+        }
+        return { ...state, modelYearFilter }
+      })()
+    case FipeActionType.DeleteModelYearFilterMakeId:
+      return (() => {
+        const makeId = payload as number
+        if (modelYearFilter.makeIds.has(makeId)) {
+          modelYearFilter.makeIds.delete(makeId)
+          modelYearFilter._++
+        }
         return { ...state, modelYearFilter }
       })()
     case FipeActionType.SetFilteredModelYears:

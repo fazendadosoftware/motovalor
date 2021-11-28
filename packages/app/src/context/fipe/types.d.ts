@@ -7,14 +7,15 @@ export enum FipeActionType {
   SetIsSyncing = 'SET_IS_SYNCING',
   SetFTSQueryModelYears = 'SET_FTS_QUERY_MODEL_YEARS',
   SetFTSQueryMakes = 'SET_FTS_QUERY_MAKES',
-  SetMakes = 'SET_MAKES',
+  SetMakeIndex = 'SET_MAKE_INDEX',
   SetModelYearIndex = 'SET_MODEL_YEAR_INDEX',
   SetModelYearFilter = 'SET_MODEL_YEAR_FILTER',
   ToggleModelYearFilterVehicleTypeId = 'TOGGLE_MODEL_YEAR_FILTER_VEHICLE_TYPE_ID',
   ResetModelYearFilter = 'RESET_MODEL_YEAR_FILTER',
-  ResetModelYearFilterMakes = 'RESET_MODEL_YEAR_FILTER_MAKES',
+  ResetModelYearFilterMakeIds = 'RESET_MODEL_YEAR_FILTER_MAKE_IDS',
   ResetModelYearFilterVehicleTypeIds = 'RESET_MODEL_YEAR_FILTER_VEHICLE_TYPE_IDS',
-  SetModelYearFilterMakeIndex = 'SET_MODEL_YEAR_FILTER_MAKE_INDEX',
+  SetModelYearFilterMakeId = 'SET_MODEL_YEAR_FILTER_MAKE_ID',
+  DeleteModelYearFilterMakeId = 'DELETE_MODEL_YEAR_FILTER_MAKE_ID',
   SetFilteredModelYears = 'SET_FILTERED_MODEL_YEARS'
 }
 
@@ -24,13 +25,12 @@ export interface IModelYearFilter {
   _: number
   zeroKm: boolean
   vehicleTypeIds: Set<1 | 2 | 3>
-  makeIndex: Record<number, Make>
+  makeIds: Set<number>
 }
-
 export interface IFipeState {
   _: number
   isSyncing: boolean
-  makes: Make[]
+  makeIndex: Record<string, Make>
   modelYearIndex: Record<string, ModelYear>
   modelYearFilter: IModelYearFilter
   ftsQueryModelYears: string

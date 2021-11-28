@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Icon, useTheme } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
@@ -15,9 +15,23 @@ const MakeItem: React.FC<{ make: Make}> = ({ make }) => {
   )
 }
 
-const MakeFormGroup = () => {
+const SelectedMakeSection: React.FC = () => {
   const fipeContext = useFipeContext()
+  const selectedMakeSection = useCallback(() => [...fipeContext.state.modelYearFilter.makeIds]
+    .map(makeId => fipeContext.state.makeIndex[makeId])
+    .filter(make => !!make)
+    .sort(({ name: A = '' }, { name: B = '' }) => A > B ? 1 : A < B ? -1 : 0)
+    .map(make => <MakeItem key={make.id} make={make} />),
+    [fipeContext.state.modelYearFilter.makeIds, fipeContext.state.makeIndex])
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+      {selectedMakeSection()}
+    </View>
+  )
+}
+const MakeFormGroup = () => {
   const navigation = useNavigation<MakeSelectionScreenNavigationProp>()
+
   return (
     <Pressable
       style={{ flexDirection: 'row', minHeight: 50 }}
@@ -26,13 +40,7 @@ const MakeFormGroup = () => {
         <Text style={{ fontSize: 12, fontWeight: 'bold', marginBottom: 10 }}>
           Fabricantes
         </Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          {
-            Object.values(fipeContext.state.modelYearFilter.makeIndex)
-              .sort(({ name: A = '' }, { name: B = '' }) => A > B ? 1 : A < B ? -1 : 0)
-              .map(make => <MakeItem key={make.id} make={make} />)
-          }
-        </View> 
+        <SelectedMakeSection />
       </View>
       <View style={{ justifyContent: 'center', alignItems: 'center' }}>
         <Icon name='chevron-right' type='material-community' />

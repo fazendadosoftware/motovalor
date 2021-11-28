@@ -23,7 +23,7 @@ const MakeListItem: React.FC<MakeListItemProps> = memo(({ make, isSelected, onPr
       {isSelected ? <ListItem.Chevron iconProps={{ name: 'check', color: theme.colors?.primary }} /> : null}
     </ListItem>
   )
-}, (prev: MakeListItemProps, next: MakeListItemProps) => prev.isSelected === next.isSelected)
+}, (prev, next) => prev.isSelected === next.isSelected)
 
 export interface MakeSelectionListHeaderProps {
   query: string
@@ -76,17 +76,16 @@ const MakeSelectionListHeader: React.FC<{ _: number }> = memo(() => {
   const [makes, setMakes] = useState<Make[]>([])
 
   useEffect(() => {
-    const makes = Object.values(fipeContext.state.modelYearFilter.makeIndex)
+    const makes = [...fipeContext.state.modelYearFilter.makeIds]
+      .map(makeId => fipeContext.state.makeIndex[makeId])
       .sort(({ name: A = '' }, { name: B = '' }) => A > B ? 1 : A < B ? -1 : 0)
     setMakes(makes)
     console.log('=================== COMPUTED MAKES==================', makes.map(({ name }) => name).join())
   }, [fipeContext.state.modelYearFilter._])
 
   const onPress = useCallback((make: Make) => {
-    const { makeIndex } = fipeContext.state.modelYearFilter
-    delete makeIndex[make.id]
-    fipeContext.dispatch?.({ type: FipeActionType.SetModelYearFilterMakeIndex, payload: makeIndex })
-  }, [fipeContext.state.modelYearFilter.makeIndex])
+    fipeContext.dispatch?.({ type: FipeActionType.DeleteModelYearFilterMakeId, payload: make.id })
+  }, [fipeContext.state.modelYearFilter.makeIds])
 
   return (
     <View>
@@ -108,21 +107,26 @@ const MakeSelectionListHeader: React.FC<{ _: number }> = memo(() => {
 const MakeSelectionScreen = memo(() => {
   const fipeContext = useFipeContext()
   const { theme } = useTheme()
+  const [makes, setMakes] = useState<Make[]>([])
+
+  useEffect(() => {
+    const makes = [...fipeContext.state.makeIndex.values()]
+    setMakes(makes)
+  }, [fipeContext.state.makeIndex])
 
   const ListHeaderComponent = useCallback(() => <MakeSelectionListHeader _={fipeContext.state.modelYearFilter._} />, [])
   const ItemSeparatorComponent = useCallback(() => <View style={{ height: 1, width: '100%', backgroundColor: theme.colors?.greyOutline }} />, [])
 
   const onListItemPress = useCallback((make: Make) => {
-    const { makeIndex } = fipeContext.state.modelYearFilter
-    const isSelected = makeIndex[make.id] !== undefined
-    isSelected ? delete makeIndex[make.id] : makeIndex[make.id] = make
-    fipeContext.dispatch?.({ type: FipeActionType.SetModelYearFilterMakeIndex, payload: makeIndex })
+    const isSelected = fipeContext.state.modelYearFilter.makeIds.has(make.id)
+    const type = FipeActionType[isSelected ? 'DeleteModelYearFilterMakeId' : 'SetModelYearFilterMakeId']
+    fipeContext.dispatch?.({ type, payload: make.id })
   }, [])
 
   const renderItem = useCallback(
     ({ item }: { item: Make }) => <MakeListItem
       make={item}
-      isSelected={fipeContext.state.modelYearFilter.makeIndex[item.id] !== undefined}
+      isSelected={fipeContext.state.modelYearFilter.makeIds.has(item.id)}
       onPress={onListItemPress}/>,[])
 
   const keyExtractor = useCallback((item: Make) => item.id.toString(), [])
@@ -138,7 +142,7 @@ const MakeSelectionScreen = memo(() => {
         ListHeaderComponent={ListHeaderComponent}
         stickyHeaderIndices={[0]}
         ItemSeparatorComponent={ItemSeparatorComponent}
-        data={fipeContext.state.makes}
+        data={makes}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         showsVerticalScrollIndicator={false}
