@@ -10,6 +10,7 @@ export const FipeProvider: React.FC = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, getInitialState())
   const [actions] = useState(() => getActions({ state, dispatch }))
 
+  // opens and closes the realm
   useEffect(() => {
     (async () => { await openRealm(); initContext({ state, dispatch }) })()
     return closeRealm()
