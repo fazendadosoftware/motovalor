@@ -1,6 +1,6 @@
 import { Theme } from 'react-native-elements'
 
-const BORDER_RADIUS = 10
+const BORDER_RADIUS = 5
 const common: Theme = {
   Button: {
     buttonStyle: {
