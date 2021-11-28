@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Icon, useTheme } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
@@ -17,12 +17,17 @@ const MakeItem: React.FC<{ make: Make}> = ({ make }) => {
 
 const SelectedMakeSection: React.FC = () => {
   const fipeContext = useFipeContext()
-  const selectedMakeSection = useCallback(() => [...fipeContext.state.modelYearFilter.makeIds]
-    .map(makeId => fipeContext.state.makeIndex[makeId])
-    .filter(make => !!make)
-    .sort(({ name: A = '' }, { name: B = '' }) => A > B ? 1 : A < B ? -1 : 0)
-    .map(make => <MakeItem key={make.id} make={make} />),
-    [fipeContext.state.modelYearFilter.makeIds, fipeContext.state.makeIndex])
+
+  const selectedMakeSection = useCallback(() => {
+    const makes = [...fipeContext.state.modelYearFilter.makeIds]
+      .reduce((accumulator: Make[], makeId) => {
+        const make = fipeContext.state.makeIndex.get(makeId)
+        if (make !== undefined) accumulator.push(make)
+        return accumulator
+      }, [])
+    return makes.map(make => <MakeItem key={make.id} make={make} />)
+  }, [fipeContext.state.modelYearFilter.makeIds])
+
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
       {selectedMakeSection()}

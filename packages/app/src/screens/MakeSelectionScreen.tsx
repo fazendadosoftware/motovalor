@@ -77,8 +77,13 @@ const MakeSelectionListHeader: React.FC<{ _: number }> = memo(() => {
 
   useEffect(() => {
     const makes = [...fipeContext.state.modelYearFilter.makeIds]
-      .map(makeId => fipeContext.state.makeIndex[makeId])
-      .sort(({ name: A = '' }, { name: B = '' }) => A > B ? 1 : A < B ? -1 : 0)
+      .reduce((accumulator: Make[], makeId) => {
+        const make = fipeContext.state.makeIndex.get(makeId)
+        if (make !== undefined) accumulator.push(make)
+        return accumulator
+      }, [])
+      // .sort(({ name: A = '' }, { name: B = '' }) => A > B ? 1 : A < B ? -1 : 0)
+      
     setMakes(makes)
     console.log('=================== COMPUTED MAKES==================', makes.map(({ name }) => name).join())
   }, [fipeContext.state.modelYearFilter._])
@@ -111,6 +116,7 @@ const MakeSelectionScreen = memo(() => {
 
   useEffect(() => {
     const makes = [...fipeContext.state.makeIndex.values()]
+    console.log('GOT MAKES', makes.length)
     setMakes(makes)
   }, [fipeContext.state.makeIndex])
 

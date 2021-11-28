@@ -10,7 +10,7 @@ export const getModelYearFilterInitialState: () => IModelYearFilter = () => ({
 export const getInitialState: () => IFipeState = () => ({
   _: 0,
   isSyncing: false,
-  makeIndex: {},
+  makeIndex: new Map(),
   modelYearIndex: {},
   modelYearFilter: getModelYearFilterInitialState(),
   ftsQueryModelYears: '',
@@ -44,7 +44,7 @@ export const reducer = (state: IFipeState, action: IFipeAction) => {
       })()
     case FipeActionType.SetModelYearIndex:
       return (() => {
-        const modelYearIndex = payload as Map<string, ModelYear>
+        const modelYearIndex = payload as Record<string, ModelYear>
         return { ...state, modelYearIndex }
       })()
     case FipeActionType.SetModelYearFilter:
@@ -78,7 +78,9 @@ export const reducer = (state: IFipeState, action: IFipeAction) => {
       })()
     case FipeActionType.SetModelYearFilterMakeId:
       return (() => {
+        const { modelYearFilter } = state
         const makeId = payload as number
+
         if (!modelYearFilter.makeIds.has(makeId)) {
           modelYearFilter.makeIds.add(makeId)
           modelYearFilter._++
@@ -87,6 +89,7 @@ export const reducer = (state: IFipeState, action: IFipeAction) => {
       })()
     case FipeActionType.DeleteModelYearFilterMakeId:
       return (() => {
+        const { modelYearFilter } = state
         const makeId = payload as number
         if (modelYearFilter.makeIds.has(makeId)) {
           modelYearFilter.makeIds.delete(makeId)

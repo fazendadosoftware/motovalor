@@ -30,7 +30,7 @@ export interface IModelYearFilter {
 export interface IFipeState {
   _: number
   isSyncing: boolean
-  makeIndex: Record<string, Make>
+  makeIndex: Map<number, Make>
   modelYearIndex: Record<string, ModelYear>
   modelYearFilter: IModelYearFilter
   ftsQueryModelYears: string
@@ -43,9 +43,9 @@ export interface IFipeActions {
   initContext: (realm: Realm) => Promise<void>
   setModelYearFilter: (modelYearFilter: IModelYearFilter) => Promise<void>
   resetModelYearFilter: () => Promise<void>
-  resetModelYearFilterMakes: () => Promise<void>
-  fetchMakes: (options?: { query?: string, sorted?: string }) => Promise<Make[]>
-  fetchFilteredModelYears: (modelYearFilter: IModelYearFilter) => Promise<ModelYear[]>
+  resetModelYearFilterMakeIds: () => Promise<void>
+  fetchMakes: () => Realm.Results<Make & Realm.Object>
+  getMakesById: (ids: number[]) => Make[]
 }
 
 export interface IFipeReducer {

@@ -43,24 +43,13 @@ export const closeRealm = () => {
 
 export const initContext = async (reducer: IFipeReducer) => {
   const { fetchMakes } = getActions(reducer)
-  await Promise.all([
-    fetchMakes()
-      .then(makes => {
-        const makeIndex = makes.reduce((accumulator: Record<string, Make>, make) => {
-          accumulator[make.id.toString()] = make
-          return accumulator
-        }, {})
-        reducer.dispatch?.({ type: FipeActionType.SetMakeIndex, payload: makeIndex })
-      }),
-    fetchModelYears().then(modelYears => {
-      const modelYearIndex = modelYears
-        .reduce((accumulator: Record<string, ModelYear>, modelYear) => {
-          accumulator[modelYear.id.toHexString()] = modelYear
-          return accumulator
-        }, {})
-      reducer.dispatch?.({ type: FipeActionType.SetModelYearIndex, payload: modelYearIndex })
-    })
-  ])
+  new Promise(resolve => {
+    const makeIndex = new Map<number, Make>()
+    const makes = [...fetchMakes().sorted('name')]
+    makes.forEach(make => makeIndex.set(make.id, make))
+    reducer.dispatch?.({ type: FipeActionType.SetMakeIndex, payload: makeIndex })
+    resolve(null)
+  })
 }
 
 const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
@@ -81,22 +70,23 @@ const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
   return _query
 }
 
-export interface FetchMakesOptions {
-  query?: string
-  sorted?: string
+export const fetchMakes = () => {
+  if (realm === null) throw Error('realm not opened')
+  return realm.objects<Make>(Make.schema.name)
 }
 
-export const fetchMakes = async (options?: FetchMakesOptions) => {
-  const { sorted = 'name' } = options ?? {}
-  return realm?.objects<Make>(Make.schema.name).sorted(sorted).toJSON() as Make[]
+export const getMakesById = (ids: number[], makeIndex: Map<number, Make>) => {
+  const makes = ids
+    .reduce((accumulator: Make[], id) => {
+      const make = makeIndex.get(id)
+      if (make !== undefined) accumulator.push(make)
+      return accumulator
+    }, [])
+  console.log('MAKE IDS', ids, makes, makeIndex.size)
+  return makes
 }
 
-export const fetchModelYears = async (options?: FetchMakesOptions) => {
-  const { sorted = 'model.name' } = options ?? {}
-  const results = realm?.objects<ModelYear>(ModelYear.schema.name).sorted(sorted) ?? []
-  const modelYears: ModelYear[] = [...results]
-  return modelYears
-}
+export const fetchModelYears = async () => realm?.objects<ModelYear>(ModelYear.schema.name)
 
 export const fetchFilteredModelYears = async (modelYearFilter: IModelYearFilter) => {
   const query = getFilterQuery(modelYearFilter, 100)
@@ -113,17 +103,16 @@ export const setModelYearFilter = async (reducer: IFipeReducer, modelYearFilter:
 
 export const resetModelYearFilter = async (reducer: IFipeReducer) => reducer.dispatch?.({ type: FipeActionType.ResetModelYearFilter, payload: null })
 
-export const resetModelYearFilterMakes = async (reducer: IFipeReducer) => reducer.dispatch?.({ type: FipeActionType.ResetModelYearFilter, payload: null })
+export const resetModelYearFilterMakeIds = async (reducer: IFipeReducer) => reducer.dispatch?.({ type: FipeActionType.ResetModelYearFilterMakeIds, payload: null })
 
 const getActions: (reducer: IFipeReducer) => IFipeActions = reducer => ({
   openRealm,
   initContext: () => initContext(reducer),
   setModelYearFilter: (modelYearFilter: IModelYearFilter) => setModelYearFilter(reducer, modelYearFilter),
   resetModelYearFilter: () => resetModelYearFilter(reducer),
-  resetModelYearFilterMakes: () => resetModelYearFilterMakes(reducer),
-  fetchMakes: (options?: { query?: string, sorted?: string}) => fetchMakes(options),
-  // fetchFilteredModelYears: () => debouncedFetchFilteredModelYears(reducer)
-  fetchFilteredModelYears: (modelYearFilter: IModelYearFilter) => fetchFilteredModelYears(reducer, modelYearFilter)
+  resetModelYearFilterMakeIds: () => resetModelYearFilterMakeIds(reducer),
+  fetchMakes,
+  getMakesById: (ids: number[]) => getMakesById(ids, reducer.state.makeIndex)
 })
 
 export default getActions

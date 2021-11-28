@@ -40,7 +40,7 @@ export default function RootStack() {
     type='material-community'
     color='white'
     style={{ padding: 5 }}
-    onPress={fipeContext.actions.resetModelYearFilterMakes}
+    onPress={fipeContext.actions.resetModelYearFilterMakeIds}
   />, [])
 
   return (

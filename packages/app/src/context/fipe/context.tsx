@@ -21,7 +21,7 @@ export const FipeProvider: React.FC = ({ children }) => {
     (async () => {
       const modelYears = Object.values(state.modelYearIndex).slice(0, 10)
       console.log('======================MODEL YEAR INDEX UPDATED=============================', Object.keys(state.modelYearIndex).length)
-      dispatch({ type: FipeActionType.SetFilteredModelYears, payload: modelYears })
+      // dispatch({ type: FipeActionType.SetFilteredModelYears, payload: modelYears })
       // const filteredModelYears = await actions.fetchFilteredModelYears(state.modelYearFilter)
       // console.log('FILTERED MODEL YERAS', filteredModelYears)
       // dispatch({ type: FipeActionType.SetFilteredModelYears, payload: filteredModelYears })
