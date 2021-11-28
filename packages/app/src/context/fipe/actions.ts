@@ -4,7 +4,6 @@ import RNFS from 'react-native-fs'
 import { Image } from 'react-native'
 import { unzip } from 'react-native-zip-archive'
 import Realm from 'realm'
-import debounce from 'lodash.debounce'
 import { IFipeActions, IFipeReducer, FipeActionType, IModelYearFilter, Make, ModelYear } from './types.d'
 
 const ARCHIVE_FILENAME = 'fipe.zip'
@@ -27,16 +26,34 @@ export const loadDatabaseFromAssets = async () => {
   if (!await RNFS.exists(DATABASE_FILE)) throw Error(`could not open database file ${DATABASE_FILE}`)
 }
 
+let realm: Realm | null = null
+
 export const openRealm = async (): Promise<Realm> => {
+  if (realm !== null) return realm
   if (!await databaseExists()) await loadDatabaseFromAssets()
-  const realm = await Realm.open({ path: DATABASE_FILENAME, schema: [], readOnly: true })
+  realm = await Realm.open({ path: DATABASE_FILENAME, schema: [], readOnly: true })
   if (realm === null) throw Error('could not open db')
   return realm
 }
 
+export const closeRealm = () => {
+  realm?.close()
+  realm = null
+}
+
 export const initContext = async (reducer: IFipeReducer) => {
-  const makes = await fetchMakes(reducer)
-  reducer.dispatch?.({ type: FipeActionType.SetMakes, payload: makes })
+  const { fetchMakes } = getActions(reducer)
+  await Promise.all([
+    fetchMakes().then(makes => reducer.dispatch?.({ type: FipeActionType.SetMakes, payload: makes })),
+    fetchModelYears().then(modelYears => {
+      const modelYearIndex = modelYears
+        .reduce((accumulator: Record<string, ModelYear>, modelYear) => {
+          accumulator[modelYear.id.toHexString()] = modelYear
+          return accumulator
+        }, {})
+      reducer.dispatch?.({ type: FipeActionType.SetModelYearIndex, payload: modelYearIndex })
+    })
+  ])
 }
 
 const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
@@ -63,29 +80,24 @@ export interface FetchMakesOptions {
   sorted?: string
 }
 
-export const fetchMakes = async (reducer: IFipeReducer, options?: FetchMakesOptions) => {
+export const fetchMakes = async (options?: FetchMakesOptions) => {
   const { sorted = 'name' } = options ?? {}
-  const realm = await openRealm()
-  const makes = realm?.objects(Make.schema.name).sorted(sorted).toJSON() as Make[]
-  realm.close()
-  return makes
+  return realm?.objects<Make>(Make.schema.name).sorted(sorted).toJSON() as Make[]
 }
 
-export const fetchModelYears = async (reducer: IFipeReducer, options?: FetchMakesOptions) => {
+export const fetchModelYears = async (options?: FetchMakesOptions) => {
   const { sorted = 'model.name' } = options ?? {}
-  const realm = await openRealm()
-  const modelYears = realm?.objects(ModelYear.schema.name).sorted(sorted).toJSON() as ModelYear[]
-  realm.close()
+  const results = realm?.objects<ModelYear>(ModelYear.schema.name).sorted(sorted) ?? []
+  const modelYears: ModelYear[] = [...results]
   return modelYears
 }
 
-export const fetchFilteredModelYears = async (reducer: IFipeReducer, modelYearFilter: IModelYearFilter) => {
+export const fetchFilteredModelYears = async (modelYearFilter: IModelYearFilter) => {
   const query = getFilterQuery(modelYearFilter, 100)
-  console.log('FETCHING', query, modelYearFilter)
-  const realm = await openRealm()
-  const modelYears = realm?.objects(ModelYear.schema.name).filtered(query).sorted('model.name').toJSON() as ModelYear[]
-  realm.close()
-  return modelYears
+  console.log('FILTERED', query)
+  const result = realm?.objects(ModelYear.schema.name).filtered(query).sorted('model.name')
+  console.log('FETCHED', result?.length)
+  return []
 }
 // const debouncedFetchFilteredModelYears = debounce(fetchFilteredModelYears, 1000) as (reducer: IFipeReducer) => Promise<ModelYear[]>
 
@@ -103,7 +115,7 @@ const getActions: (reducer: IFipeReducer) => IFipeActions = reducer => ({
   setModelYearFilter: (modelYearFilter: IModelYearFilter) => setModelYearFilter(reducer, modelYearFilter),
   resetModelYearFilter: () => resetModelYearFilter(reducer),
   resetModelYearFilterMakes: () => resetModelYearFilterMakes(reducer),
-  fetchMakes: ({ query, sorted }: { query?: string, sorted?: string} = {}) => fetchMakes(reducer, { query, sorted }),
+  fetchMakes: (options?: { query?: string, sorted?: string}) => fetchMakes(options),
   // fetchFilteredModelYears: () => debouncedFetchFilteredModelYears(reducer)
   fetchFilteredModelYears: (modelYearFilter: IModelYearFilter) => fetchFilteredModelYears(reducer, modelYearFilter)
 })

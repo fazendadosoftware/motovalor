@@ -9,7 +9,9 @@ export const getModelYearFilterInitialState: () => IModelYearFilter = () => ({
 
 export const getInitialState: () => IFipeState = () => ({
   _: 0,
+  isSyncing: false,
   makes: [],
+  modelYearIndex: {},
   modelYearFilter: getModelYearFilterInitialState(),
   ftsQueryModelYears: '',
   ftsQueryMakes: '',
@@ -22,6 +24,9 @@ export const reducer = (state: IFipeState, action: IFipeAction) => {
   switch (type) {
     case FipeActionType.Reset:
       return getInitialState()
+    case FipeActionType.SetIsSyncing:
+      const isSyncing = payload as boolean
+      return { ...state, isSyncing }
     case FipeActionType.SetFTSQueryModelYears:
       return (() => {
         const ftsQueryModelYears = payload as string
@@ -36,6 +41,11 @@ export const reducer = (state: IFipeState, action: IFipeAction) => {
       return (() => {
         const makes = payload as Make[]
         return { ...state, makes }
+      })()
+    case FipeActionType.SetModelYearIndex:
+      return (() => {
+        const modelYearIndex = payload as Record<string, ModelYear>
+        return { ...state, modelYearIndex } as IFipeState
       })()
     case FipeActionType.SetModelYearFilter:
       return (() => {

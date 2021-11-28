@@ -1,11 +1,14 @@
+import Realm from 'realm'
 import { Make, ModelYear, Action } from '../../types.d'
 export { Make, ModelYear, Action }
 
 export enum FipeActionType {
   Reset = 'RESET',
+  SetIsSyncing = 'SET_IS_SYNCING',
   SetFTSQueryModelYears = 'SET_FTS_QUERY_MODEL_YEARS',
   SetFTSQueryMakes = 'SET_FTS_QUERY_MAKES',
   SetMakes = 'SET_MAKES',
+  SetModelYearIndex = 'SET_MODEL_YEAR_INDEX',
   SetModelYearFilter = 'SET_MODEL_YEAR_FILTER',
   ToggleModelYearFilterVehicleTypeId = 'TOGGLE_MODEL_YEAR_FILTER_VEHICLE_TYPE_ID',
   ResetModelYearFilter = 'RESET_MODEL_YEAR_FILTER',
@@ -26,7 +29,9 @@ export interface IModelYearFilter {
 
 export interface IFipeState {
   _: number
-  makes: Make[],
+  isSyncing: boolean
+  makes: Make[]
+  modelYearIndex: Record<string, ModelYear>
   modelYearFilter: IModelYearFilter
   ftsQueryModelYears: string
   ftsQueryMakes: string
@@ -35,11 +40,11 @@ export interface IFipeState {
 
 export interface IFipeActions {
   openRealm: () => Promise<Realm>
-  initContext: () => Promise<void>
+  initContext: (realm: Realm) => Promise<void>
   setModelYearFilter: (modelYearFilter: IModelYearFilter) => Promise<void>
   resetModelYearFilter: () => Promise<void>
   resetModelYearFilterMakes: () => Promise<void>
-  fetchMakes: ({ query, sorted }: { query?: string, sorted?: string }) => Promise<Make[]>
+  fetchMakes: (options?: { query?: string, sorted?: string }) => Promise<Make[]>
   fetchFilteredModelYears: (modelYearFilter: IModelYearFilter) => Promise<ModelYear[]>
 }
 
