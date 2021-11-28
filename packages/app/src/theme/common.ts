@@ -20,6 +20,11 @@ const common: Theme = {
     containerStyle: {
       borderRadius: BORDER_RADIUS
     }
+  },
+  ListItemContent: {
+    style: {
+      borderRadius: BORDER_RADIUS
+    }
   }
 }
 

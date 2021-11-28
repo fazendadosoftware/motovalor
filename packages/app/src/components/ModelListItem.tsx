@@ -3,8 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  ViewStyle,
-  TextStyle
+  ViewStyle
 } from 'react-native'
 import VehicleTypeIcon from './VehicleTypeIcon'
 import ModelTrendItem from './ModelTrendItem'
@@ -16,7 +15,7 @@ const ModelListItem: React.FC<{ modelYear: ModelYear }> = props => {
   const [priceBRL, setPriceBRL] = useState<string | undefined>()
   useEffect(() => {
     setPriceBRL(currencyFilter(price))
-  }, [])
+  }, [price])
   
   return (
     <View style={ styles.container }>
@@ -24,25 +23,23 @@ const ModelListItem: React.FC<{ modelYear: ModelYear }> = props => {
         <VehicleTypeIcon vehicleTypeCode={ vehicleTypeCode } size={ 40 } color="black" backgroundColor="#E5E5E5" />
       </View>
       <View style={ styles.middleSection }>
-        <Text numberOfLines={ 2 } style={{ fontSize: 10, textAlign: 'center', width: '100%' }}>
+        <Text numberOfLines={ 2 } style={ { fontSize: 10, textAlign: 'center', width: '100%' } }>
           { make?.name ?? 'n/a' }
         </Text>
-        <Text numberOfLines={2} style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', width: '100%' }}>
-          {name}
+        <Text numberOfLines={ 2 } style={ { fontSize: 15, fontWeight: 'bold', textAlign: 'center', width: '100%' } }>
+          { name }
         </Text>
-        <Text style={{ fontSize: 18, fontWeight: '300', textAlign: 'center', width: '100%' }}>
-          {year}
+        <Text style={ { fontSize: 18, fontWeight: '300', textAlign: 'center', width: '100%' } }>
+          { year }
         </Text>
       </View>
       <View style={ styles.rightSection }>
         <View style={ { flexDirection: 'row', justifyContent: 'center', borderColor: '#E5E5E5', borderBottomWidth: 1, paddingVertical: 3 } }>
-          <Text style={{ fontSize: 18, paddingHorizontal: 5 }}>
+          <Text style={ { fontSize: 18, paddingHorizontal: 5 } }>
             { priceBRL }
           </Text>
         </View>
-        
-        <ModelTrendItem window="12M" value={delta12M} />
-        
+        <ModelTrendItem window="12M" value={ delta12M } />
       </View>
     </View>
   )
