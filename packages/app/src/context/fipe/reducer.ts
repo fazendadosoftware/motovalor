@@ -9,6 +9,7 @@ export const getModelYearFilterInitialState: () => IModelYearFilter = () => ({
 
 export const getInitialState: () => IFipeState = () => ({
   _: 0,
+  isInitialized: false,
   isSyncing: false,
   makeIndex: new Map(),
   modelYearIndex: {},
@@ -24,6 +25,8 @@ export const reducer = (state: IFipeState, action: IFipeAction) => {
   switch (type) {
     case FipeActionType.Reset:
       return getInitialState()
+    case FipeActionType.SetIsInitialized:
+      return { ...state, isInitialized: true }
     case FipeActionType.SetIsSyncing:
       const isSyncing = payload as boolean
       return { ...state, isSyncing }

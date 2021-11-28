@@ -4,6 +4,7 @@ export { Make, ModelYear, Action }
 
 export enum FipeActionType {
   Reset = 'RESET',
+  SetIsInitialized = 'SET_IS_INITIALIZED',
   SetIsSyncing = 'SET_IS_SYNCING',
   SetFTSQueryModelYears = 'SET_FTS_QUERY_MODEL_YEARS',
   SetFTSQueryMakes = 'SET_FTS_QUERY_MAKES',
@@ -29,6 +30,7 @@ export interface IModelYearFilter {
 }
 export interface IFipeState {
   _: number
+  isInitialized: boolean
   isSyncing: boolean
   makeIndex: Map<number, Make>
   modelYearIndex: Record<string, ModelYear>
@@ -45,7 +47,8 @@ export interface IFipeActions {
   resetModelYearFilter: () => Promise<void>
   resetModelYearFilterMakeIds: () => Promise<void>
   fetchMakes: () => Realm.Results<Make & Realm.Object>
-  getMakesById: (ids: number[]) => Make[]
+  fetchModelYears: () => Realm.Results<ModelYear & Realm.Object>
+  getModelYearFilterQuery: (modelYearFilter: IModelYearFilter, limit?: number) => string
 }
 
 export interface IFipeReducer {

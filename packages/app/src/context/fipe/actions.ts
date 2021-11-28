@@ -43,16 +43,19 @@ export const closeRealm = () => {
 
 export const initContext = async (reducer: IFipeReducer) => {
   const { fetchMakes } = getActions(reducer)
-  new Promise(resolve => {
-    const makeIndex = new Map<number, Make>()
-    const makes = [...fetchMakes().sorted('name')]
-    makes.forEach(make => makeIndex.set(make.id, make))
-    reducer.dispatch?.({ type: FipeActionType.SetMakeIndex, payload: makeIndex })
-    resolve(null)
-  })
+  await Promise.all([
+    new Promise(resolve => {
+      const makeIndex = new Map<number, Make>()
+      const makes = [...fetchMakes().sorted('name')]
+      makes.forEach(make => makeIndex.set(make.id, make))
+      reducer.dispatch?.({ type: FipeActionType.SetMakeIndex, payload: makeIndex })
+      resolve(null)
+    })
+  ])
+  reducer.dispatch?.({ type: FipeActionType.SetIsInitialized, payload: true })
 }
 
-const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
+const getModelYearFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
   const { zeroKm, vehicleTypeIds, makeIds } = modelYearFilter
 
   const query = []
@@ -70,26 +73,22 @@ const getFilterQuery = (modelYearFilter: IModelYearFilter, limit?: number) => {
   return _query
 }
 
+let makes: Realm.Results<Make & Realm.Object> | null = null
 export const fetchMakes = () => {
   if (realm === null) throw Error('realm not opened')
-  return realm.objects<Make>(Make.schema.name)
-}
-
-export const getMakesById = (ids: number[], makeIndex: Map<number, Make>) => {
-  const makes = ids
-    .reduce((accumulator: Make[], id) => {
-      const make = makeIndex.get(id)
-      if (make !== undefined) accumulator.push(make)
-      return accumulator
-    }, [])
-  console.log('MAKE IDS', ids, makes, makeIndex.size)
+  else if (makes === null) makes = realm.objects<Make>(Make.schema.name)
   return makes
 }
 
-export const fetchModelYears = async () => realm?.objects<ModelYear>(ModelYear.schema.name)
+let modelYears: Realm.Results<ModelYear & Realm.Object> | null = null
+export const fetchModelYears = () => {
+  if (realm === null) throw Error('realm not opened')
+  else if (modelYears === null) modelYears = realm.objects<ModelYear>(ModelYear.schema.name)
+  return modelYears
+}
 
 export const fetchFilteredModelYears = async (modelYearFilter: IModelYearFilter) => {
-  const query = getFilterQuery(modelYearFilter, 100)
+  const query = getModelYearFilterQuery(modelYearFilter, 100)
   console.log('FILTERED', query)
   const result = realm?.objects(ModelYear.schema.name).filtered(query).sorted('model.name')
   console.log('FETCHED', result?.length)
@@ -112,7 +111,8 @@ const getActions: (reducer: IFipeReducer) => IFipeActions = reducer => ({
   resetModelYearFilter: () => resetModelYearFilter(reducer),
   resetModelYearFilterMakeIds: () => resetModelYearFilterMakeIds(reducer),
   fetchMakes,
-  getMakesById: (ids: number[]) => getMakesById(ids, reducer.state.makeIndex)
+  fetchModelYears,
+  getModelYearFilterQuery
 })
 
 export default getActions

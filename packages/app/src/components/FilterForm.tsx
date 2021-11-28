@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { View, Text } from 'react-native'
 import { useTheme, Button, ButtonGroup } from 'react-native-elements'
 import MakeFormGroup from './MakeFormGroup'
@@ -11,6 +11,13 @@ import VehicleTypeIcon from './VehicleTypeIcon'
 const FilterForm = () => {
   const fipeContext = useFipeContext()
   const { theme } = useTheme()
+  const [modelYearCount, setModelYearCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    const query = fipeContext.actions.getModelYearFilterQuery(fipeContext.state.modelYearFilter)
+    const modelYearCount = fipeContext.actions.fetchModelYears().filtered(query).length
+    setModelYearCount(modelYearCount)
+  }, [fipeContext.state.modelYearFilter._])
 
   const setZeroKm = useCallback((zeroKm: boolean) => {
     const { modelYearFilter } = fipeContext.state
@@ -21,10 +28,6 @@ const FilterForm = () => {
   const setVehicleTypeId = useCallback((vehicleTypeId: 1 | 2 | 3) => {
     fipeContext.dispatch?.({ type: FipeActionType.ToggleModelYearFilterVehicleTypeId, payload: vehicleTypeId })
   }, [fipeContext])
-
-  useEffect(() => {
-    console.log('MODEL YER FILTER CHANGED', fipeContext.state.modelYearFilter)
-  }, [fipeContext.state.modelYearFilter._])
 
   return (
     <View style={{ backgroundColor: theme.colors?.grey5, flex: 1 }}>
@@ -76,7 +79,7 @@ const FilterForm = () => {
       </View>
       <View style={{ flex: 1 }} />
       <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 30 }}>
-        <Button title="Ver 125 modelos" containerStyle={{ flex: 1 }}/>
+        <Button title={`Pesquisar ${modelYearCount} preços`} containerStyle={{ flex: 1 }}/>
       </View>
     </View>
   )
