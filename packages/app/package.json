@@ -22,6 +22,7 @@
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
     "@react-navigation/stack": "^6.0.11",
+    "@reduxjs/toolkit": "^1.6.2",
     "axios": "^0.24.0",
     "intl": "^1.2.5",
     "lodash.debounce": "^4.0.8",
@@ -39,6 +40,7 @@
     "react-native-tab-view": "^3.1.1",
     "react-native-vector-icons": "^9.0.0",
     "react-native-zip-archive": "^6.0.5",
+    "react-redux": "^7.2.6",
     "realm": "^10.10.1"
   },
   "devDependencies": {
