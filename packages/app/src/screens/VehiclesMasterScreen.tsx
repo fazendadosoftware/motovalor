@@ -8,6 +8,7 @@ import ModelTrendItem from '../components/ModelTrendItem'
 import { useFipeContext } from '../context/fipe'
 import { FipeActionType, ModelYear } from '../context/fipe/types.d'
 import currencyFilter from '../filters/currency'
+import useFipeState from '../hooks/useFipeState'
 
 const styles = StyleSheet.create({
   container: {
@@ -77,6 +78,7 @@ const ModelYearListItem: React.FC<{ modelYear: ModelYear }> = ({ modelYear }) =>
 }
 
 export default function VehiclesMasterScreen () {
+  const fipeState = useFipeState()
   const fipeContext = useFipeContext()
   const { theme } = useTheme()
   const [modelYears, setModelYears] = useState<ModelYear[]>([])
@@ -103,6 +105,8 @@ export default function VehiclesMasterScreen () {
   const renderItem = useCallback(({ item }) => <ModelYearListItem modelYear={ item } />, [])
   const keyExtractor = useCallback((modelYear: ModelYear) => modelYear.id.toHexString(), [])
 
+  if (fipeState.state.promised) return null
+
   return (
     <SafeAreaView style={ { flex: 1, backgroundColor: theme.colors?.grey5 } }>
       <SearchBar
@@ -113,7 +117,7 @@ export default function VehiclesMasterScreen () {
         platform="default"
         value={ fipeContext.state.ftsQueryModelYears }
         onChangeText={ setFtsQuery }
-        placeholder={ `Pesquisar ${modelYearCount ?? 0} preços` }
+        placeholder={ `Pesquisar ${modelYearCount ?? 0} preços ${fipeState.state._.get()}` }
       />
       <FlatList
         data={ modelYears }
