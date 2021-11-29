@@ -24,8 +24,9 @@ module.exports = {
   'rules': {
     'prettier/prettier': 'off', // Turn off prettier
     // These are the rules that I use
+    'quotes': ['warn', 'single'],
     'react-native/no-unused-styles': 'warn',
-    'react-native/no-inline-styles': 'error',
+    'react-native/no-inline-styles': 'off',
     'react-native/no-raw-text': ['warn', {
       skip: ['CustomText']
     }],
@@ -51,7 +52,6 @@ module.exports = {
     // Indent JSX with 2 spaces
     'react/jsx-indent': ['error', 2],
     // Indent props with 2 spaces
-    'react/jsx-indent-props': ['error', 2],
-    'react-native/no-inline-styles': 'off'
+    'react/jsx-indent-props': ['error', 2]
   }
 }

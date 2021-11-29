@@ -76,3 +76,7 @@ export const incrementIfOdd = (amount: number): AppThunk => (
 }
 
 export default fipeSlice.reducer
+
+const a = () => {
+  console.log('jijiji')
+}
