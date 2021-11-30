@@ -28,7 +28,7 @@ export const loadDatabaseFromAssets = async () => {
 
 export const openRealm = async (): Promise<Realm> => {
   if (!await databaseExists()) await loadDatabaseFromAssets()
-  const realm = await Realm.open({ path: DATABASE_FILENAME, schema: [Make, Model, ModelYear], readOnly: true })
+  const realm = await Realm.open({ path: DATABASE_FILENAME, schema: [], readOnly: true })
   if (realm === null) throw Error('could not open db')
   return realm
 }

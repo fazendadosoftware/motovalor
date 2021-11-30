@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { FlatList, View, Text, StyleSheet } from 'react-native'
 import { useTheme, ListItem } from 'react-native-elements'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -81,18 +81,19 @@ export default function VehiclesMasterScreen () {
   const [modelYears, setModelYears] = useState<ModelYear[]>([])
   const [modelYearCount, setModelYearCount] = useState<number | null>(null)
 
-  useEffect(() => setModelYearCount(fipeState.actions.fetchFilteredModelYears().length), [fipeState.modelYearFilter])
   useEffect(() => {
-    // const _modelYears = [...fipeState.actions.fetchFilteredModelYears(10)]
-    // setModelYears(_modelYears)
-    console.log('========================>>>>>GETTING MODEL YERAS ===========, size')
-  }, [fipeState.modelYearFilter])
-  // useEffect(() => setModelYears([...fipeState.actions.fetchFilteredModelYears(10)]), [fipeState.modelYearFilter])
+    const newCount = fipeState.actions.fetchFilteredModelYears().length
+    if (newCount !== modelYearCount) setModelYearCount(newCount)
+  }, [fipeState.actions, modelYearCount])
 
-  const renderItem = useCallback(({ item }) => <ModelYearListItem modelYear={ item } />, [])
+  useEffect(() => {
+    if (!fipeState.actions.modelYearFilterQueryDidChange()) return
+    console.log(`============ RENDERING VEHICLES MASTER SCREEN ============== ${fipeState.state.lastModelYearFilterQuery.get()}`)
+    setModelYears([...fipeState.actions.fetchFilteredModelYears(10)])
+  }, [fipeState.actions, fipeState.state.lastModelYearFilterQuery, fipeState.state.modelYearFilter])
+
+  const renderItem = useCallback(({ item }: {item: ModelYear }) => <ModelYearListItem modelYear={ item } />, [])
   const keyExtractor = useCallback((modelYear: ModelYear) => modelYear.id.toHexString(), [])
-
-  if (fipeState.state.promised) return null
 
   return (
     <SafeAreaView style={ { flex: 1, backgroundColor: theme.colors?.grey5 } }>

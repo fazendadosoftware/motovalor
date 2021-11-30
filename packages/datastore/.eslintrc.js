@@ -15,6 +15,7 @@ module.exports = {
     '@typescript-eslint'
   ],
   rules: {
-    'padded-blocks': 'off'
+    'padded-blocks': 'off',
+    'no-use-before-define': 'off',
   }
 }

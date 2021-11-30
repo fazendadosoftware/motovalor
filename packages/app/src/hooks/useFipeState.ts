@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { createState, useState, State, none } from '@hookstate/core'
+import murmurhash from 'murmurhash'
 import { openRealm, closeRealm } from '../helpers/fipeRealm'
 import { Make, Model, ModelYear } from 'datastore/src/model'
 export { Make, Model, ModelYear }
@@ -14,6 +15,8 @@ export interface ModelYearFilter {
 export interface FipeState {
   isInitialized: boolean
   modelYearFilter: ModelYearFilter
+  lastModelYearFilterQuery: number
+  filteredModelYears: ModelYear[]
   makes: Make[]
   modelYearFtsQuery: string
 }
@@ -25,17 +28,19 @@ export const getModelYearFilterInitialState: () => ModelYearFilter = () => ({
 })
 
 let realm: Realm | null = null
-const getInitialState = async (): Promise<FipeState> => {
-  if (realm === null) realm = await openRealm()
+const getInitialState = (): FipeState => {
   return {
     isInitialized: false,
     modelYearFilter: getModelYearFilterInitialState(),
+    lastModelYearFilterQuery: -1,
+    filteredModelYears: [],
     makes: [],
     modelYearFtsQuery: ''
   }
 }
 
-const init = (state: State<FipeState>) => {
+const init = async (state: State<FipeState>) => {
+  if (realm === null) realm = await openRealm()
   state.isInitialized.set(true);
   (async () => state.makes.set(fetchMakes()))()
 }
@@ -47,7 +52,7 @@ const destroy = (state: State<FipeState>) => {
   closeRealm(realm)
   realm = null
 }
-const fetchMakes = () => [...realm?.objects<Make>(Make.schema.name).sorted('name') ?? []] as Make[]
+const fetchMakes = (): Make[] => [...realm?.objects<Make>(Make.schema.name).sorted('name') ?? []]
 
 const toggleMakeSelection = (state: State<FipeState>, make: Make) => {
   const selectedMakeIndex = state.modelYearFilter.selectedMakeIndex
@@ -77,9 +82,15 @@ const getModelYearFilterQuery = (modelYearFilter: ModelYearFilter, limit?: numbe
   return _query
 }
 
+const modelYearFilterQueryDidChange = (state: State<FipeState>) => {
+  const currentQuery = murmurhash(getModelYearFilterQuery(state.modelYearFilter.get()))
+  const areDifferent = currentQuery !== state.lastModelYearFilterQuery.get()
+  if (areDifferent) state.lastModelYearFilterQuery.set(currentQuery)
+  return areDifferent
+}
+
 const fetchFilteredModelYears = (state: State<FipeState>, limit?: number) => {
-  if (state.promised) return []
-  if (realm === null) throw Error('realm is null')
+  if (realm === null) return []
   const query = getModelYearFilterQuery(state.modelYearFilter.get(), limit)
   return realm?.objects<ModelYear>(ModelYear.schema.name).filtered(query)
 }
@@ -90,7 +101,9 @@ const useActions = (state: State<FipeState>) => ({
   resetModelYearFilter: () => resetModelYearFilter(state),
   resetModelYearFilterSelectedMakes: () => resetModelYearFilterSelectedMakes(state),
   toggleMakeSelection: (make: Make) => toggleMakeSelection(state, make),
-  fetchFilteredModelYears: (limit?: number) => fetchFilteredModelYears(state, limit)
+  getModelYearFilterQuery,
+  fetchFilteredModelYears: (limit?: number) => fetchFilteredModelYears(state, limit),
+  modelYearFilterQueryDidChange: () => modelYearFilterQueryDidChange(state)
 })
 
 // STATE
@@ -99,17 +112,10 @@ const fipeState = createState(getInitialState())
 const useFipeState = () => {
   const state = useState(fipeState)
   const actions = useActions(state)
-  const isReady = !state.promised
-  const modelYearFilter = !state.promised ? state.modelYearFilter : null
 
   useEffect(() => { if (!state.promised && !state.isInitialized.get()) init(state) }, [state])
-  useEffect(() => {
-    console.log('HAD CHANGED', modelYearFilter)
-  }, [modelYearFilter])
 
   return {
-    isReady,
-    modelYearFilter,
     state,
     actions
   }

@@ -25,6 +25,7 @@ module.exports = {
     'prettier/prettier': 'off', // Turn off prettier
     // These are the rules that I use
     'quotes': ['warn', 'single'],
+    'no-shadow': 'off',
     'react-native/no-unused-styles': 'warn',
     'react-native/no-inline-styles': 'off',
     'react-native/no-raw-text': ['warn', {
