@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { createState, useState, State, none } from '@hookstate/core'
 import { openRealm, closeRealm } from '../helpers/fipeRealm'
-import { Make, ModelYearFilter } from '../types/fipe.d'
+import { Make, ModelYear, ModelYearFilter } from '../types/fipe.d'
 
 export interface FipeState {
   _: number
@@ -51,12 +51,41 @@ const toggleMakeSelection = (state: State<FipeState>, make: Make) => {
   !selectedMake ? selectedMakeIndex.merge({ [make.id]: make }) : selectedMakeIndex[make.id].set(none)
 }
 
+const getModelYearFilterQuery = (modelYearFilter: ModelYearFilter, limit?: number) => {
+  const { zeroKm, selectedVehicleTypeIndex, selectedMakeIndex } = modelYearFilter
+  const selectedVehicleTypeCodes = Object.keys(selectedVehicleTypeIndex)
+  const selectedMakeIds = Object.values(selectedMakeIndex).map(({ id }) => id)
+
+  const query = []
+  // 0km
+  query.push(zeroKm ? 'year == 32000' : 'year != 32000')
+  // vehicleTypeIds
+  if (selectedVehicleTypeCodes.length < 3 && selectedVehicleTypeCodes.length > 0)
+    query.push(`(${[...selectedVehicleTypeCodes].map(vehicleTypeCode => `model.vehicleTypeCode == ${vehicleTypeCode}`).join(' OR ')})`)
+  
+  // makes
+  // if (makeIds.length > 0) query.push(`model.make.id in ${JSON.stringify(makeIds)}`)
+  if (selectedMakeIds.length > 0) query.push(`(${selectedMakeIds.map(id => `model.make.id == ${id}`).join(' OR ')})`)
+  // limit
+
+  let _query = query.join(' AND ')
+  if (typeof limit === 'number') _query += ` LIMIT(${limit})`
+  return _query
+}
+
+const fetchFilteredModelYears = (state: State<FipeState>) => {
+  if (realm === null) throw Error('realm is null')
+  const query = getModelYearFilterQuery(state.modelYearFilter.get())
+  return realm?.objects<ModelYear>(ModelYear.schema.name).filtered(query)
+}
+
 const useActions = (state: State<FipeState>) => ({
   destroy: () => destroy(state),
   fetchMakes,
   resetModelYearFilter: () => resetModelYearFilter(state),
   resetModelYearFilterSelectedMakes: () => resetModelYearFilterSelectedMakes(state),
-  toggleMakeSelection: (make: Make) => toggleMakeSelection(state, make)
+  toggleMakeSelection: (make: Make) => toggleMakeSelection(state, make),
+  fetchFilteredModelYears: () => fetchFilteredModelYears(state)
 })
 
 // STATE

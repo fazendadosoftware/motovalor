@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { View, Text } from 'react-native'
 import { useTheme, Button, ButtonGroup } from 'react-native-elements'
 import MakeFormGroup from './MakeFormGroup'
@@ -10,15 +10,10 @@ import useFipeState from '../hooks/useFipeState'
 const FilterForm = () => {
   const fipeState = useFipeState()
   const { theme } = useTheme()
-  const [modelYearCount] = useState<number | null>(null)
+  const [modelYearCount, setModelYearCount] = useState<number | null>(null)
 
-  /*
-  useEffect(() => {
-    const query = fipeContext.actions.getModelYearFilterQuery(fipeContext.state.modelYearFilter)
-    const modelYearCount = fipeContext.actions.fetchModelYears().filtered(query).length
-    setModelYearCount(modelYearCount)
-  }, [fipeContext.state.modelYearFilter._])
-  */
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => setModelYearCount(fipeState.actions.fetchFilteredModelYears().length), [fipeState.state.modelYearFilter])
 
   const setZeroKm = useCallback((zeroKm: boolean) => {
     fipeState.state.modelYearFilter.zeroKm.set(zeroKm)
