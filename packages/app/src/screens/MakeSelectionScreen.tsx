@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback, memo } from 'react'
+import React, { useState, useCallback, memo } from 'react'
 import { FlatList, View, Text, Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme, Icon, ListItem } from 'react-native-elements'
 import SearchBar from '../components/SafeSearchBar'
-import { useFipeContext } from '../context/fipe'
+import useFipeState from '../hooks/useFipeState'
 import { Make } from 'datastore/src/model'
-import { FipeActionType } from '../context/fipe/types.d'
 
 interface MakeListItemProps { make: Make, isSelected: boolean, onPress: (make: Make) => void }
 
@@ -70,25 +69,13 @@ const MakeSelectionListHeaderSelectedItems: React.FC<{ makes: Make[], onPress: (
 }
 
 const MakeSelectionListHeader: React.FC<{ _: number }> = memo(() => {
-  const fipeContext = useFipeContext()
+  const fipeState = useFipeState()
   const { theme } = useTheme()
   const [query, setQuery] = useState('')
-  const [makes, setMakes] = useState<Make[]>([])
-
-  useEffect(() => {
-    const _makes = [...fipeContext.state.modelYearFilter.makeIds]
-      .reduce((accumulator: Make[], makeId) => {
-        const make = fipeContext.state.makeIndex.get(makeId)
-        if (make !== undefined) accumulator.push(make)
-        return accumulator
-      }, [])
-      
-    setMakes(_makes)
-  }, [fipeContext.state.makeIndex, fipeContext.state.modelYearFilter.makeIds])
 
   const onPress = useCallback((make: Make) => {
-    fipeContext.dispatch?.({ type: FipeActionType.DeleteModelYearFilterMakeId, payload: make.id })
-  }, [fipeContext])
+    console.log('=========== DELETE SELECTED MAKE ========', make.name)
+  }, [])
 
   return (
     <View>
@@ -102,35 +89,27 @@ const MakeSelectionListHeader: React.FC<{ _: number }> = memo(() => {
         onChangeText={ setQuery }
         placeholder="Pesquisar fabricantes"
       />
-      <MakeSelectionListHeaderSelectedItems makes={ makes } onPress={ onPress }/>
+      <MakeSelectionListHeaderSelectedItems makes={ [...fipeState.state.modelYearFilter.selectedMakes.get().values()] } onPress={ onPress }/>
     </View>
   )
 })
 
 const MakeSelectionScreen = memo(() => {
-  const fipeContext = useFipeContext()
+  const fipeState = useFipeState()
   const { theme } = useTheme()
-  const [makes, setMakes] = useState<Make[]>([])
-
-  useEffect(() => {
-    const _makes = [...fipeContext.state.makeIndex.values()]
-
-    setMakes(_makes)
-  }, [fipeContext.state.makeIndex])
 
   const ListHeaderComponent = useCallback(() => <MakeSelectionListHeader _={ fipeContext.state.modelYearFilter._ } />, [fipeContext.state.modelYearFilter._])
   const ItemSeparatorComponent = useCallback(() => <View style={ { height: 1, width: '100%', backgroundColor: theme.colors?.greyOutline } } />, [])
 
   const onListItemPress = useCallback((make: Make) => {
-    const isSelected = fipeContext.state.modelYearFilter.makeIds.has(make.id)
-    const type = FipeActionType[isSelected ? 'DeleteModelYearFilterMakeId' : 'SetModelYearFilterMakeId']
-    fipeContext.dispatch?.({ type, payload: make.id })
-  }, [fipeContext])
+    const isSelected = fipeState.state.modelYearFilter.selectedMakes.get().has(make.id)
+    console.log('TOGGLE', make.name, isSelected)
+  }, [fipeState.state.modelYearFilter.selectedMakes])
 
   const renderItem = useCallback(
     ({ item }: { item: Make }) => <MakeListItem
       make={ item }
-      isSelected={ fipeContext.state.modelYearFilter.makeIds.has(item.id) }
+      isSelected={ fipeState.state.modelYearFilter.selectedMakes.get().has(item.id) }
       onPress={ onListItemPress }/>,[])
 
   const keyExtractor = useCallback((item: Make) => item.id.toString(), [])
@@ -146,7 +125,7 @@ const MakeSelectionScreen = memo(() => {
         ListHeaderComponent={ ListHeaderComponent }
         stickyHeaderIndices={ [0] }
         ItemSeparatorComponent={ ItemSeparatorComponent }
-        data={ makes }
+        data={ fipeState.state.makes.get() }
         renderItem={ renderItem }
         keyExtractor={ keyExtractor }
         showsVerticalScrollIndicator={ false }

@@ -3,34 +3,27 @@ import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Icon, useTheme } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
 import { MakeSelectionScreenNavigationProp } from '../navigation/RootStack'
-import { useFipeContext }  from '../context/fipe'
+import useFipeState from '../hooks/useFipeState'
 import { Make } from 'datastore/src/model'
 
 const MakeItem: React.FC<{ make: Make}> = ({ make }) => {
   const { theme } = useTheme()
   return (
-    <View style={{ ...styles.itemContainer, backgroundColor: theme.colors?.white, borderColor: theme.colors?.greyOutline }}>
-      <Text style={{ fontSize: 10 }}>{make.name}</Text>
+    <View style={ { ...styles.itemContainer, backgroundColor: theme.colors?.white, borderColor: theme.colors?.greyOutline } }>
+      <Text style={ { fontSize: 10 } }>{ make.name }</Text>
     </View>
   )
 }
 
 const SelectedMakeSection: React.FC = () => {
-  const fipeContext = useFipeContext()
-
-  const selectedMakeSection = useCallback(() => {
-    const makes = [...fipeContext.state.modelYearFilter.makeIds]
-      .reduce((accumulator: Make[], makeId) => {
-        const make = fipeContext.state.makeIndex.get(makeId)
-        if (make !== undefined) accumulator.push(make)
-        return accumulator
-      }, [])
-    return makes.map(make => <MakeItem key={make.id} make={make} />)
-  }, [fipeContext.state.modelYearFilter.makeIds])
+  const fipeState = useFipeState()
+  const selectedMakeSection = useCallback(() => Object.values(fipeState.state.modelYearFilter.selectedMakeIndex.get())
+    .map(make => <MakeItem key={ make.id } make={ make } />)
+  , [fipeState.state.modelYearFilter.selectedMakeIndex])
 
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-      {selectedMakeSection()}
+    <View style={ { flexDirection: 'row', flexWrap: 'wrap' } }>
+      { selectedMakeSection() }
     </View>
   )
 }
@@ -39,15 +32,15 @@ const MakeFormGroup = () => {
 
   return (
     <Pressable
-      style={{ flexDirection: 'row', minHeight: 50 }}
-      onPress={() => navigation.navigate('MakeSelection')}>
-      <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 12, fontWeight: 'bold', marginBottom: 10 }}>
+      style={ { flexDirection: 'row', minHeight: 50 } }
+      onPress={ () => navigation.navigate('MakeSelection') }>
+      <View style={ { flex: 1 } }>
+        <Text style={ { fontSize: 12, fontWeight: 'bold', marginBottom: 10 } }>
           Fabricantes
         </Text>
         <SelectedMakeSection />
       </View>
-      <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+      <View style={ { justifyContent: 'center', alignItems: 'center' } }>
         <Icon name='chevron-right' type='material-community' />
       </View>
     </Pressable>
@@ -55,22 +48,6 @@ const MakeFormGroup = () => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  leftSection: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    flexWrap: 'wrap',
-    paddingTop: 3
-  },
-  rightSection: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
   itemContainer: {
     paddingHorizontal: 2,
     paddingVertical: 1,

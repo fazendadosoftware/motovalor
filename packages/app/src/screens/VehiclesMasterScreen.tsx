@@ -5,10 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import SearchBar from '../components/SafeSearchBar'
 import VehicleTypeIcon from '../components/VehicleTypeIcon'
 import ModelTrendItem from '../components/ModelTrendItem'
-import { useFipeContext } from '../context/fipe'
-import { FipeActionType, ModelYear } from '../context/fipe/types.d'
 import currencyFilter from '../filters/currency'
 import useFipeState from '../hooks/useFipeState'
+import { ModelYear } from '../types/fipe.d'
 
 const styles = StyleSheet.create({
   container: {
@@ -79,11 +78,11 @@ const ModelYearListItem: React.FC<{ modelYear: ModelYear }> = ({ modelYear }) =>
 
 export default function VehiclesMasterScreen () {
   const fipeState = useFipeState()
-  const fipeContext = useFipeContext()
   const { theme } = useTheme()
   const [modelYears, setModelYears] = useState<ModelYear[]>([])
   const [modelYearCount, setModelYearCount] = useState<number | null>(null)
 
+  /*
   useEffect(() => {
     if (!fipeContext.state.isInitialized) return
     const query = fipeContext.actions.getModelYearFilterQuery(fipeContext.state.modelYearFilter)
@@ -97,10 +96,7 @@ export default function VehiclesMasterScreen () {
     const _modelYears = [...fipeContext.actions.fetchModelYears().filtered(query)]
     setModelYears(_modelYears)
   }, [fipeContext.actions, fipeContext.state.isInitialized, fipeContext.state.modelYearFilter])
-
-  const setFtsQuery = useCallback((query: string) => {
-    fipeContext.dispatch?.({ type: FipeActionType.SetFTSQueryModelYears, payload: query })
-  }, [fipeContext])
+  */
 
   const renderItem = useCallback(({ item }) => <ModelYearListItem modelYear={ item } />, [])
   const keyExtractor = useCallback((modelYear: ModelYear) => modelYear.id.toHexString(), [])
@@ -115,8 +111,8 @@ export default function VehiclesMasterScreen () {
         containerStyle={ { backgroundColor: theme.colors?.primary, paddingHorizontal: 10 } }
         inputContainerStyle={ { borderRadius: 10 } }
         platform="default"
-        value={ fipeContext.state.ftsQueryModelYears }
-        onChangeText={ setFtsQuery }
+        value={ fipeState.state.modelYearFtsQuery.get() }
+        onChangeText={ fipeState.state.modelYearFtsQuery.set }
         placeholder={ `Pesquisar ${modelYearCount ?? 0} preços ${fipeState.state._.get()}` }
       />
       <FlatList

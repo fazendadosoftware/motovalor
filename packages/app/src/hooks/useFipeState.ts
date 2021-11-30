@@ -8,14 +8,15 @@ export interface FipeState {
   isInitialized: boolean
   modelYearFilter: ModelYearFilter
   makes: Make[]
+  modelYearFtsQuery: string
 }
 
 export const getModelYearFilterInitialState: () => ModelYearFilter = () => ({
   _: 0,
   isReady: false,
   zeroKm: false,
-  vehicleTypeIds: new Set([1, 2, 3]),
-  selectedMakes: new Map()
+  selectedVehicleTypeIndex: {},
+  selectedMakeIndex: {}
 })
 
 let realm: Realm | null = null
@@ -25,7 +26,8 @@ const getInitialState = async (): Promise<FipeState> => {
     _: 0,
     isInitialized: false,
     modelYearFilter: getModelYearFilterInitialState(),
-    makes: []
+    makes: [],
+    modelYearFtsQuery: ''
   }
 }
 
@@ -35,8 +37,8 @@ const init = (state: State<FipeState>) => {
 }
 
 // ACTIONS
-const increase = (state: State<FipeState>) => state._.set(v => v + 1)
-const decrease = (state: State<FipeState>) => state._.set(v => v + 1)
+const resetModelYearFilter = (state: State<FipeState>) => state.modelYearFilter.set(getModelYearFilterInitialState())
+const resetModelYearFilterSelectedMakes = (state: State<FipeState>) => state.modelYearFilter.selectedMakeIndex.set({})
 const destroy = (state: State<FipeState>) => {
   closeRealm(realm)
   realm = null
@@ -48,10 +50,10 @@ const fetchMakes = () => {
 }
 
 const useActions = (state: State<FipeState>) => ({
-  increase: () => increase(state),
-  decrease: () => decrease(state),
   destroy: () => destroy(state),
-  fetchMakes
+  fetchMakes,
+  resetModelYearFilter: () => resetModelYearFilter(state),
+  resetModelYearFilterSelectedMakes: () => resetModelYearFilterSelectedMakes(state)
 })
 
 // STATE

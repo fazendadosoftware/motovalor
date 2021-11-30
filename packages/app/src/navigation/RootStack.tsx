@@ -4,7 +4,7 @@ import { useTheme, Icon } from 'react-native-elements'
 import HomeTabs from './HomeTabs'
 import FilterTabs from './FilterTabs'
 import MakeSelectionScreen from '../screens/MakeSelectionScreen'
-import { useFipeContext } from '../context/fipe'
+import useFipeState from '../hooks/useFipeState'
 
 export interface RootStackParamList {
   Home: undefined
@@ -16,7 +16,7 @@ export type FilterScreenNavigationProp = NativeStackNavigationProp<RootStackPara
 export type MakeSelectionScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'MakeSelection'>
 
 export default function RootStackNavigation() {
-  const fipeContext = useFipeContext()
+  const fipeState = useFipeState()
   const { theme } = useTheme()
   const RootStack = createNativeStackNavigator<RootStackParamList>()
 
@@ -31,16 +31,16 @@ export default function RootStackNavigation() {
     type='material-community'
     color='white'
     style={ { padding: 5 } }
-    onPress={ fipeContext.actions.resetModelYearFilter }
-  />, [fipeContext.actions.resetModelYearFilter])
+    onPress={ fipeState.actions.resetModelYearFilter }
+  />, [fipeState.actions.resetModelYearFilter])
 
   const headerRightMakeSelection = useCallback(() => <Icon
     name='delete'
     type='material-community'
     color='white'
     style={ { padding: 5 } }
-    onPress={ fipeContext.actions.resetModelYearFilterMakeIds }
-  />, [fipeContext.actions.resetModelYearFilterMakeIds])
+    onPress={ fipeState.actions.resetModelYearFilterSelectedMakes }
+  />, [fipeState.actions.resetModelYearFilterSelectedMakes])
 
   return (
     <RootStack.Navigator screenOptions={ screenOptions }>

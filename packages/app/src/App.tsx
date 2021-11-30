@@ -5,7 +5,6 @@ import { NavigationContainer } from '@react-navigation/native'
 import { ThemeProvider } from 'react-native-elements'
 import { useNoSleep } from 'react-native-no-sleep'
 import RootStack from './navigation/RootStack'
-import { FipeProvider } from './context/fipe'
 import theme from './theme'
 import useFipeState from './hooks/useFipeState'
 
@@ -20,15 +19,13 @@ const App: React.FC = () => {
   }, [])
   
   return (
-    <FipeProvider>
-      <ThemeProvider theme={ colorScheme === 'dark' ? theme.dark : theme.light }>
-        <SafeAreaProvider>
-          <NavigationContainer>
-            <RootStack />
-          </NavigationContainer>
-        </SafeAreaProvider>
-      </ThemeProvider>
-    </FipeProvider>
+    <ThemeProvider theme={ colorScheme === 'dark' ? theme.dark : theme.light }>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <RootStack />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </ThemeProvider>
   )
 }
 
