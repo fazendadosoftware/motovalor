@@ -84,6 +84,7 @@ const getModelYearFilterQuery = (modelYearFilter: ModelYearFilter, limit?: numbe
 
 const modelYearFilterQueryDidChange = (state: State<FipeState>) => {
   const currentQuery = murmurhash(getModelYearFilterQuery(state.modelYearFilter.get()))
+  console.log('COMPARING', currentQuery, state.lastModelYearFilterQuery.get())
   const areDifferent = currentQuery !== state.lastModelYearFilterQuery.get()
   if (areDifferent) state.lastModelYearFilterQuery.set(currentQuery)
   return areDifferent

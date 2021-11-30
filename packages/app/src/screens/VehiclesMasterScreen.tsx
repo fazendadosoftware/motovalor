@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { FlatList, View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native'
 import { useTheme, ListItem } from 'react-native-elements'
+import { RecyclerListView, DataProvider, LayoutProvider } from 'recyclerlistview'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useIsFocused } from '@react-navigation/native'
 import SearchBar from '../components/SafeSearchBar'
 import VehicleTypeIcon from '../components/VehicleTypeIcon'
 import ModelTrendItem from '../components/ModelTrendItem'
@@ -78,6 +80,8 @@ const ModelYearListItem: React.FC<{ modelYear: ModelYear }> = ({ modelYear }) =>
 export default function VehiclesMasterScreen () {
   const fipeState = useFipeState()
   const { theme } = useTheme()
+  const isFocused = useIsFocused()
+  const { width } = useWindowDimensions()
   const [modelYears, setModelYears] = useState<ModelYear[]>([])
   const [modelYearCount, setModelYearCount] = useState<number | null>(null)
 
@@ -87,15 +91,20 @@ export default function VehiclesMasterScreen () {
   }, [fipeState.actions, modelYearCount])
 
   useEffect(() => {
-    if (!fipeState.actions.modelYearFilterQueryDidChange()) return
-    console.log(`============ RENDERING VEHICLES MASTER SCREEN ============== ${fipeState.state.lastModelYearFilterQuery.get()}`)
-    setModelYears([...fipeState.actions.fetchFilteredModelYears(10)])
-  }, [fipeState.actions, fipeState.state.lastModelYearFilterQuery, fipeState.state.modelYearFilter])
+    if (isFocused && fipeState.actions.modelYearFilterQueryDidChange()) setModelYears([...fipeState.actions.fetchFilteredModelYears()])
+  }, [fipeState.actions, fipeState.state.lastModelYearFilterQuery, isFocused])
 
-  const renderItem = useCallback(({ item }: {item: ModelYear }) => <ModelYearListItem modelYear={ item } />, [])
-  const keyExtractor = useCallback((modelYear: ModelYear) => modelYear.id.toHexString(), [])
+  const dataProvider = new DataProvider((r1: ModelYear, r2: ModelYear) => r1.id.equals(r2.id)).cloneWithRows(modelYears)
+  const layoutProvider = new LayoutProvider(
+    () => 0,
+    (type, dim) => {
+      dim.width = width
+      dim.height = 100
+    }
+  )
+  const rowRenderer = useCallback((type: string | number, data: ModelYear) => <ModelYearListItem modelYear={ data } />, [])
 
-  return (
+  return !isFocused ? null : (
     <SafeAreaView style={ { flex: 1, backgroundColor: theme.colors?.grey5 } }>
       <SearchBar
         // @ts-expect-error
@@ -107,12 +116,11 @@ export default function VehiclesMasterScreen () {
         onChangeText={ fipeState.state.modelYearFtsQuery.set }
         placeholder={ `Pesquisar ${modelYearCount ?? 0} preços` }
       />
-      <FlatList
-        data={ modelYears }
-        renderItem={ renderItem }
-        keyExtractor={ keyExtractor }
-        showsVerticalScrollIndicator={ false }
-      />
+      {
+        modelYears.length
+          ? <RecyclerListView rowRenderer={ rowRenderer } layoutProvider={ layoutProvider } dataProvider={ dataProvider } />
+          : null
+      }    
     </SafeAreaView>
   )
 }
