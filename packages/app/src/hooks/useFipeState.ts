@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { createState, useState, State, none } from '@hookstate/core'
 import murmurhash from 'murmurhash'
+import debounce from 'lodash.debounce'
 import { openRealm, closeRealm } from '../helpers/fipeRealm'
 import { Make, Model, ModelYear } from 'datastore/src/model'
 export { Make, Model, ModelYear }
@@ -15,8 +16,10 @@ export interface ModelYearFilter {
 export interface FipeState {
   isInitialized: boolean
   modelYearFilter: ModelYearFilter
-  lastModelYearFilterQuery: number
+  modelYearFilterHash: number
+  loadingModelYears: boolean
   filteredModelYears: ModelYear[]
+  filteredModelYearsCount: number
   makes: Make[]
   modelYearFtsQuery: string
 }
@@ -32,8 +35,10 @@ const getInitialState = (): FipeState => {
   return {
     isInitialized: false,
     modelYearFilter: getModelYearFilterInitialState(),
-    lastModelYearFilterQuery: -1,
+    modelYearFilterHash: -1,
+    loadingModelYears: false,
     filteredModelYears: [],
+    filteredModelYearsCount: 0,
     makes: [],
     modelYearFtsQuery: ''
   }
@@ -82,18 +87,15 @@ const getModelYearFilterQuery = (modelYearFilter: ModelYearFilter, limit?: numbe
   return _query
 }
 
-const modelYearFilterQueryDidChange = (state: State<FipeState>) => {
-  const currentQuery = murmurhash(getModelYearFilterQuery(state.modelYearFilter.get()))
-  console.log('COMPARING', currentQuery, state.lastModelYearFilterQuery.get())
-  const areDifferent = currentQuery !== state.lastModelYearFilterQuery.get()
-  if (areDifferent) state.lastModelYearFilterQuery.set(currentQuery)
-  return areDifferent
-}
-
-const fetchFilteredModelYears = (state: State<FipeState>, limit?: number) => {
-  if (realm === null) return []
-  const query = getModelYearFilterQuery(state.modelYearFilter.get(), limit)
-  return realm?.objects<ModelYear>(ModelYear.schema.name).filtered(query)
+const fetchFilteredModelYears = (modelYearFilter: ModelYearFilter, limit?: number) => {
+  if (realm === null) throw Error('realm is closed')
+  const query = getModelYearFilterQuery(modelYearFilter)
+  const realmObjects = realm.objects<ModelYear>(ModelYear.schema.name).filtered(query)
+  console.log('MODELYEARS=-=====', realmObjects.length)
+  return {
+    nodes: realmObjects,
+    totalCount: realmObjects.length
+  }
 }
 
 const useActions = (state: State<FipeState>) => ({
@@ -103,8 +105,7 @@ const useActions = (state: State<FipeState>) => ({
   resetModelYearFilterSelectedMakes: () => resetModelYearFilterSelectedMakes(state),
   toggleMakeSelection: (make: Make) => toggleMakeSelection(state, make),
   getModelYearFilterQuery,
-  fetchFilteredModelYears: (limit?: number) => fetchFilteredModelYears(state, limit),
-  modelYearFilterQueryDidChange: () => modelYearFilterQueryDidChange(state)
+  fetchFilteredModelYears
 })
 
 // STATE
@@ -115,6 +116,22 @@ const useFipeState = () => {
   const actions = useActions(state)
 
   useEffect(() => { if (!state.promised && !state.isInitialized.get()) init(state) }, [state])
+
+  useEffect(() => {
+    if (!state.isInitialized.get()) return
+    const nextModelYearFilterHash = murmurhash(JSON.stringify(state.modelYearFilter.get()))
+    const prevModelYearFilterHash = state.modelYearFilterHash.get()
+    if (nextModelYearFilterHash !== prevModelYearFilterHash) {
+      (async() => {
+        state.modelYearFilterHash.set(nextModelYearFilterHash)
+        console.log('============== START ============ >>> TRIGGERING', nextModelYearFilterHash)
+        const result = actions.fetchFilteredModelYears(state.modelYearFilter.get())
+        state.filteredModelYears.set([...result?.nodes ?? []])
+        state.filteredModelYearsCount.set(result?.totalCount ?? -1)
+        console.log('===========GOT MODEL YERAS', result?.totalCount, state.modelYearFilterHash.get())
+      })()
+    }
+  }, [actions, state.filteredModelYears, state.filteredModelYearsCount, state.isInitialized, state.modelYearFilter, state.modelYearFilterHash])
 
   return {
     state,

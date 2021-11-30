@@ -83,19 +83,8 @@ export default function VehiclesMasterScreen () {
   const { theme } = useTheme()
   const isFocused = useIsFocused()
   const { width } = useWindowDimensions()
-  const [modelYears, setModelYears] = useState<ModelYear[]>([])
-  const [modelYearCount, setModelYearCount] = useState<number | null>(null)
 
-  useEffect(() => {
-    const newCount = fipeState.actions.fetchFilteredModelYears().length
-    if (newCount !== modelYearCount) setModelYearCount(newCount)
-  }, [fipeState.actions, modelYearCount])
-
-  useEffect(() => {
-    if (isFocused && fipeState.actions.modelYearFilterQueryDidChange()) setModelYears([...fipeState.actions.fetchFilteredModelYears()])
-  }, [fipeState.actions, fipeState.state.lastModelYearFilterQuery, isFocused])
-
-  const dataProvider = new DataProvider((r1: ModelYear, r2: ModelYear) => r1.id.equals(r2.id)).cloneWithRows(modelYears)
+  const dataProvider = new DataProvider((r1: ModelYear, r2: ModelYear) => r1.id.equals(r2.id)).cloneWithRows(fipeState.state.filteredModelYears.get())
   const layoutProvider = new LayoutProvider(
     () => 0,
     (type, dim) => {
@@ -105,13 +94,14 @@ export default function VehiclesMasterScreen () {
   )
   const rowRenderer = useCallback((type: string | number, data: ModelYear) => <ModelYearListItem modelYear={ data } />, [])
 
-  const MemoizedRecyclerListView: React.FC<RecyclerListViewProps & { currentQuery: number }> = memo(
-    props => <RecyclerListView { ...props } />, ((next, prev) => next.currentQuery === prev.currentQuery)
+  const MemoizedRecyclerListView: React.FC<RecyclerListViewProps & { hash: number }> = memo(
+    props => <RecyclerListView { ...props } />, ((next, prev) => next.hash === prev.hash)
   )
 
   return (
     <SafeAreaView style={ { flex: 1, backgroundColor: theme.colors?.grey5 } }>
       <SearchBar
+        platform="default"
         containerStyle={ {
           backgroundColor: theme.colors?.primary,
           paddingHorizontal: 10,
@@ -124,15 +114,15 @@ export default function VehiclesMasterScreen () {
         } }
         value={ fipeState.state.modelYearFtsQuery.get() }
         onChangeText={ fipeState.state.modelYearFtsQuery.set }
-        placeholder={ `Pesquisar ${modelYearCount ?? 0} preços` }
+        placeholder={ `Pesquisar ${fipeState.state.filteredModelYearsCount.get()} preços` }
       />
       {
-        (isFocused && modelYears.length) ?
+        (isFocused && fipeState.state.filteredModelYears.get().length) ?
           <MemoizedRecyclerListView
             rowRenderer={ rowRenderer }
             layoutProvider={ layoutProvider }
             dataProvider={ dataProvider }
-            currentQuery={ fipeState.state.lastModelYearFilterQuery.get() }
+            hash={ fipeState.state.modelYearFilterHash.get() }
           />
           : null
       }    
