@@ -1,6 +1,7 @@
 import { Theme } from 'react-native-elements'
 
-const BORDER_RADIUS = 5
+export const BORDER_RADIUS = 5
+
 const common: Theme = {
   Button: {
     buttonStyle: {
@@ -8,9 +9,8 @@ const common: Theme = {
     }
   },
   SearchBar: {
-    lightTheme: true,
     inputContainerStyle: {
-      borderRadius: BORDER_RADIUS
+      borderRadius: 50
     }
   },
   Icon: {

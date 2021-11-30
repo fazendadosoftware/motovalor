@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, memo } from 'react'
 import { View, Text, StyleSheet, useWindowDimensions } from 'react-native'
 import { useTheme, ListItem } from 'react-native-elements'
-import { RecyclerListView, DataProvider, LayoutProvider } from 'recyclerlistview'
+import { RecyclerListView, DataProvider, LayoutProvider, RecyclerListViewProps } from 'recyclerlistview'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useIsFocused } from '@react-navigation/native'
 import SearchBar from '../components/SafeSearchBar'
@@ -9,6 +9,7 @@ import VehicleTypeIcon from '../components/VehicleTypeIcon'
 import ModelTrendItem from '../components/ModelTrendItem'
 import currencyFilter from '../filters/currency'
 import useFipeState, { ModelYear } from '../hooks/useFipeState'
+import { defaultBorderRadius } from '../theme/index'
 
 const styles = StyleSheet.create({
   container: {
@@ -104,21 +105,35 @@ export default function VehiclesMasterScreen () {
   )
   const rowRenderer = useCallback((type: string | number, data: ModelYear) => <ModelYearListItem modelYear={ data } />, [])
 
-  return !isFocused ? null : (
+  const MemoizedRecyclerListView: React.FC<RecyclerListViewProps & { currentQuery: number }> = memo(
+    props => <RecyclerListView { ...props } />, ((next, prev) => next.currentQuery === prev.currentQuery)
+  )
+
+  return (
     <SafeAreaView style={ { flex: 1, backgroundColor: theme.colors?.grey5 } }>
       <SearchBar
-        // @ts-expect-error
-        lightTheme
-        containerStyle={ { backgroundColor: theme.colors?.primary, paddingHorizontal: 10 } }
-        inputContainerStyle={ { borderRadius: 10 } }
-        platform="default"
+        containerStyle={ {
+          backgroundColor: theme.colors?.primary,
+          paddingHorizontal: 10,
+          borderRadius: 0,
+          borderBottomColor: 'transparent',
+          borderTopColor: 'transparent'
+        } }
+        inputContainerStyle= { {
+          borderRadius: defaultBorderRadius
+        } }
         value={ fipeState.state.modelYearFtsQuery.get() }
         onChangeText={ fipeState.state.modelYearFtsQuery.set }
         placeholder={ `Pesquisar ${modelYearCount ?? 0} preços` }
       />
       {
-        modelYears.length
-          ? <RecyclerListView rowRenderer={ rowRenderer } layoutProvider={ layoutProvider } dataProvider={ dataProvider } />
+        (isFocused && modelYears.length) ?
+          <MemoizedRecyclerListView
+            rowRenderer={ rowRenderer }
+            layoutProvider={ layoutProvider }
+            dataProvider={ dataProvider }
+            currentQuery={ fipeState.state.lastModelYearFilterQuery.get() }
+          />
           : null
       }    
     </SafeAreaView>

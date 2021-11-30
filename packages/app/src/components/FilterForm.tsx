@@ -28,6 +28,8 @@ const FilterForm = () => {
     <View style={ { backgroundColor: theme.colors?.grey5, flex: 1 } }>
       <View style={ { padding: 15, borderBottomWidth: 1, borderBottomColor: theme.colors?.greyOutline } }>
         <ButtonGroup
+          buttonStyle={ { opacity: 0.4 } }
+          selectedButtonStyle={ { opacity: 1 } }
           selectedIndex={ fipeState.state.modelYearFilter.zeroKm.get() ? 0 : 1 }
           onPress={ selectedIndex => setZeroKm(selectedIndex === 0) }
           buttons={ ['Novos', 'Usados'] }
@@ -49,6 +51,8 @@ const FilterForm = () => {
                 />)
               )
           }
+          buttonStyle={ { opacity: 0.4 } }
+          selectedButtonStyle={ { opacity: 1 } }
           selectedIndexes={ Object.keys(fipeState.state.modelYearFilter.selectedVehicleTypeIndex.get()).map(id => parseInt(id, 10) - 1) }
           // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
           onPress={ selectedIndex => setVehicleTypeId(selectedIndex + 1) }
