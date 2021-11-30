@@ -1,10 +1,17 @@
 import { useEffect } from 'react'
 import { createState, useState, State, none } from '@hookstate/core'
 import { openRealm, closeRealm } from '../helpers/fipeRealm'
-import { Make, ModelYear, ModelYearFilter } from '../types/fipe.d'
+import { Make, Model, ModelYear } from 'datastore/src/model'
+export { Make, Model, ModelYear }
+
+export type VehicleTypeCode = 1 | 2 | 3
+export interface ModelYearFilter {
+  zeroKm: boolean
+  selectedVehicleTypeIndex: Partial<Record<VehicleTypeCode, true>>
+  selectedMakeIndex: Record<number, Make>
+}
 
 export interface FipeState {
-  _: number
   isInitialized: boolean
   modelYearFilter: ModelYearFilter
   makes: Make[]
@@ -12,8 +19,6 @@ export interface FipeState {
 }
 
 export const getModelYearFilterInitialState: () => ModelYearFilter = () => ({
-  _: 0,
-  isReady: false,
   zeroKm: false,
   selectedVehicleTypeIndex: {},
   selectedMakeIndex: {}
@@ -23,7 +28,6 @@ let realm: Realm | null = null
 const getInitialState = async (): Promise<FipeState> => {
   if (realm === null) realm = await openRealm()
   return {
-    _: 0,
     isInitialized: false,
     modelYearFilter: getModelYearFilterInitialState(),
     makes: [],
@@ -73,9 +77,10 @@ const getModelYearFilterQuery = (modelYearFilter: ModelYearFilter, limit?: numbe
   return _query
 }
 
-const fetchFilteredModelYears = (state: State<FipeState>) => {
+const fetchFilteredModelYears = (state: State<FipeState>, limit?: number) => {
+  if (state.promised) return []
   if (realm === null) throw Error('realm is null')
-  const query = getModelYearFilterQuery(state.modelYearFilter.get())
+  const query = getModelYearFilterQuery(state.modelYearFilter.get(), limit)
   return realm?.objects<ModelYear>(ModelYear.schema.name).filtered(query)
 }
 
@@ -85,23 +90,26 @@ const useActions = (state: State<FipeState>) => ({
   resetModelYearFilter: () => resetModelYearFilter(state),
   resetModelYearFilterSelectedMakes: () => resetModelYearFilterSelectedMakes(state),
   toggleMakeSelection: (make: Make) => toggleMakeSelection(state, make),
-  fetchFilteredModelYears: () => fetchFilteredModelYears(state)
+  fetchFilteredModelYears: (limit?: number) => fetchFilteredModelYears(state, limit)
 })
 
 // STATE
 const fipeState = createState(getInitialState())
 
-setInterval(() => fipeState._.set(v => v + 1), 1000)
-
 const useFipeState = () => {
   const state = useState(fipeState)
   const actions = useActions(state)
   const isReady = !state.promised
+  const modelYearFilter = !state.promised ? state.modelYearFilter : null
 
   useEffect(() => { if (!state.promised && !state.isInitialized.get()) init(state) }, [state])
+  useEffect(() => {
+    console.log('HAD CHANGED', modelYearFilter)
+  }, [modelYearFilter])
 
   return {
     isReady,
+    modelYearFilter,
     state,
     actions
   }

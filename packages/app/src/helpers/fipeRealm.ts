@@ -4,7 +4,7 @@ import RNFS from 'react-native-fs'
 import { Image } from 'react-native'
 import { unzip } from 'react-native-zip-archive'
 import Realm from 'realm'
-import { Make, Model, ModelYear } from '../types/fipe.d'
+import { Make, Model, ModelYear } from '../hooks/useFipeState'
 
 const ARCHIVE_FILENAME = 'fipe.zip'
 const DATABASE_FILENAME = 'fipe.realm'

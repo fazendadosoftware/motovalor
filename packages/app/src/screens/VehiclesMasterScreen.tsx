@@ -6,8 +6,7 @@ import SearchBar from '../components/SafeSearchBar'
 import VehicleTypeIcon from '../components/VehicleTypeIcon'
 import ModelTrendItem from '../components/ModelTrendItem'
 import currencyFilter from '../filters/currency'
-import useFipeState from '../hooks/useFipeState'
-import { ModelYear } from '../types/fipe.d'
+import useFipeState, { ModelYear } from '../hooks/useFipeState'
 
 const styles = StyleSheet.create({
   container: {
@@ -82,21 +81,13 @@ export default function VehiclesMasterScreen () {
   const [modelYears, setModelYears] = useState<ModelYear[]>([])
   const [modelYearCount, setModelYearCount] = useState<number | null>(null)
 
-  /*
+  useEffect(() => setModelYearCount(fipeState.actions.fetchFilteredModelYears().length), [fipeState.modelYearFilter])
   useEffect(() => {
-    if (!fipeContext.state.isInitialized) return
-    const query = fipeContext.actions.getModelYearFilterQuery(fipeContext.state.modelYearFilter)
-    const _modelYearCount = fipeContext.actions.fetchModelYears().filtered(query).length
-    setModelYearCount(_modelYearCount)
-  }, [fipeContext.actions, fipeContext.state.isInitialized, fipeContext.state.modelYearFilter])
-
-  useEffect(() => {
-    if (!fipeContext.state.isInitialized) return
-    const query = fipeContext.actions.getModelYearFilterQuery(fipeContext.state.modelYearFilter, 30)
-    const _modelYears = [...fipeContext.actions.fetchModelYears().filtered(query)]
-    setModelYears(_modelYears)
-  }, [fipeContext.actions, fipeContext.state.isInitialized, fipeContext.state.modelYearFilter])
-  */
+    // const _modelYears = [...fipeState.actions.fetchFilteredModelYears(10)]
+    // setModelYears(_modelYears)
+    console.log('========================>>>>>GETTING MODEL YERAS ===========, size')
+  }, [fipeState.modelYearFilter])
+  // useEffect(() => setModelYears([...fipeState.actions.fetchFilteredModelYears(10)]), [fipeState.modelYearFilter])
 
   const renderItem = useCallback(({ item }) => <ModelYearListItem modelYear={ item } />, [])
   const keyExtractor = useCallback((modelYear: ModelYear) => modelYear.id.toHexString(), [])
@@ -113,7 +104,7 @@ export default function VehiclesMasterScreen () {
         platform="default"
         value={ fipeState.state.modelYearFtsQuery.get() }
         onChangeText={ fipeState.state.modelYearFtsQuery.set }
-        placeholder={ `Pesquisar ${modelYearCount ?? 0} preços ${fipeState.state._.get()}` }
+        placeholder={ `Pesquisar ${modelYearCount ?? 0} preços` }
       />
       <FlatList
         data={ modelYears }

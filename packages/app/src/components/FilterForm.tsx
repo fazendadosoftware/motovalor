@@ -13,7 +13,10 @@ const FilterForm = () => {
   const [modelYearCount, setModelYearCount] = useState<number | null>(null)
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => setModelYearCount(fipeState.actions.fetchFilteredModelYears().length), [fipeState.state.modelYearFilter])
+  useEffect(() => {
+    console.log('SETTING MODE YEAR', fipeState.state.modelYearFilter.get())
+    setModelYearCount(fipeState.actions.fetchFilteredModelYears().length)
+  }, [fipeState.actions, fipeState.state.modelYearFilter])
 
   const setZeroKm = useCallback((zeroKm: boolean) => {
     fipeState.state.modelYearFilter.zeroKm.set(zeroKm)
