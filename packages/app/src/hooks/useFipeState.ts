@@ -93,7 +93,7 @@ const fetchFilteredModelYears = (modelYearFilter: ModelYearFilter, limit?: numbe
   const realmObjects = realm.objects<ModelYear>(ModelYear.schema.name).filtered(query)
   console.log('MODELYEARS=-=====', realmObjects.length)
   return {
-    nodes: realmObjects,
+    nodes: [...realmObjects] as ModelYear[],
     totalCount: realmObjects.length
   }
 }

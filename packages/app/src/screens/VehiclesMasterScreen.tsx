@@ -83,8 +83,13 @@ export default function VehiclesMasterScreen () {
   const { theme } = useTheme()
   const isFocused = useIsFocused()
   const { width } = useWindowDimensions()
+  const modelYears = fipeState.state.filteredModelYears.get()
 
-  const dataProvider = new DataProvider((r1: ModelYear, r2: ModelYear) => r1.id.equals(r2.id)).cloneWithRows(fipeState.state.filteredModelYears.get())
+  const dataProvider = new DataProvider(
+    // FIXME: getting error with bson library when using the isEqual method
+    // Create the data provider and provide method which takes in two rows of data and return if those two are different or not.
+    // THIS IS VERY IMPORTANT, FORGET PERFORMANCE IF THIS IS MESSED UP
+    (r1: ModelYear, r2: ModelYear) => false).cloneWithRows(modelYears)
   const layoutProvider = new LayoutProvider(
     () => 0,
     (type, dim) => {
