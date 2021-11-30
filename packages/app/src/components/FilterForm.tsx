@@ -10,7 +10,7 @@ import useFipeState from '../hooks/useFipeState'
 const FilterForm = () => {
   const fipeState = useFipeState()
   const { theme } = useTheme()
-  const [modelYearCount, setModelYearCount] = useState<number | null>(null)
+  const [modelYearCount] = useState<number | null>(null)
 
   /*
   useEffect(() => {

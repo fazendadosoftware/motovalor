@@ -1,7 +1,7 @@
 import React, { useState, useCallback, memo } from 'react'
-import { FlatList, View, Text, Pressable } from 'react-native'
+import { FlatList, View, Text } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useTheme, Icon, ListItem } from 'react-native-elements'
+import { useTheme, Icon, ListItem, Button } from 'react-native-elements'
 import SearchBar from '../components/SafeSearchBar'
 import useFipeState from '../hooks/useFipeState'
 import { Make } from 'datastore/src/model'
@@ -29,53 +29,42 @@ export interface MakeSelectionListHeaderProps {
   onQueryChange: (text: string) => void
 }
 
-const MakeSelectionListHeaderSelectedItem: React.FC<{ make: Make, onPress: (make: Make) => void }> = memo(({ make, onPress }) => {
+const MakeSelectionListHeaderSelectedItem: React.FC<{ make: Make }> = memo(({ make }) => {
   const { theme } = useTheme()
+  const fipeState = useFipeState()
   return (
-    <Pressable
-      key={ make.id }
-      onPress={ () => onPress(make) }
-      style={ {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 1,
-        borderRadius: 5,
-        borderColor: theme.colors?.greyOutline,
-        backgroundColor: 'white',
-        marginRight: 5,
-        marginBottom: 5,
-      } }>
-      <Text style={ { fontSize: 14, marginLeft: 5 } }>{ make.name }</Text>
-      <Icon
-        name='close-circle'
-        type='material-community'
-        color={ theme.colors?.grey3 }
-        size={ 18 }
-        containerStyle={ { marginLeft: 5, paddingHorizontal: 5 } } />
-    </Pressable>
+    <Button
+      type='outline'
+      containerStyle={ { marginRight: 5, marginBottom: 5 } }
+      buttonStyle={ { padding: 0, paddingRight: 5 } }
+      titleStyle={ { fontSize: 12 } }
+      title={ make.name }
+      onPress={ () => fipeState.actions.toggleMakeSelection(make) }
+      iconRight={ true }
+      icon={ { name: 'close-circle', type: 'material-community', color: theme.colors?.primary, size: 18 } }
+    />
   )
 }, (prev, next) => prev.make.id === next.make.id)
 
-const MakeSelectionListHeaderSelectedItems: React.FC<{ makes: Make[], onPress: (make: Make) => void}> = ({ makes, onPress }) => {
+const MakeSelectionListHeaderSelectedItems = () => {
+  const fipeState = useFipeState()
   const { theme } = useTheme()
-  return makes.length === 0 ? null : (
+  const selectedMakes = Object.values(fipeState.state.modelYearFilter.selectedMakeIndex.get())
+    .sort(({ name: A = '' }, { name: B = '' }) => A > B ? 1 : A < B ? -1 : 0)
+
+  return selectedMakes.length === 0 ? null : (
     <View style={ { padding: 10, backgroundColor: theme.colors?.grey5 } }>
       <Text style={ { fontSize: 12, fontWeight: 'bold', marginBottom: 5 } }>Fabricantes selectionados:</Text>
-      <View style={ { flexDirection: 'row', flexWrap: 'wrap' } }>
-        { makes.map(make => <MakeSelectionListHeaderSelectedItem key={ make.id } make={ make } onPress={ onPress } />) }
+      <View style={ { flexDirection: 'row', flexWrap: 'wrap', marginBottom: -5, marginRight: -5 } }>
+        { selectedMakes.map(make => <MakeSelectionListHeaderSelectedItem key={ make.id } make={ make } />) }
       </View>
     </View>
   )
 }
 
 const MakeSelectionListHeader: React.FC<{ _: number }> = memo(() => {
-  const fipeState = useFipeState()
   const { theme } = useTheme()
   const [query, setQuery] = useState('')
-
-  const onPress = useCallback((make: Make) => {
-    console.log('=========== DELETE SELECTED MAKE ========', make.name)
-  }, [])
 
   return (
     <View>
@@ -89,7 +78,7 @@ const MakeSelectionListHeader: React.FC<{ _: number }> = memo(() => {
         onChangeText={ setQuery }
         placeholder="Pesquisar fabricantes"
       />
-      <MakeSelectionListHeaderSelectedItems makes={ [...fipeState.state.modelYearFilter.selectedMakes.get().values()] } onPress={ onPress }/>
+      <MakeSelectionListHeaderSelectedItems />
     </View>
   )
 })
@@ -98,19 +87,17 @@ const MakeSelectionScreen = memo(() => {
   const fipeState = useFipeState()
   const { theme } = useTheme()
 
-  const ListHeaderComponent = useCallback(() => <MakeSelectionListHeader _={ fipeContext.state.modelYearFilter._ } />, [fipeContext.state.modelYearFilter._])
   const ItemSeparatorComponent = useCallback(() => <View style={ { height: 1, width: '100%', backgroundColor: theme.colors?.greyOutline } } />, [])
 
-  const onListItemPress = useCallback((make: Make) => {
-    const isSelected = fipeState.state.modelYearFilter.selectedMakes.get().has(make.id)
-    console.log('TOGGLE', make.name, isSelected)
-  }, [fipeState.state.modelYearFilter.selectedMakes])
-
   const renderItem = useCallback(
-    ({ item }: { item: Make }) => <MakeListItem
-      make={ item }
-      isSelected={ fipeState.state.modelYearFilter.selectedMakes.get().has(item.id) }
-      onPress={ onListItemPress }/>,[])
+    ({ item }: { item: Make }) => {
+      return (
+        <MakeListItem
+          make={ item }
+          isSelected={ !!fipeState.state.modelYearFilter.selectedMakeIndex.get()[item.id] }
+          onPress={ fipeState.actions.toggleMakeSelection }/>
+      )
+    }, [fipeState.actions.toggleMakeSelection, fipeState.state.modelYearFilter.selectedMakeIndex])
 
   const keyExtractor = useCallback((item: Make) => item.id.toString(), [])
   const getItemLayout = useCallback((data: Make[] | null | undefined, index: number) => ({
@@ -122,7 +109,7 @@ const MakeSelectionScreen = memo(() => {
   return (
     <SafeAreaView style={ { backgroundColor: theme.colors?.grey5 } }>
       <FlatList
-        ListHeaderComponent={ ListHeaderComponent }
+        ListHeaderComponent={ MakeSelectionListHeader }
         stickyHeaderIndices={ [0] }
         ItemSeparatorComponent={ ItemSeparatorComponent }
         data={ fipeState.state.makes.get() }

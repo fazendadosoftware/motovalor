@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { createState, useState, State } from '@hookstate/core'
+import { createState, useState, State, none } from '@hookstate/core'
 import { openRealm, closeRealm } from '../helpers/fipeRealm'
 import { Make, ModelYearFilter } from '../types/fipe.d'
 
@@ -43,17 +43,20 @@ const destroy = (state: State<FipeState>) => {
   closeRealm(realm)
   realm = null
 }
-const fetchMakes = () => {
-  const makes = [...realm?.objects<Make>(Make.schema.name) ?? []] as Make[]
-  console.log(`GOT ${makes?.length ?? 'null'} makes`)
-  return makes
+const fetchMakes = () => [...realm?.objects<Make>(Make.schema.name).sorted('name') ?? []] as Make[]
+
+const toggleMakeSelection = (state: State<FipeState>, make: Make) => {
+  const selectedMakeIndex = state.modelYearFilter.selectedMakeIndex
+  const { [make.id]: selectedMake } = selectedMakeIndex.get()
+  !selectedMake ? selectedMakeIndex.merge({ [make.id]: make }) : selectedMakeIndex[make.id].set(none)
 }
 
 const useActions = (state: State<FipeState>) => ({
   destroy: () => destroy(state),
   fetchMakes,
   resetModelYearFilter: () => resetModelYearFilter(state),
-  resetModelYearFilterSelectedMakes: () => resetModelYearFilterSelectedMakes(state)
+  resetModelYearFilterSelectedMakes: () => resetModelYearFilterSelectedMakes(state),
+  toggleMakeSelection: (make: Make) => toggleMakeSelection(state, make)
 })
 
 // STATE
