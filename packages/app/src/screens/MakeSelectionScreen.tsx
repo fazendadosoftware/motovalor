@@ -1,7 +1,8 @@
 import React, { useState, useCallback, memo } from 'react'
-import { FlatList, View, Text } from 'react-native'
+import { View, Text, useWindowDimensions } from 'react-native'
+import { RecyclerListView, DataProvider, LayoutProvider } from 'recyclerlistview'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useTheme, Icon, ListItem, Button } from 'react-native-elements'
+import { useTheme, Button, ListItem } from 'react-native-elements'
 import SearchBar from '../components/SafeSearchBar'
 import useFipeState from '../hooks/useFipeState'
 import { Make } from 'datastore/src/model'
@@ -10,10 +11,15 @@ interface MakeListItemProps { make: Make, isSelected: boolean, onPress: (make: M
 
 const LIST_ITEM_HEIGHT = 55
 
-const MakeListItem: React.FC<MakeListItemProps> = memo(({ make, isSelected, onPress }) => {
+const MakeListItem: React.FC<MakeListItemProps> = ({ make, isSelected }) => {
   const { theme } = useTheme()
+  const fipeState = useFipeState()
+  const onPress = useCallback(
+    () => fipeState.actions.toggleMakeSelection({ id: make.id, name: make.name }),
+    [fipeState.actions, make]
+  )
   return (
-    <ListItem key={ make.id } onPress={ () => onPress(make) } containerStyle={ { height: LIST_ITEM_HEIGHT } }>
+    <ListItem onPress={ onPress } containerStyle={ { height: LIST_ITEM_HEIGHT } }>
       <ListItem.Content>
         <ListItem.Title>
           { make.name }
@@ -21,8 +27,9 @@ const MakeListItem: React.FC<MakeListItemProps> = memo(({ make, isSelected, onPr
       </ListItem.Content>
       { isSelected ? <ListItem.Chevron iconProps={ { name: 'check', color: theme.colors?.primary } } /> : null }
     </ListItem>
+    
   )
-}, (prev, next) => prev.isSelected === next.isSelected)
+}
 
 export interface MakeSelectionListHeaderProps {
   query: string
@@ -62,7 +69,7 @@ const MakeSelectionListHeaderSelectedItems = () => {
   )
 }
 
-const MakeSelectionListHeader: React.FC<{ _: number }> = memo(() => {
+const MakeSelectionListHeader = () => {
   const { theme } = useTheme()
   const [query, setQuery] = useState('')
 
@@ -81,43 +88,40 @@ const MakeSelectionListHeader: React.FC<{ _: number }> = memo(() => {
       <MakeSelectionListHeaderSelectedItems />
     </View>
   )
-})
+}
 
 const MakeSelectionScreen = memo(() => {
   const fipeState = useFipeState()
   const { theme } = useTheme()
+  const { width } = useWindowDimensions()
 
-  const ItemSeparatorComponent = useCallback(() => <View style={ { height: 1, width: '100%', backgroundColor: theme.colors?.greyOutline } } />, [])
+  const dataProvider = new DataProvider(
+    // FIXME:
+    // Create the data provider and provide method which takes in two rows of data and return if those two are different or not.
+    // THIS IS VERY IMPORTANT, FORGET PERFORMANCE IF THIS IS MESSED UP
+    (r1: Make, r2: Make) => r1.id !== r2.id).cloneWithRows(fipeState.state.makes.get())
+  const layoutProvider = new LayoutProvider(
+    () => 0,
+    (type, dim) => {
+      dim.width = width
+      dim.height = LIST_ITEM_HEIGHT
+    }
+  )
 
-  const renderItem = useCallback(
-    ({ item }: { item: Make }) => {
-      return (
-        <MakeListItem
-          make={ item }
-          isSelected={ !!fipeState.state.modelYearFilter.selectedMakeIndex.get()[item.id] }
-          onPress={ fipeState.actions.toggleMakeSelection }/>
-      )
-    }, [fipeState.actions.toggleMakeSelection, fipeState.state.modelYearFilter.selectedMakeIndex])
-
-  const keyExtractor = useCallback((item: Make) => item.id.toString(), [])
-  const getItemLayout = useCallback((data: Make[] | null | undefined, index: number) => ({
-    length: LIST_ITEM_HEIGHT,
-    offset: LIST_ITEM_HEIGHT && index,
-    index
-  }), [])
+  const rowRenderer = useCallback(
+    (type: string | number, data: Make) => <MakeListItem
+      make={ data }
+      isSelected={ !!fipeState.state.modelYearFilter.selectedMakeIndex.get()[data.id] }
+      onPress={ fipeState.actions.toggleMakeSelection } />,
+    [fipeState.actions, fipeState.state.modelYearFilter.selectedMakeIndex])
 
   return (
-    <SafeAreaView style={ { backgroundColor: theme.colors?.grey5 } }>
-      <FlatList
-        ListHeaderComponent={ MakeSelectionListHeader }
-        stickyHeaderIndices={ [0] }
-        ItemSeparatorComponent={ ItemSeparatorComponent }
-        data={ fipeState.state.makes.get() }
-        renderItem={ renderItem }
-        keyExtractor={ keyExtractor }
-        showsVerticalScrollIndicator={ false }
-        removeClippedSubviews={ true }
-        getItemLayout={ getItemLayout }
+    <SafeAreaView style={ { flex: 1, backgroundColor: theme.colors?.grey5 } }>
+      <MakeSelectionListHeader />
+      <RecyclerListView
+        rowRenderer={ rowRenderer }
+        layoutProvider={ layoutProvider }
+        dataProvider={ dataProvider }
       />
     </SafeAreaView>
   )

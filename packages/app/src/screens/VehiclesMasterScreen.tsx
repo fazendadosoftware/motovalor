@@ -86,7 +86,7 @@ export default function VehiclesMasterScreen () {
   const modelYears = fipeState.state.filteredModelYears.get()
 
   const dataProvider = new DataProvider(
-    // FIXME: getting error with bson library when using the isEqual method
+    // FIXME:
     // Create the data provider and provide method which takes in two rows of data and return if those two are different or not.
     // THIS IS VERY IMPORTANT, FORGET PERFORMANCE IF THIS IS MESSED UP
     (r1: ModelYear, r2: ModelYear) => false).cloneWithRows(modelYears)

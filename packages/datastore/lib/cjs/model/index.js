@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Make = exports.Model = exports.ModelYear = exports.FipeTable = void 0;
+exports.getFipeSchema = exports.Make = exports.Model = exports.ModelYear = exports.FipeTable = void 0;
 const murmurhash_1 = require("murmurhash");
 const bson_1 = require("bson");
 const MODEL_ID_SEED = 982034890;
@@ -171,4 +171,6 @@ Make.schema = {
         }
     }
 };
+const getFipeSchema = () => ([Make.schema, Model.schema, ModelYear.schema]);
+exports.getFipeSchema = getFipeSchema;
 //# sourceMappingURL=index.js.map

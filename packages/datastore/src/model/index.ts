@@ -210,3 +210,6 @@ export class Make {
     return make
   }
 }
+
+const getFipeSchema = () => ([Make.schema, Model.schema, ModelYear.schema])
+export { getFipeSchema }

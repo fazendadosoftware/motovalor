@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { createState, useState, State, none } from '@hookstate/core'
 import murmurhash from 'murmurhash'
-import debounce from 'lodash.debounce'
 import { openRealm, closeRealm } from '../helpers/fipeRealm'
 import { Make, Model, ModelYear } from 'datastore/src/model'
 export { Make, Model, ModelYear }
@@ -57,7 +56,12 @@ const destroy = (state: State<FipeState>) => {
   closeRealm(realm)
   realm = null
 }
-const fetchMakes = (): Make[] => [...realm?.objects<Make>(Make.schema.name).sorted('name') ?? []]
+const fetchMakes = (): Make[] => {
+  if (realm === null) throw Error('realm is closed')
+  const realmObjects = realm.objects<Make>(Make.schema.name).sorted('name')
+  const makes: Make[] = realmObjects.map(({ id, name }) => ({ id, name }))
+  return makes
+}
 
 const toggleMakeSelection = (state: State<FipeState>, make: Make) => {
   const selectedMakeIndex = state.modelYearFilter.selectedMakeIndex
@@ -124,7 +128,7 @@ const useFipeState = () => {
     if (nextModelYearFilterHash !== prevModelYearFilterHash) {
       (async() => {
         state.modelYearFilterHash.set(nextModelYearFilterHash)
-        console.log('============== START ============ >>> TRIGGERING', nextModelYearFilterHash)
+        console.log('============== STAffRT ============ >>> TRIGGERING', nextModelYearFilterHash)
         const result = actions.fetchFilteredModelYears(state.modelYearFilter.get())
         state.filteredModelYears.set([...result?.nodes ?? []])
         state.filteredModelYearsCount.set(result?.totalCount ?? -1)

@@ -68,3 +68,5 @@ export declare class Make {
     static schema: Realm.ObjectSchema;
     static create(name: string): Make;
 }
+declare const getFipeSchema: () => Realm.ObjectSchema[];
+export { getFipeSchema };

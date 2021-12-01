@@ -1,6 +1,6 @@
 import Realm, { open } from 'realm'
 import Fuse from 'fuse.js'
-import { FipeTable, Make, Model, ModelYear } from './model'
+import { FipeTable, Make, Model, ModelYear, getFipeSchema } from './model'
 import { ObjectId } from 'bson'
 
 export interface RepositoryData {
@@ -11,7 +11,7 @@ export interface RepositoryData {
 }
 
 export const openRealm = async (path?: string): Promise<Realm> => {
-  const realm = await open({ path, schema: [Make, Model, ModelYear] })
+  const realm = await open({ path, schema: getFipeSchema() })
   return realm
 }
 

@@ -1,9 +1,9 @@
 import Realm, { open } from 'realm';
 import Fuse from 'fuse.js';
-import { Make, Model, ModelYear } from './model';
+import { Make, Model, ModelYear, getFipeSchema } from './model';
 import { ObjectId } from 'bson';
 export const openRealm = async (path) => {
-    const realm = await open({ path, schema: [Make, Model, ModelYear] });
+    const realm = await open({ path, schema: getFipeSchema() });
     return realm;
 };
 const windowYearSize = 3;

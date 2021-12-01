@@ -164,4 +164,6 @@ Make.schema = {
         }
     }
 };
+const getFipeSchema = () => ([Make.schema, Model.schema, ModelYear.schema]);
+export { getFipeSchema };
 //# sourceMappingURL=index.js.map

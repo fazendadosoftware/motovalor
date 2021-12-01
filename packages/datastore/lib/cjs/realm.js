@@ -7,7 +7,7 @@ const fuse_js_1 = (0, tslib_1.__importDefault)(require("fuse.js"));
 const model_1 = require("./model");
 const bson_1 = require("bson");
 const openRealm = async (path) => {
-    const realm = await (0, realm_1.open)({ path, schema: [model_1.Make, model_1.Model, model_1.ModelYear] });
+    const realm = await (0, realm_1.open)({ path, schema: (0, model_1.getFipeSchema)() });
     return realm;
 };
 exports.openRealm = openRealm;

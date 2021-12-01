@@ -4,7 +4,7 @@ import RNFS from 'react-native-fs'
 import { Image } from 'react-native'
 import { unzip } from 'react-native-zip-archive'
 import Realm from 'realm'
-import { Make, Model, ModelYear } from '../hooks/useFipeState'
+import { getFipeSchema } from 'datastore/src/model'
 
 const ARCHIVE_FILENAME = 'fipe.zip'
 const DATABASE_FILENAME = 'fipe.realm'
@@ -28,7 +28,7 @@ export const loadDatabaseFromAssets = async () => {
 
 export const openRealm = async (): Promise<Realm> => {
   if (!await databaseExists()) await loadDatabaseFromAssets()
-  const realm = await Realm.open({ path: DATABASE_FILENAME, schema: [], readOnly: true })
+  const realm = await Realm.open({ path: DATABASE_FILENAME, schema: getFipeSchema(), readOnly: true })
   if (realm === null) throw Error('could not open db')
   return realm
 }
