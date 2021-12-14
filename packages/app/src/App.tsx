@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useColorScheme } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { NavigationContainer } from '@react-navigation/native'
 import { ThemeProvider } from 'react-native-elements'
 import { useNoSleep } from 'react-native-no-sleep'
@@ -19,13 +20,15 @@ const App: React.FC = () => {
   }, [])
   
   return (
-    <ThemeProvider theme={ colorScheme === 'dark' ? theme.dark : theme.light }>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <RootStack />
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView style={ { flex: 1 } }>
+      <ThemeProvider theme={ colorScheme === 'dark' ? theme.dark : theme.light }>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <RootStack />
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   )
 }
 

@@ -30,6 +30,7 @@ export const getModelYearFilterInitialState: () => ModelYearFilter = () => ({
 })
 
 let realm: Realm | null = null
+
 const getInitialState = (): FipeState => {
   return {
     isInitialized: false,

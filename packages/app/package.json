@@ -32,7 +32,7 @@
     "react-native": "0.66.3",
     "react-native-elements": "^3.4.2",
     "react-native-fs": "^2.18.0",
-    "react-native-gesture-handler": "^1.10.3",
+    "react-native-gesture-handler": "^2.1.0",
     "react-native-get-random-values": "^1.7.1",
     "react-native-no-sleep": "^0.0.6",
     "react-native-pager-view": "^5.4.9",
